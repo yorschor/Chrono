@@ -6,6 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 	ProjectSection(SolutionItems) = preProject
 		README.adoc = README.adoc
 		src\Directory.Packages.props = src\Directory.Packages.props
+		version.yml = version.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core", "src\Chrono.Core\Chrono.Core.csproj", "{7FA73852-E229-44E2-87F4-F4668E33BB14}"
