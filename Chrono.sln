@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Cli", "src\Chrono.Cli\Chrono.Cli.csproj", "{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{CDAA9ADB-B99C-4867-B58A-BA684B2BF535}"
+	ProjectSection(SolutionItems) = preProject
+		README.adoc = README.adoc
+		src\Directory.Packages.props = src\Directory.Packages.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core", "src\Chrono.Core\Chrono.Core.csproj", "{7FA73852-E229-44E2-87F4-F4668E33BB14}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
