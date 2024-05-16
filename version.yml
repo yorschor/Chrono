@@ -1,0 +1,44 @@
+# version.yml
+
+# Top-level version field to define the initial version of the project
+version: "1.0.0"  # or "1.0", "1.0.0.1" based on the desired precision
+
+# Default object to define default values for all branches
+default:
+  # Version schema using placeholders
+  # {major}, {minor}, {patch}, and {build} can be used to define the version schema
+  versionschema: "{major}.{minor}.{patch}-{branchname}-{prereleaseTag}-{commitShortHash}"
+  
+  # Precision level for versioning, can be 'major', 'minor', 'patch', 'build'
+  precision: "minor"
+  
+  # Default prerelease tag
+  prereleaseTag: "local"
+  
+  # Release related settings
+  release:
+    # List of branch matchers for release builds
+    match:
+      - "^release/.*"
+      - "^main$"
+    # Specific version schema for release builds
+    versionschema: "{major}.{minor}.{patch}"
+
+# Specific settings for branch patterns
+branches:
+  develop:
+    branchRegexMatcher: "^develop$"
+    versionschema: "{major}.{minor}.{patch}-{branchname}-alpha-{commitShortHash}"
+    precision: "patch"
+    prereleaseTag: "alpha"
+  
+  feature:
+    branchRegexMatcher: "^feature/.*"
+    versionschema: "{major}.{minor}.{patch}-feature-{branchname}-{commitShortHash}"
+    precision: "patch"
+    prereleaseTag: "beta"
+
+# Optional: Global settings affecting all branches
+global:
+  # Example of a global setting to include metadata
+  metadata: true

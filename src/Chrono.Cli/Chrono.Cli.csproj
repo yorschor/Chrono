@@ -7,4 +7,13 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Spectre.Console" />
+      <PackageReference Include="Spectre.Console.Cli" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Chrono.Core\Chrono.Core.csproj" />
+    </ItemGroup>
+
 </Project>

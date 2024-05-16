@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="LibGit2Sharp" />
+      <PackageReference Include="NLog" />
+    </ItemGroup>
+
 </Project>
