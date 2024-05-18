@@ -1,0 +1,71 @@
+= Version
+
+[%autowidth, caption=, frame=none, options="header"]
+.Available Variables for version scheme
+|===
+| Placeholder       | Description
+| {major}         | Major version number.
+| {minor}         | Minor version number.
+| {patch}         | Patch version number.
+| {branchName}    | Name of the branch.
+| {prereleaseTag} | Pre-release tag (e.g., alpha, beta, local).
+| {commitShortHash} | Short hash of the commit.
+|===
+
+== Minimal example  
+[source, yml]
+----
+version: "1.0.0"
+default:
+  versionschema: "{major}.{minor}.{patch}[-]{branchname}[-]{commitShortHash}"
+  precision: "minor"  
+  release:
+    match:
+      - "^release/.*"
+    versionschema: "{major}.{minor}.{patch}"
+----
+== Full example
+
+[source, yml]
+----
+# [Required] Current version in the format major.minor.patch.build (patch and build are optional)
+version: "1.0.0" 
+# [Required] default config for every branch thats not specifically defined below
+default:
+
+  # [Required] Regex schema for the default version. 
+  versionschema: "{major}.{minor}.{patch}-{branchname}-{prereleaseTag}-{commitShortHash}"
+  
+  # default precision of how to increase a version (if not set defaults to minor)
+  precision: "minor" 
+  
+  # default tag thats made avlible as a variable
+  prereleaseTag: "local"
+  
+  # [Required] specific branch config for relase branches or tags
+  release:
+    # [Required] List of regex branch matchers for release builds
+    match:
+      - "^release/.*"
+    # [Required] version schema for relase branches/tags
+    versionschema: "{major}.{minor}[-]{patch}"
+    # List of regex branch matchers that are allowed as a relase branch source (if left empty no restrictions apply)
+    from: 
+      - "^trunk$"
+
+# additional branch configs 
+branches:
+  develop:
+    match: 
+      - "^develop$"
+    versionSchema: "{major}.{minor}.{patch}-{branch}-alpha-{commitShortHash}"
+    precision: "patch"
+    prereleaseTag: "alpha"
+  
+  feature:
+    match: 
+      - "^feature/.*"
+    versionSchema: "{major}.{minor}.{patch}-feature-{branch}-{commitShortHash}"
+    precision: "patch"
+    prereleaseTag: "beta"
+----
