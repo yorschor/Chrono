@@ -88,7 +88,8 @@ public partial class VersionInfo
                 .Replace("{branchName}", BranchName)
                 .Replace("{prereleaseTag}", PrereleaseTag)
                 .Replace("{commitShortHash}", CommitShortHash);
-            return new SuccessResult<string>(ResolveDelimiterBlock(schemaWithValues));
+            schemaWithValues = ResolveDelimiterBlock(schemaWithValues);
+            return new SuccessResult<string>(ValidateVersionString(schemaWithValues));
         }
         catch (Exception e)
         {
@@ -98,6 +99,11 @@ public partial class VersionInfo
 
     #region Internal
 
+    //
+    private string ValidateVersionString(string version)
+    {
+        return version.Replace('/', '-');
+    }
     private static string ResolveDelimiterBlock(string input)
     {
         input = DuplicateBlocksRegex().Replace(input, "");
@@ -112,7 +118,7 @@ public partial class VersionInfo
 
         if (repoPath == null)
         {
-            _logManager.Warn("No Git repository found.");
+            _logManager.Warn("No Git repository found!");
             return;
         }
 
@@ -124,7 +130,7 @@ public partial class VersionInfo
         var commit = branch.Tip;
         var shortCommitHash = commit.Sha.Substring(0, 7); // Get the short commit hash (7 characters)
 
-        BranchName = branchName.Replace('/', '-');
+        BranchName = branchName;
         CommitShortHash = shortCommitHash;
     }
 
@@ -153,7 +159,7 @@ public partial class VersionInfo
             var match = Regex.Match(currentBranch, matchSchema);
             if (match.Success)
             {
-                _logManager.Trace($"Matched BranchConfig with regex {matchSchema} for branch {currentBranch}");
+                _logManager.Trace($"Matched found: Regex '{matchSchema}' for branch '{currentBranch}'");
                 return true;
             }
         }
