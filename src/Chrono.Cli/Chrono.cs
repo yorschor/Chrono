@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Chrono.Cli.Commands;
+using NLog;
 using Spectre.Console.Cli;
 
 namespace Chrono.Cli;
@@ -13,6 +14,10 @@ public static class Chrono
         {
             config.SetApplicationName("chrono"); 
             
+            config.AddCommand<GetVersionCommand>("get")
+                .WithDescription("")
+                .WithExample("get");
+            
         });
         return app.Run(args);
     }
@@ -21,4 +26,6 @@ public static class Chrono
 public class BaseCommandSettings : CommandSettings
 {
     public readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+    [CommandOption("-d|--debug")] public bool Debug { get; init; } = false;
 }
