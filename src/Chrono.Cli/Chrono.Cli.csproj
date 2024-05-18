@@ -16,4 +16,10 @@
       <ProjectReference Include="..\Chrono.Core\Chrono.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="NLog.config">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

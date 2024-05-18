@@ -11,6 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core", "src\Chrono.Core\Chrono.Core.csproj", "{7FA73852-E229-44E2-87F4-F4668E33BB14}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docu", "Docu", "{16D3B882-21CD-41B1-8705-1519152B7A62}"
+	ProjectSection(SolutionItems) = preProject
+		doc\Version.adoc = doc\Version.adoc
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,5 +30,8 @@ Global
 		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{16D3B882-21CD-41B1-8705-1519152B7A62} = {CDAA9ADB-B99C-4867-B58A-BA684B2BF535}
 	EndGlobalSection
 EndGlobal
