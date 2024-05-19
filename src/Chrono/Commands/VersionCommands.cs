@@ -1,10 +1,8 @@
 ﻿using Chrono.Core;
-using LibGit2Sharp;
-using Microsoft.VisualBasic.CompilerServices;
-using NLog;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using Version = LibGit2Sharp.Version;
+
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace Chrono.Commands;
 
