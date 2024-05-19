@@ -4,6 +4,7 @@ using Microsoft.VisualBasic.CompilerServices;
 using NLog;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using Version = LibGit2Sharp.Version;
 
 namespace Chrono.Cli.Commands;
 
@@ -53,11 +54,31 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        throw new NotImplementedException();
+        if (settings.Debug)
+        {
+            NLogHelper.EnableShortConsoleTarget(true);
+        }
+        
+        const string versionFileName = "version.yml";
+        var p = AppContext.BaseDirectory + versionFileName;
+        var versionInfo = new VersionInfo(p);
+        var setResult = versionInfo.SetVersion(settings.NewVersion);
+        if (setResult is IErrorResult err)
+        {
+            NLogHelper.EnableShortConsoleTarget();
+            AnsiConsole.MarkupLine($"[red]Error: {err.Message}[/]");
+            return 0;
+        }
+        NLogHelper.EnableShortConsoleTarget();
+        AnsiConsole.MarkupLine($"[green]Successfully set version to {settings.NewVersion}[/]");
+        return 1; 
     }
 
     public sealed class Settings : VersionSettings
     {
+
+        [CommandArgument(0, "<VERSION>")]
+        public string NewVersion { get; set; }
     }
 }
 

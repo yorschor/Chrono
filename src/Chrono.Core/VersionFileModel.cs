@@ -21,6 +21,25 @@ public class VersionFileModel
         var yamlContent = File.ReadAllText(path);
         return deserializer.Deserialize<VersionFileModel>(yamlContent);
     }
+
+    public Result Save(string path)
+    {
+        try
+        {
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var yamlContent = serializer.Serialize(this);
+            File.WriteAllText(path, yamlContent);
+
+            return new SuccessResult();
+        }
+        catch (Exception ex)
+        {
+            return new ErrorResult(ex.Message);
+        }
+    }
 }
 
 public class DefaultConfig

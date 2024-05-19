@@ -26,6 +26,8 @@ public partial class VersionInfo
 
     private Logger _logManager = LogManager.GetCurrentClassLogger();
 
+    private string _versionPath = "";
+
     #endregion
 
     #region RegExPartials
@@ -39,11 +41,19 @@ public partial class VersionInfo
     [GeneratedRegex(@"\{([^\}]*)\}|\[([^\]]*)\]")]
     private static partial Regex BlockContentRegex();
 
+    [GeneratedRegex(@"^(\d+)\.(\d+)(?:\.(\d+))?(?:\.(\d+))?$")]
+    private static partial Regex ValidVersionRegex();
+
+    [GeneratedRegex(
+        @"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$")]
+    private static partial Regex ValidSemVersionRegex();
+
     #endregion
 
     public VersionInfo(string path)
     {
-        File = VersionFileModel.From(path);
+        _versionPath = path;
+        File = VersionFileModel.From(_versionPath);
         if (Version.TryParse(File.Version, out var version))
         {
             Major = version.Major;
@@ -74,21 +84,25 @@ public partial class VersionInfo
                     PrereleaseTag = File.Default.PrereleaseTag;
                     _logManager.Trace("No branch could be matched. Using default configuration!");
                 }
+
                 if (string.IsNullOrEmpty(schema))
                 {
                     return new ErrorResult<string>("No schema could be configured");
                 }
+
                 _logManager.Trace($"Schema: {schema}");
                 _logManager.Trace($"PrereleaseTag: {PrereleaseTag}");
             }
+
             var schemaWithValues = schema
                 .Replace("{major}", Major.ToString())
                 .Replace("{minor}", Minor.ToString())
                 .Replace("{patch}", Patch.ToString())
-                .Replace("{branchName}", BranchName)
+                .Replace("{branch}", BranchName)
                 .Replace("{prereleaseTag}", PrereleaseTag)
                 .Replace("{commitShortHash}", CommitShortHash);
-            return new SuccessResult<string>(ResolveDelimiterBlock(schemaWithValues));
+            schemaWithValues = ResolveDelimiterBlock(schemaWithValues);
+            return new SuccessResult<string>(ValidateVersionString(schemaWithValues));
         }
         catch (Exception e)
         {
@@ -96,7 +110,51 @@ public partial class VersionInfo
         }
     }
 
+    public Result SetVersion(string newVersion)
+    {
+        var newVersionMatch = ValidVersionRegex().Match(newVersion);
+        var fileVersionMatch = ValidVersionRegex().Match(File.Version);
+
+        if (!newVersionMatch.Success)
+        {
+            return new ErrorResult($"{newVersion} is not a valid version!");
+        }
+
+        if (!fileVersionMatch.Success)
+        {
+            _logManager.Trace($"Info: Version present in version.yml was not correct -> '{File.Version}'");
+        }
+        
+        Major = int.TryParse(newVersionMatch.Groups[1].Value, out var major) ? major : -1;
+        Minor = int.TryParse(newVersionMatch.Groups[2].Value, out var minor) ? minor : -1;
+        Patch = int.TryParse(newVersionMatch.Groups[3].Value, out var patch) ? patch : -1;
+        Build = int.TryParse(newVersionMatch.Groups[4].Value, out var build) ? build : -1;
+        if (Major == -1 || Minor == -1)
+        {
+            return new ErrorResult("Some went wrong while parsing major and minor values");
+        }
+        if (Patch == -1)
+        {
+            File.Version = $"{Major}.{Minor}";
+        }
+        else if (Build == -1)
+        {
+            File.Version = $"{Major}.{Minor}.{Patch}";
+        }
+        else
+        {
+            File.Version = $"{Major}.{Minor}.{Patch}.{Build}";
+        }
+        var saveResult = File.Save(_versionPath);
+        return saveResult is IErrorResult ? saveResult : new SuccessResult();
+    }
+
     #region Internal
+
+    private string ValidateVersionString(string version)
+    {
+        return version.Replace('/', '-');
+    }
 
     private static string ResolveDelimiterBlock(string input)
     {
@@ -112,7 +170,7 @@ public partial class VersionInfo
 
         if (repoPath == null)
         {
-            _logManager.Warn("No Git repository found.");
+            _logManager.Warn("No Git repository found!");
             return;
         }
 
@@ -124,7 +182,7 @@ public partial class VersionInfo
         var commit = branch.Tip;
         var shortCommitHash = commit.Sha.Substring(0, 7); // Get the short commit hash (7 characters)
 
-        BranchName = branchName.Replace('/', '-');
+        BranchName = branchName;
         CommitShortHash = shortCommitHash;
     }
 
@@ -153,7 +211,7 @@ public partial class VersionInfo
             var match = Regex.Match(currentBranch, matchSchema);
             if (match.Success)
             {
-                _logManager.Trace($"Matched BranchConfig with regex {matchSchema} for branch {currentBranch}");
+                _logManager.Trace($"Matched found: Regex '{matchSchema}' for branch '{currentBranch}'");
                 return true;
             }
         }
