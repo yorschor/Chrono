@@ -5,7 +5,7 @@ using Version = System.Version;
 
 namespace Chrono.Core;
 
-public partial class VersionInfo
+public class VersionInfo
 {
     #region Properties
 
@@ -27,27 +27,7 @@ public partial class VersionInfo
     private string _versionPath = "";
 
     #endregion
-
-    #region RegExPartials
-
-    [GeneratedRegex(@"(\[[^\]]*\])(?=\[[^\]]*\])")]
-    private static partial Regex DuplicateBlocksRegex();
-
-    [GeneratedRegex(@"(\[[^\]]*\])$")]
-    private static partial Regex EndBlockRegex();
-
-    [GeneratedRegex(@"\{([^\}]*)\}|\[([^\]]*)\]")]
-    private static partial Regex BlockContentRegex();
-
-    [GeneratedRegex(@"^(\d+)\.(\d+)(?:\.(\d+))?(?:\.(\d+))?$")]
-    private static partial Regex ValidVersionRegex();
-
-    [GeneratedRegex(
-        @"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$")]
-    private static partial Regex ValidSemVersionRegex();
-
-    #endregion
-
+    
     public VersionInfo(string path)
     {
         _versionPath = path;
@@ -110,8 +90,8 @@ public partial class VersionInfo
 
     public Result SetVersion(string newVersion)
     {
-        var newVersionMatch = ValidVersionRegex().Match(newVersion);
-        var fileVersionMatch = ValidVersionRegex().Match(File.Version);
+        var newVersionMatch = RegexPatterns.ValidVersionRegex.Match(newVersion);
+        var fileVersionMatch = RegexPatterns.ValidVersionRegex.Match(File.Version);
 
         if (!newVersionMatch.Success)
         {
@@ -156,9 +136,9 @@ public partial class VersionInfo
 
     private static string ResolveDelimiterBlock(string input)
     {
-        input = DuplicateBlocksRegex().Replace(input, "");
-        input = EndBlockRegex().Replace(input, "");
-        input = BlockContentRegex().Replace(input, m => m.Groups[1].Value + m.Groups[2].Value);
+        input = RegexPatterns.DuplicateBlocksRegex.Replace(input, "");
+        input = RegexPatterns.EndBlockRegex.Replace(input, "");
+        input = RegexPatterns.BlockContentRegex.Replace(input, m => m.Groups[1].Value + m.Groups[2].Value);
         return input;
     }
 
