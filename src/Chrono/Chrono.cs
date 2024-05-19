@@ -1,8 +1,8 @@
-﻿using Chrono.Cli.Commands;
+﻿using Chrono.Commands;
 using NLog;
 using Spectre.Console.Cli;
 
-namespace Chrono.Cli;
+namespace Chrono;
 
 public static class Chrono
 {
