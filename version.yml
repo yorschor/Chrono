@@ -1,6 +1,6 @@
 version: "1.0.0"
 default:
-  versionschema: "{major}.{minor}.{patch}-{branchname}-{prereleaseTag}-{commitShortHash}"
+  versionSchema: "{major}.{minor}.{patch}-{branchName}-{prereleaseTag}-{commitShortHash}"
   precision: "minor"
   prereleaseTag: "local"
   
@@ -13,12 +13,12 @@ default:
 branches:
   develop:
     branchRegexMatcher: "^develop$"
-    versionschema: "{major}.{minor}.{patch}[-]{branchName}-alpha[-]{commitShortHash}"
+    versionSchema: "{major}.{minor}.{patch}[.]{branchName}-alpha[-]{commitShortHash}"
     precision: "patch"
     prereleaseTag: "alpha"
   
   feature:
     branchRegexMatcher: "^feature/.*"
-    versionschema: "{major}.{minor}.{patch}feature[-]{branchName}[-]{commitShortHash}"
+    versionSchema: "{major}.{minor}.{patch}[.]{branchName}[.]{commitShortHash}"
     precision: "patch"
     prereleaseTag: "beta"
