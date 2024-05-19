@@ -6,7 +6,7 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using Version = LibGit2Sharp.Version;
 
-namespace Chrono.Cli.Commands;
+namespace Chrono.Commands;
 
 #region BaseSettings
 
