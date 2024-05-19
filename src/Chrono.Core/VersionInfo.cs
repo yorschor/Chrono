@@ -1,8 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using LibGit2Sharp;
 using NLog;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 using Version = System.Version;
 
 namespace Chrono.Core;
