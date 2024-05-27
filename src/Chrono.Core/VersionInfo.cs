@@ -1,53 +1,33 @@
 ﻿using System.Text.RegularExpressions;
+using Chrono.Core.Helpers;
 using LibGit2Sharp;
 using NLog;
 using Version = System.Version;
 
 namespace Chrono.Core;
 
-public partial class VersionInfo
+public class VersionInfo
 {
     #region Properties
-
-    public int Major { get; set; }
-    public int Minor { get; set; }
-    public int Patch { get; set; }
-    public int Build { get; set; }
-    public string BranchName { get; set; }
-    public string PrereleaseTag { get; set; }
-    public string CommitShortHash { get; set; }
+    public int Major { get; private set; }
+    public int Minor { get; private set; }
+    public int Patch { get; private set; }
+    public int Build { get; private set; }
+    public string BranchName { get; private set; }
+    public string PrereleaseTag { get; private set; }
+    public string CommitShortHash { get; private set; }
     public VersionFileModel File { get; }
 
     #endregion
 
     #region Members
 
-    private Logger _logManager = LogManager.GetCurrentClassLogger();
+    private readonly Logger _logManager = LogManager.GetCurrentClassLogger();
 
-    private string _versionPath = "";
-
-    #endregion
-
-    #region RegExPartials
-
-    [GeneratedRegex(@"(\[[^\]]*\])(?=\[[^\]]*\])")]
-    private static partial Regex DuplicateBlocksRegex();
-
-    [GeneratedRegex(@"(\[[^\]]*\])$")]
-    private static partial Regex EndBlockRegex();
-
-    [GeneratedRegex(@"\{([^\}]*)\}|\[([^\]]*)\]")]
-    private static partial Regex BlockContentRegex();
-
-    [GeneratedRegex(@"^(\d+)\.(\d+)(?:\.(\d+))?(?:\.(\d+))?$")]
-    private static partial Regex ValidVersionRegex();
-
-    [GeneratedRegex(
-        @"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$")]
-    private static partial Regex ValidSemVersionRegex();
+    private readonly string _versionPath;
 
     #endregion
-
+    
     public VersionInfo(string path)
     {
         _versionPath = path;
@@ -62,7 +42,7 @@ public partial class VersionInfo
 
         LoadGitInfo();
     }
-
+    
     public Result<string> ParseVersion(string schema = "")
     {
         try
@@ -108,10 +88,25 @@ public partial class VersionInfo
         }
     }
 
+    public Result<string> GetNumericVersion()
+    {
+        var parseResult = ParseVersion();
+        if (parseResult.Success)
+        {
+            var numericVersionMatch = RegexPatterns.NumericVersionOnlyRegex.Match(parseResult.Data);
+            if (numericVersionMatch.Success)
+            {
+                return new SuccessResult<string>(numericVersionMatch.Value);
+            }
+        }
+
+        return new ErrorResult<string>("Could not parse numeric version");
+    }
+
     public Result SetVersion(string newVersion)
     {
-        var newVersionMatch = ValidVersionRegex().Match(newVersion);
-        var fileVersionMatch = ValidVersionRegex().Match(File.Version);
+        var newVersionMatch = RegexPatterns.ValidVersionRegex.Match(newVersion);
+        var fileVersionMatch = RegexPatterns.ValidVersionRegex.Match(File.Version);
 
         if (!newVersionMatch.Success)
         {
@@ -156,9 +151,9 @@ public partial class VersionInfo
 
     private static string ResolveDelimiterBlock(string input)
     {
-        input = DuplicateBlocksRegex().Replace(input, "");
-        input = EndBlockRegex().Replace(input, "");
-        input = BlockContentRegex().Replace(input, m => m.Groups[1].Value + m.Groups[2].Value);
+        input = RegexPatterns.DuplicateBlocksRegex.Replace(input, "");
+        input = RegexPatterns.EndBlockRegex.Replace(input, "");
+        input = RegexPatterns.BlockContentRegex.Replace(input, m => m.Groups[1].Value + m.Groups[2].Value);
         return input;
     }
 
@@ -178,7 +173,8 @@ public partial class VersionInfo
         var branchName = branch.FriendlyName;
 
         var commit = branch.Tip;
-        var shortCommitHash = commit.Sha.Substring(0, 7); // Get the short commit hash (7 characters)
+        // Get the short commit hash (7 characters)
+        var shortCommitHash = commit.Sha.Substring(0, 7);
 
         BranchName = branchName;
         CommitShortHash = shortCommitHash;

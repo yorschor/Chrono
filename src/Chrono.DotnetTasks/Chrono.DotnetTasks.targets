@@ -1,0 +1,16 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <UsingTask TaskName="Chrono.DotnetTasks.StampVersionTask" AssemblyFile="$(MSBuildThisFileDirectory)../lib/$(TargetFramework)/Chrono.DotnetTasks.dll"/>
+    <Target Name="RestoreChrono" BeforeTargets="$(ChronoTargetsBefore)">
+        <Message Text="Resolved path: $(MSBuildThisFileDirectory)../lib/$(TargetFramework)/Chrono.DotnetTasks.dll" Importance="high"/>
+        <Exec Command="dotnet restore $(MSBuildProjectFullPath)"/>
+    </Target>
+    <Target Name="StampVersions" DependsOnTargets="RestoreChrono" BeforeTargets="$(ChronoTargetsBefore)">
+        <Message Text="StampVersions target is being executed." Importance="high"/>
+        <StampVersionTask>
+            <Output TaskParameter="AssemblyVersion" PropertyName="AssemblyVersion"/>
+            <Output TaskParameter="FileVersion" PropertyName="FileVersion"/>
+            <Output TaskParameter="InformationalVersion" PropertyName="InformationalVersion"/>
+            <Output TaskParameter="PackageVersion" PropertyName="PackageVersion"/>
+        </StampVersionTask>
+    </Target>
+</Project>

@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docu", "Docu", "{16D3B882-2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{6734EC58-E93A-4DBB-892D-B52BA5FA30D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.DotnetTasks", "src\Chrono.DotnetTasks\Chrono.DotnetTasks.csproj", "{E1E372B7-BCBF-456C-AA45-ED8EED75A960}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{37F6F95A-3DE3-4128-9286-4D0C822518AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +38,10 @@ Global
 		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1E372B7-BCBF-456C-AA45-ED8EED75A960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1E372B7-BCBF-456C-AA45-ED8EED75A960}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1E372B7-BCBF-456C-AA45-ED8EED75A960}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1E372B7-BCBF-456C-AA45-ED8EED75A960}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{16D3B882-21CD-41B1-8705-1519152B7A62} = {CDAA9ADB-B99C-4867-B58A-BA684B2BF535}

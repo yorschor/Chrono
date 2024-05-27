@@ -14,6 +14,10 @@ public static class Chrono
         {
             config.SetApplicationName("chrono"); 
             
+            config.AddCommand<InitCommand>("init")
+                .WithDescription("")
+                .WithExample("init");
+            
             config.AddCommand<GetVersionCommand>("get")
                 .WithDescription("")
                 .WithExample("get");
