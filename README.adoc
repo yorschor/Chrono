@@ -40,6 +40,16 @@ This adds a Directory.Build.props file to the directory from which the tool is r
 Next up create a version.yml (for now only a version.yml at the root of your git repo is supported) 
 
 For the content of version.yml either checkout the minimal example below.
-include::doc/Version.adoc[lines="16..26"]
+[source, yml]
+----
+version: "1.0.0"
+default:
+  versionschema: "{major}.{minor}.{patch}[-]{branchname}[-]{commitShortHash}"
+  precision: "minor"  
+  release:
+    match:
+      - "^release/.*"
+    versionschema: "{major}.{minor}.{patch}"
+----
 
 or read the full link:doc/Version.adoc[documentation].
