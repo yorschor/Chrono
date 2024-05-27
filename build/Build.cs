@@ -32,14 +32,16 @@ class Build : NukeBuild
     readonly GitHubActions GitHubActions = GitHubActions.Instance;
 
     const string ProjectName = "Chrono";
+    const string TargetProjectName = "Chrono.DotnetTasks";
+    const string TestLibs = "Chrono.TestLib.*";
     readonly AbsolutePath PackagesDirectory = RootDirectory / "PackageDirectory";
     readonly AbsolutePath SourceDirectory = RootDirectory / "src";
 
     Target Compile => t => t
         .Executes(() =>
         {
-            DotNetTasks.DotNetBuild(s => s
-                .SetProjectFile(Solution.GetProject(ProjectName))
+            DotNetTasks.DotNetPublish(s => s
+                .SetProject(Solution.GetProject(ProjectName))
                 .SetConfiguration(Configuration)
             );
         });
@@ -57,6 +59,12 @@ class Build : NukeBuild
                 .SetVersionSuffix(VersionSuffix)
                 .SetOutputDirectory(PackagesDirectory)
             );
+            DotNetTasks.DotNetPack(s => s
+                .SetProject(SourceDirectory / TargetProjectName)
+                .SetVersionPrefix(Version)
+                .SetVersionSuffix(VersionSuffix)
+                .SetOutputDirectory(PackagesDirectory)
+            );
         });
 
     Target PushNugetPackage => t => t
@@ -68,4 +76,31 @@ class Build : NukeBuild
                 .SetApiKey(NuGetApiKey)
                 .SetSource("https://www.nuget.org/"));
         });
+
+    Target LocalDeploy => t => t
+        .DependsOn(Pack)
+        .Executes(() =>
+        {
+            var localNugetStoreName = "LocalNuggets";
+            DotNetTasks.DotNetNuGetPush(s => s
+                .SetTargetPath(PackagesDirectory / "*.nupkg")
+                .SetApiKey(NuGetApiKey)
+                .SetSource(localNugetStoreName));
+            DotNetTasks.DotNet($"tool update -g {ProjectName} --add-source {localNugetStoreName} --no-cache --ignore-failed-sources");
+        });
+
+    // Target BuildTestLibs => t => t
+    //     .Executes(() =>
+    //     {
+    //         // DotNetTasks.DotNetBuild(s => s
+    //         //     .SetProjectFile(Solution.GetProject(TestDotnet48ProjectName).Path)
+    //         //     .SetNoCache(true));
+    //         var testLibs = Solution.GetAllProjects(TestLibs);
+    //         foreach (var test in testLibs)
+    //         {
+    //             DotNetTasks.DotNetPublish(s => s
+    //                 .SetProject(Solution.GetProject(test))
+    //                 .SetNoCache(true));
+    //         }
+    //     });
 }

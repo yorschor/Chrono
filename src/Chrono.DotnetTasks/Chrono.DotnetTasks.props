@@ -1,0 +1,15 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ChronoTargetsBefore>
+            BeforeCompile;
+            CoreCompile;
+            GetAssemblyVersion;
+            GenerateNuspec;
+            _GenerateRestoreProjectSpec;
+            _GetOutputItemsFromPack;
+            EnsureWixToolsetInstalled
+        </ChronoTargetsBefore>
+        <MarkupCompilePass1DependsOn>$(MarkupCompilePass1DependsOn);StampVersions</MarkupCompilePass1DependsOn>
+        <GetPackageVersionDependsOn>$(GetPackageVersionDependsOn);StampVersions</GetPackageVersionDependsOn>
+    </PropertyGroup>
+</Project>

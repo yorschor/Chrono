@@ -1,6 +1,6 @@
 ﻿using NLog;
 
-namespace Chrono.Core;
+namespace Chrono.Core.Helpers;
 
 public static class ErrorResultExtensions
 {

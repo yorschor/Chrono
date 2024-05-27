@@ -1,24 +1,25 @@
-version: "1.0.0"
+version: 2.6.4.2
 default:
-  versionSchema: "{major}.{minor}.{patch}-{branchName}-{prereleaseTag}-{commitShortHash}"
-  precision: "minor"
-  prereleaseTag: "local"
-  
+  versionSchema: '{major}.{minor}.{patch}[-]{build}[-]{branchName}[hello][-]{prereleaseTag}[jooo][///]{commitShortHash}[oh noo]'
+  precision: minor
+  prereleaseTag: local
   release:
     match:
-      - "^release/.*"
-      - "^main$"
-    versionschema: "{major}.{minor}[-]{patch}"
-
+      - ^release/.*
+      - ^main$
+    versionSchema: '{major}.{minor}.{patch}'
+    precision:
+    prereleaseTag:
 branches:
   develop:
-    branchRegexMatcher: "^develop$"
-    versionSchema: "{major}.{minor}.{patch}[.]{branchName}-alpha[-]{commitShortHash}"
-    precision: "patch"
-    prereleaseTag: "alpha"
-  
+    match:
+      - ^develop$
+    versionSchema: '{major}.{minor}.{patch}-{branch}-alpha-{commitShortHash}'
+    precision: patch
+    prereleaseTag: alpha
   feature:
-    branchRegexMatcher: "^feature/.*"
-    versionSchema: "{major}.{minor}.{patch}[.]{branchName}[.]{commitShortHash}"
-    precision: "patch"
-    prereleaseTag: "beta"
+    match:
+      - ^feature/.*
+    versionSchema: '{major}.{minor}.{patch}[.]{branch}[.]{commitShortHash}'
+    precision: patch
+    prereleaseTag: beta

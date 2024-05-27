@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>default</LangVersion>
+        <TargetFrameworks>net6.0;net7.0;net8.0;net472</TargetFrameworks>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <IncludeBuildOutput>true</IncludeBuildOutput>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build.Framework"/>
+        <PackageReference Include="Microsoft.Build.Utilities.Core"/>
+        <PackageReference Include="LibGit2Sharp"/>
+        <PackageReference Include="YamlDotNet"/>
+        <PackageReference Update="@(PackageReference)" PrivateAssets="All"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Chrono.Core\Chrono.Core.csproj" PrivateAssets="all"/>
+    </ItemGroup>
+
+    <!--    Nuget Package content-->
+    <ItemGroup>
+        <None Include="Chrono.DotnetTasks.props" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
+        <None Include="Chrono.DotnetTasks.targets" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
+        <None Include="bin\$(Configuration)\net6.0\**\*" Pack="true" PackagePath="lib\net6.0\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net7.0\**\*" Pack="true" PackagePath="lib\net7.0\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net8.0\**\*" Pack="true" PackagePath="lib\net8.0\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net472\**\*" Pack="true" PackagePath="lib\net472\" Visible="false"/>
+    </ItemGroup>
+
+</Project>
