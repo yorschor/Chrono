@@ -1,8 +1,7 @@
 ﻿using NLog;
 using NLog.Config;
-using NLog.Targets;
 
-namespace Chrono.Core;
+namespace Chrono.Core.Helpers;
 
 public class NLogHelper
 {

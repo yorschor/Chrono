@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Chrono.Core.Helpers;
 using LibGit2Sharp;
 using NLog;
 using Version = System.Version;
@@ -8,23 +9,22 @@ namespace Chrono.Core;
 public class VersionInfo
 {
     #region Properties
-
-    public int Major { get; set; }
-    public int Minor { get; set; }
-    public int Patch { get; set; }
-    public int Build { get; set; }
-    public string BranchName { get; set; }
-    public string PrereleaseTag { get; set; }
-    public string CommitShortHash { get; set; }
+    public int Major { get; private set; }
+    public int Minor { get; private set; }
+    public int Patch { get; private set; }
+    public int Build { get; private set; }
+    public string BranchName { get; private set; }
+    public string PrereleaseTag { get; private set; }
+    public string CommitShortHash { get; private set; }
     public VersionFileModel File { get; }
 
     #endregion
 
     #region Members
 
-    private Logger _logManager = LogManager.GetCurrentClassLogger();
+    private readonly Logger _logManager = LogManager.GetCurrentClassLogger();
 
-    private string _versionPath = "";
+    private readonly string _versionPath;
 
     #endregion
     
@@ -42,7 +42,7 @@ public class VersionInfo
 
         LoadGitInfo();
     }
-
+    
     public Result<string> ParseVersion(string schema = "")
     {
         try
@@ -86,6 +86,21 @@ public class VersionInfo
         {
             return new ErrorResult<string>(e.ToString());
         }
+    }
+
+    public Result<string> GetNumericVersion()
+    {
+        var parseResult = ParseVersion();
+        if (parseResult.Success)
+        {
+            var numericVersionMatch = RegexPatterns.NumericVersionOnlyRegex.Match(parseResult.Data);
+            if (numericVersionMatch.Success)
+            {
+                return new SuccessResult<string>(numericVersionMatch.Value);
+            }
+        }
+
+        return new ErrorResult<string>("Could not parse numeric version");
     }
 
     public Result SetVersion(string newVersion)
@@ -158,7 +173,8 @@ public class VersionInfo
         var branchName = branch.FriendlyName;
 
         var commit = branch.Tip;
-        var shortCommitHash = commit.Sha.Substring(0, 7); // Get the short commit hash (7 characters)
+        // Get the short commit hash (7 characters)
+        var shortCommitHash = commit.Sha.Substring(0, 7);
 
         BranchName = branchName;
         CommitShortHash = shortCommitHash;

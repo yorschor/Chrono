@@ -1,9 +1,6 @@
 ﻿#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-namespace Chrono.Core
+namespace Chrono.Core.Helpers
 {
-    using System;
-    using System.Collections.Generic;
-
     public abstract class Result
     {
         public bool Success { get; protected set; }

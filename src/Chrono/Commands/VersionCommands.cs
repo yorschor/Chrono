@@ -1,4 +1,5 @@
 ﻿using Chrono.Core;
+using Chrono.Core.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -27,7 +28,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
         }
 
         const string versionFileName = "version.yml";
-        var p = AppContext.BaseDirectory + versionFileName;
+        var p = Path.Combine(Environment.CurrentDirectory, versionFileName);
         var versionInfo = new VersionInfo(p);
         var parseResult = versionInfo.ParseVersion();
         if (parseResult is not IErrorResult errorResult)
@@ -59,7 +60,7 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
         }
         
         const string versionFileName = "version.yml";
-        var p = AppContext.BaseDirectory + versionFileName;
+        var p = Path.Combine(Environment.CurrentDirectory, versionFileName);
         var versionInfo = new VersionInfo(p);
         var setResult = versionInfo.SetVersion(settings.NewVersion);
         if (setResult is IErrorResult err)
