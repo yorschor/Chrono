@@ -1,25 +1,20 @@
-version: 2.6.4.2
+---
+version:
+  0.2.0
 default:
-  versionSchema: '{major}.{minor}.{patch}[-]{build}[-]{branchName}[hello][-]{prereleaseTag}[jooo][///]{commitShortHash}[oh noo]'
+  versionSchema: '{major}.{minor}.{patch}[-]{branchName}[.]{commitShortHash}'
   precision: minor
   prereleaseTag: local
   release:
     match:
       - ^release/.*
-      - ^main$
     versionSchema: '{major}.{minor}.{patch}'
     precision:
     prereleaseTag:
 branches:
-  develop:
+  release:
     match:
-      - ^develop$
-    versionSchema: '{major}.{minor}.{patch}-{branch}-alpha-{commitShortHash}'
+      - ^release/.*
+    versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{commitShortHash}'
     precision: patch
-    prereleaseTag: alpha
-  feature:
-    match:
-      - ^feature/.*
-    versionSchema: '{major}.{minor}.{patch}[.]{branch}[.]{commitShortHash}'
-    precision: patch
-    prereleaseTag: beta
+    prereleaseTag: rc
