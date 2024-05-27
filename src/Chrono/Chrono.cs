@@ -24,7 +24,9 @@ public static class Chrono
             config.AddCommand<SetVersionCommand>("set")
                 .WithDescription("")
                 .WithExample("set");
-            
+
+            config.AddCommand<GetInfoCommand>("info");
+
         });
         return app.Run(args);
     }
