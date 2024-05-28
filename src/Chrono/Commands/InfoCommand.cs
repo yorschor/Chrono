@@ -25,17 +25,19 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        if (settings.Debug)
+        if (settings.Trace)
         {
             NLogHelper.EnableShortConsoleTarget(true);
         }
-        settings.Logger.Trace($"Current dir: {Directory.GetCurrentDirectory()}");
+
+        var currentDir = Directory.GetCurrentDirectory();
+        settings.Logger.Trace($"Current dir: {currentDir}");
         var repoRootResult = GitUtil.GetRepoRootPath();
         if (!repoRootResult.Success)
         {
             return 0;
         }
-        var result = VersionFileFinder.FindVersionFile(Directory.GetCurrentDirectory(), repoRootResult.Data);
+        var result = VersionFileFinder.FindVersionFile(currentDir, repoRootResult.Data);
 
         if (result is not IErrorResult)
         {
@@ -44,7 +46,7 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
         }
        
         NLogHelper.EnableShortConsoleTarget();
-        AnsiConsole.MarkupLine("Could not find any version.yml for " + Directory.GetCurrentDirectory());
+        AnsiConsole.MarkupLine("Could not find any version.yml for " + currentDir);
         return 0;
     }
 

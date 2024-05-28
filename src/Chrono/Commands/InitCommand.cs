@@ -23,7 +23,7 @@ public class InitCommand : Command<InitCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        if (settings.Debug)
+        if (settings.Trace)
         {
             NLogHelper.EnableShortConsoleTarget(true);
         }

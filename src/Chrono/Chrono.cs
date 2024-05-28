@@ -37,4 +37,5 @@ public class BaseCommandSettings : CommandSettings
     public readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
     [CommandOption("-d|--debug")] public bool Debug { get; init; } = false;
+    [CommandOption("-t|--trace")] public bool Trace { get; init; } = false;
 }
