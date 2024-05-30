@@ -1,11 +1,13 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <UsingTask TaskName="Chrono.DotnetTasks.StampVersionTask" AssemblyFile="$(MSBuildThisFileDirectory)../lib/$(TargetFramework)/Chrono.DotnetTasks.dll"/>
-    <Target Name="RestoreChrono" BeforeTargets="$(ChronoTargetsBefore)">
-        <Message Text="Resolved path: $(MSBuildThisFileDirectory)../lib/$(TargetFramework)/Chrono.DotnetTasks.dll" Importance="high"/>
-        <Exec Command="dotnet restore $(MSBuildProjectFullPath)"/>
-    </Target>
-    <Target Name="StampVersions" DependsOnTargets="RestoreChrono" BeforeTargets="$(ChronoTargetsBefore)">
-        <Message Text="StampVersions target is being executed." Importance="high"/>
+    <PropertyGroup>
+        <Chrono_PlatformSuffix Condition=" '$(Chrono_PlatformSuffix)' == '' and '$(MSBuildRuntimeType)' == 'Core' ">MSBuildCore/</Chrono_PlatformSuffix>
+        <Chrono_PlatformSuffix Condition=" '$(Chrono_PlatformSuffix)' == '' ">MSBuildFull/</Chrono_PlatformSuffix>
+    </PropertyGroup>
+    
+    <UsingTask TaskName="Chrono.DotnetTasks.StampVersionTask" AssemblyFile="$(MSBuildThisFileDirectory)$(Chrono_PlatformSuffix)/Chrono.DotnetTasks.dll"/>
+    
+    <Target Name="StampVersions" BeforeTargets="$(ChronoTargetsBefore)">
+        <Message Text="StampVersions target is being executed using $(Chrono_PlatformSuffix)" Importance="high"/>
         <StampVersionTask>
             <Output TaskParameter="AssemblyVersion" PropertyName="AssemblyVersion"/>
             <Output TaskParameter="FileVersion" PropertyName="FileVersion"/>

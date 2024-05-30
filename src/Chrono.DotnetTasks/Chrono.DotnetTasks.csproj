@@ -3,17 +3,22 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>default</LangVersion>
-        <TargetFrameworks>net6.0;net7.0;net8.0;net472</TargetFrameworks>
         <DevelopmentDependency>true</DevelopmentDependency>
-        <IncludeBuildOutput>true</IncludeBuildOutput>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <TargetFrameworks>net472;net6.0</TargetFrameworks>
+        <Title>Chrono.DotnetTasks</Title>
+        <Authors>Ekkehard C. Damisch</Authors>
+        <Copyright>Ekkehard C. Damisch</Copyright>
+        <PackageProjectUrl>https://github.com/yorschor/Chrono</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/yorschor/Chrono?tab=MIT-1-ov-file</PackageLicenseUrl>
+        <PackageTags>git version dotnet msbuild</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Build.Framework"/>
         <PackageReference Include="Microsoft.Build.Utilities.Core"/>
-        <PackageReference Include="LibGit2Sharp"/>
-        <PackageReference Include="YamlDotNet"/>
+        <PackageReference Include="System.Runtime.Loader" Condition="'$(TargetFramework)' == 'net6.0'"/>
         <PackageReference Update="@(PackageReference)" PrivateAssets="All"/>
     </ItemGroup>
 
@@ -25,10 +30,9 @@
     <ItemGroup>
         <None Include="Chrono.DotnetTasks.props" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="Chrono.DotnetTasks.targets" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
-        <None Include="bin\$(Configuration)\net6.0\**\*" Pack="true" PackagePath="lib\net6.0\" Visible="false"/>
-        <None Include="bin\$(Configuration)\net7.0\**\*" Pack="true" PackagePath="lib\net7.0\" Visible="false"/>
-        <None Include="bin\$(Configuration)\net8.0\**\*" Pack="true" PackagePath="lib\net8.0\" Visible="false"/>
-        <None Include="bin\$(Configuration)\net472\**\*" Pack="true" PackagePath="lib\net472\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net6.0\runtimes\**" Pack="true" PackagePath="build\runtimes\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net472\publish\**\*" Pack="true" PackagePath="build\MSBuildFull\" Visible="true"/>
+        <None Include="bin\$(Configuration)\net6.0\publish\**\*" Pack="true" PackagePath="build\MSBuildCore\" Visible="true"/>
     </ItemGroup>
 
 </Project>

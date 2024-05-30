@@ -1,8 +1,13 @@
+using System;
+using System.IO;
+using Chrono.Core;
+using Chrono.Core.Helpers;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
+using Serilog;
 
 [GitHubActions(
     "continuous",
@@ -23,7 +28,7 @@ class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [Parameter("The version to use for the build")] string Version = "0.42.0";
-    [Parameter("The version suffix that should be appended to the version")] readonly string VersionSuffix = "";
+    [Parameter("The numeric version excluding e.g. prerelease branch tags")] string NumericVersion = "0.42.0";
 
     [Solution] readonly Solution Solution;
 
@@ -37,12 +42,77 @@ class Build : NukeBuild
     readonly AbsolutePath PackagesDirectory = RootDirectory / "PackageDirectory";
     readonly AbsolutePath SourceDirectory = RootDirectory / "src";
 
+    Target PrepareVersions => t => t.
+        Executes(() =>
+            {
+                try
+                {
+                    var repoFoundResult = GitUtil.GetRepoRootPath();
+                    if (repoFoundResult is IErrorResult repoErr)
+                    {
+                        Log.Error(repoErr.Message);
+                        return false;
+                    }
+                    var versionFileFoundResult = VersionFileFinder.FindVersionFile(
+                        Directory.GetCurrentDirectory(),
+                        repoFoundResult.Data);
+
+                    if (versionFileFoundResult is IErrorResult verErr)
+                    {
+                        Log.Error(verErr.Message);
+                        return false;
+                    }
+            
+                    var versionInfo = new VersionInfo(versionFileFoundResult.Data);
+            
+                    var parseFullVersionResult = versionInfo.ParseVersion();
+                    if (parseFullVersionResult.Success)
+                    {
+                        Version = parseFullVersionResult.Data;
+                    }
+                    Log.Information("Chrono -> Resolving full version to "+ parseFullVersionResult.Data);
+                    var parseNumericVersionResult = versionInfo.GetNumericVersion();
+                    if (parseNumericVersionResult.Success)
+                    {
+                        NumericVersion = parseNumericVersionResult.Data;
+                    }
+                    Log.Information("Chrono -> Resolving numeric version to " + parseNumericVersionResult.Data);
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.Message);
+                    return false;
+                }
+            });
+    
     Target Compile => t => t
+        .DependsOn(PrepareVersions)
         .Executes(() =>
         {
             DotNetTasks.DotNetPublish(s => s
                 .SetProject(Solution.GetProject(ProjectName))
                 .SetConfiguration(Configuration)
+                .SetSelfContained(true)
+            );
+            DotNetTasks.DotNetPublish(s => s
+                .SetProject(Solution.GetProject(TargetProjectName))
+                .SetConfiguration(Configuration)
+                .SetVersion(Version)
+                .SetAssemblyVersion(NumericVersion)
+                .SetFileVersion(NumericVersion)
+                .SetSelfContained(true)
+                .SetFramework("net6.0")
+            );
+            DotNetTasks.DotNetPublish(s => s
+                .SetProject(Solution.GetProject(TargetProjectName))
+                .SetConfiguration(Configuration)
+                .SetVersion(Version)
+                .SetAssemblyVersion(NumericVersion)
+                .SetFileVersion(NumericVersion)
+                .SetSelfContained(true)
+                .SetFramework("net472")
             );
         });
 
@@ -52,17 +122,19 @@ class Build : NukeBuild
         .Executes(() =>
         {
             PackagesDirectory.DeleteDirectory();
-            Version = string.IsNullOrEmpty(GitHubActions?.RefName) ? Version : GitHubActions.RefName.TrimStart('v');
+            // Version = string.IsNullOrEmpty(GitHubActions?.RefName) ? Version : GitHubActions.RefName.TrimStart('v');
             DotNetTasks.DotNetPack(s => s
                 .SetProject(SourceDirectory / ProjectName)
-                .SetVersionPrefix(Version)
-                .SetVersionSuffix(VersionSuffix)
+                .SetVersion(Version)
+                .SetAssemblyVersion(NumericVersion)
+                .SetFileVersion(NumericVersion)
                 .SetOutputDirectory(PackagesDirectory)
             );
             DotNetTasks.DotNetPack(s => s
                 .SetProject(SourceDirectory / TargetProjectName)
-                .SetVersionPrefix(Version)
-                .SetVersionSuffix(VersionSuffix)
+                .SetVersion(Version)
+                .SetAssemblyVersion(NumericVersion)
+                .SetFileVersion(NumericVersion)
                 .SetOutputDirectory(PackagesDirectory)
             );
         });
@@ -88,19 +160,4 @@ class Build : NukeBuild
                 .SetSource(localNugetStoreName));
             DotNetTasks.DotNet($"tool update -g {ProjectName} --add-source {localNugetStoreName} --no-cache --ignore-failed-sources");
         });
-
-    // Target BuildTestLibs => t => t
-    //     .Executes(() =>
-    //     {
-    //         // DotNetTasks.DotNetBuild(s => s
-    //         //     .SetProjectFile(Solution.GetProject(TestDotnet48ProjectName).Path)
-    //         //     .SetNoCache(true));
-    //         var testLibs = Solution.GetAllProjects(TestLibs);
-    //         foreach (var test in testLibs)
-    //         {
-    //             DotNetTasks.DotNetPublish(s => s
-    //                 .SetProject(Solution.GetProject(test))
-    //                 .SetNoCache(true));
-    //         }
-    //     });
 }

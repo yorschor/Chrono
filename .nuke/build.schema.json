@@ -51,6 +51,10 @@
           "type": "string",
           "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
+        "NumericVersion": {
+          "type": "string",
+          "description": "The numeric version excluding e.g. prerelease branch tags"
+        },
         "Partition": {
           "type": "string",
           "description": "Partition to use on CI"
@@ -79,6 +83,7 @@
               "Compile",
               "LocalDeploy",
               "Pack",
+              "PrepareVersions",
               "PushNugetPackage"
             ]
           }
@@ -96,6 +101,7 @@
               "Compile",
               "LocalDeploy",
               "Pack",
+              "PrepareVersions",
               "PushNugetPackage"
             ]
           }
@@ -113,10 +119,6 @@
         "Version": {
           "type": "string",
           "description": "The version to use for the build"
-        },
-        "VersionSuffix": {
-          "type": "string",
-          "description": "The version suffix that should be appended to the version"
         }
       }
     }
