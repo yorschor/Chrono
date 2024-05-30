@@ -43,6 +43,19 @@ class Build : NukeBuild
             DotNetTasks.DotNetPublish(s => s
                 .SetProject(Solution.GetProject(ProjectName))
                 .SetConfiguration(Configuration)
+                .SetSelfContained(true)
+            );
+            DotNetTasks.DotNetPublish(s => s
+                .SetProject(Solution.GetProject(TargetProjectName))
+                .SetConfiguration(Configuration)
+                .SetSelfContained(true)
+                .SetFramework("net6.0")
+            );
+            DotNetTasks.DotNetPublish(s => s
+                .SetProject(Solution.GetProject(TargetProjectName))
+                .SetConfiguration(Configuration)
+                .SetSelfContained(true)
+                .SetFramework("net472")
             );
         });
 
