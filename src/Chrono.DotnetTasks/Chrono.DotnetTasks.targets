@@ -15,18 +15,4 @@
             <Output TaskParameter="PackageVersion" PropertyName="PackageVersion"/>
         </StampVersionTask>
     </Target>
-
-<!--    <Target Name="GenerateAssemblyInfo" BeforeTargets="CoreCompile">-->
-<!--        <WriteLinesToFile File="$(IntermediateOutputPath)GeneratedAssemblyInfo.cs" Overwrite="true">-->
-<!--            <![CDATA[-->
-<!--          using System.Reflection;-->
-<!--          [assembly: AssemblyVersion("$(AssemblyVersion)")]-->
-<!--          [assembly: AssemblyFileVersion("$(FileVersion)")]-->
-<!--          [assembly: AssemblyInformationalVersion("$(InformationalVersion)")]-->
-<!--          ]]>-->
-<!--        </WriteLinesToFile>-->
-<!--        <ItemGroup>-->
-<!--            <Compile Include="$(IntermediateOutputPath)GeneratedAssemblyInfo.cs" />-->
-<!--        </ItemGroup>-->
-<!--    </Target>-->
 </Project>

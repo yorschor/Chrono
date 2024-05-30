@@ -7,6 +7,12 @@
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <TargetFrameworks>net472;net6.0</TargetFrameworks>
+        <Title>Chrono.DotnetTasks</Title>
+        <Authors>Ekkehard C. Damisch</Authors>
+        <Copyright>Ekkehard C. Damisch</Copyright>
+        <PackageProjectUrl>https://github.com/yorschor/Chrono</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/yorschor/Chrono?tab=MIT-1-ov-file</PackageLicenseUrl>
+        <PackageTags>git version dotnet msbuild</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>

@@ -30,7 +30,7 @@ dotnet tool install -g Chrono
 a|
 [source]
 ----
-dotnet tool install -g Chrono
+dotnet tool update -g Chrono
 ----
 
 |===
