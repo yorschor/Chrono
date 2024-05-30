@@ -10,14 +10,13 @@ It is inspired by the likes of https://github.com/GitTools/GitVersion[GitVersion
 
 === ❗ Important
 
-This project is by now means done. Its in active development and while the format of the version.yml will probably not change drastically the cli and nuget package for the msbuild task might :)  
+This project is in active development and while the format of the version.yml will probably not change drastically the cli and nuget package for the msbuild task might :)  
 
-=== 🔮 Planned features
-
-- [ ] Git branch tools (release, tag)
-- [ ] smaller size for msbuild package
 
 === 🚀 Getting started 
+
+
+
 Install/Update the dotnet tool using
 
 |===
@@ -35,8 +34,6 @@ dotnet tool update -g Chrono
 
 |===
 
-This adds a Directory.Build.props file to the directory from which the tool is run that takes care of installing the DotnetTasks package into your sources. 
-
 Next up create a version.yml (for now only a version.yml at the root of your git repo is supported) 
 
 For the content of version.yml either checkout the minimal example below.
@@ -53,3 +50,21 @@ default:
 ----
 
 or read the full link:doc/Version.adoc[documentation].
+
+
+==== 🕹️ ️Automatic Version stamping (dotnet) 
+If you want your dotnet projects to be automatically versioned first make sure your projects are using SDK style project files and dont have existing AssemblyVersion.cs files or the likes present.
+
+Then call 
+
+[source]
+----
+chrono init
+----
+in your project root.
+
+This adds a Directory.Build.props file to the directory which takes care of including the DotnetTasks package into your projects.
+
+It also sets the two properties "IncludeSourceRevisionInInformationalVersion" to false and "GenerateAssemblyInfo" to true.
+
+In theory that's it :) 
