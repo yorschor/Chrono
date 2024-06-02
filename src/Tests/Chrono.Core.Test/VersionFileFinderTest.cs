@@ -1,6 +1,8 @@
+using Chrono.Core.Helpers;
+
 namespace Chrono.Core.Test;
 
-public class VersionFileFinderTest
+public class VersionFileUtilTest
 {
     [Theory]
     [InlineData("C:/Users/Example/Documents", "C:/Users/Example/Projects/Project1/report.txt", 3)]
@@ -10,7 +12,7 @@ public class VersionFileFinderTest
     [InlineData("C:/Users/Example/Documents", "D:/Users/Example/Documents/report.txt", 8)]
     public void TestGetPathDistance(string fromPath, string toPath, int expectedDistance)
     {
-        var result = VersionFileFinder.GetPathDistance(fromPath, toPath);
+        var result = VersionFile.GetPathDistance(fromPath, toPath);
         Assert.Equal(expectedDistance, result);
     }
 }
