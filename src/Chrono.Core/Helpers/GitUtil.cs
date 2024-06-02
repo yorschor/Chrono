@@ -20,9 +20,9 @@ public class GitUtil
         Logger.Trace($"Root: {rootPath}");
         if (string.IsNullOrEmpty(rootPath))
         {
-            return new ErrorResult<string>($"Not Repo found from starting directory {startDir}");
+            return Result.Error<string>($"Not Repo found from starting directory {startDir}");
         }
-        return new SuccessResult<string>(rootPath);
+        return Result.Ok(rootPath);
     }
 
     public static Result TagCommit()
@@ -30,13 +30,13 @@ public class GitUtil
         var infoFileResult = VersionInfo.Get();
         if (infoFileResult is IErrorResult infoResErr)
         {
-            return new ErrorResult(infoResErr.Message);
+            return Result.Error(infoResErr.Message);
         }
 
         var parseRes= infoFileResult.Data.ParseVersion();
         if (parseRes is IErrorResult parseErr)
         {
-            return new ErrorResult(parseErr.Message);
+            return Result.Error(parseErr.Message);
         }
         
         //Tag current Commit 
