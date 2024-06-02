@@ -18,37 +18,28 @@ public class StampVersionTask : Microsoft.Build.Utilities.Task
     {
         try
         {
-            var repoFoundResult = GitUtil.GetRepoRootPath();
-            if (repoFoundResult is IErrorResult repoErr)
+            var infoGetResult = VersionInfo.Get();
+            if (infoGetResult is IErrorResult err)
             {
-                Log.LogError(repoErr.Message);
+                Log.LogError(err.Message);
                 return false;
             }
-            var versionFileFoundResult = VersionFile.Find(
-                Directory.GetCurrentDirectory(),
-                repoFoundResult.Data);
 
-            if (versionFileFoundResult is IErrorResult verErr)
-            {
-                Log.LogError(verErr.Message);
-                return false;
-            }
-            
-            var versionInfo = new VersionInfo(versionFileFoundResult.Data);
-            
-            var parseFullVersionResult = versionInfo.ParseVersion();
+            var parseFullVersionResult = infoGetResult.Data.ParseVersion();
             if (parseFullVersionResult.Success)
             {
                 InformationalVersion = parseFullVersionResult.Data;
             }
-            Log.LogMessage("Chrono -> Resolving full version to "+ parseFullVersionResult.Data);
-            var parseNumericVersionResult = versionInfo.GetNumericVersion();
+
+            Log.LogMessage("Chrono -> Resolving full version to " + parseFullVersionResult.Data);
+            var parseNumericVersionResult = infoGetResult.Data.GetNumericVersion();
             if (parseNumericVersionResult.Success)
             {
                 AssemblyVersion = parseNumericVersionResult.Data;
                 FileVersion = parseNumericVersionResult.Data;
                 PackageVersion = parseNumericVersionResult.Data;
             }
+
             Log.LogMessage("Chrono -> Resolving numeric version to " + parseNumericVersionResult.Data);
 
             return true;
