@@ -5,6 +5,14 @@ namespace Chrono.Core.Helpers
     {
         public bool Success { get; protected set; }
         public bool Failure => !Success;
+        
+        public static OkResult Ok() => new();
+        public static OkResult<T> Ok<T>(T data) => new(data);
+        public static ErrorResult Error(string message) => new(message);
+        public static ErrorResult Error(string message, IReadOnlyCollection<Error> errors) => new(message, errors);
+        public static ErrorResult<T> Error<T>(string message) => new(message);
+        public static ErrorResult<T> Error<T>(string message, IReadOnlyCollection<Error> errors) => new(message, errors);
+        public static ErrorResult<T> Error<T>(IErrorResult errorResult) => new(errorResult.Message, errorResult.Errors);
     }
 
     public abstract class Result<T> : Result
@@ -25,17 +33,17 @@ namespace Chrono.Core.Helpers
         }
     }
 
-    public class SuccessResult : Result
+    public class OkResult : Result
     {
-        public SuccessResult()
+        public OkResult()
         {
             Success = true;
         }
     }
 
-    public class SuccessResult<T> : Result<T>
+    public class OkResult<T> : Result<T>
     {
-        public SuccessResult(T data) : base(data)
+        public OkResult(T data) : base(data)
         {
             Success = true;
         }
@@ -56,6 +64,7 @@ namespace Chrono.Core.Helpers
 
         public string Message { get; }
         public IReadOnlyCollection<Error> Errors { get; }
+        
     }
 
     public class ErrorResult<T> : Result<T>, IErrorResult

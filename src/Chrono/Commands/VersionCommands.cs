@@ -36,7 +36,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             return 0;
         }
 
-        var versionFileFoundResult = VersionFileFinder.FindVersionFile(
+        var versionFileFoundResult = VersionFile.Find(
             Directory.GetCurrentDirectory(),
             repoFoundResult.Data);
 
