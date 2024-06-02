@@ -9,6 +9,7 @@
         <ToolCommandName>chrono</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         
+        <PackageId>Chrono.Cli</PackageId>
         <Authors>Ekkehard C. Damisch</Authors>
         <Copyright>Ekkehard C. Damisch</Copyright>
         <PackageProjectUrl>https://github.com/yorschor/Chrono</PackageProjectUrl>
