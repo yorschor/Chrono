@@ -19,7 +19,7 @@ public class VersionInfo
     public string[] CombinedSearchArray => TagNames.Append(BranchName).ToArray();
     public string PrereleaseTag { get; private set; }
     public string CommitShortHash { get; private set; }
-    public VersionFileModel File { get; }
+    public VersionFile File { get; }
 
     #endregion
 
@@ -34,7 +34,7 @@ public class VersionInfo
     public VersionInfo(string path)
     {
         _versionPath = path;
-        File = VersionFileModel.From(_versionPath);
+        File = VersionFile.From(_versionPath);
         if (Version.TryParse(File.Version, out var version))
         {
             Major = version.Major;
@@ -46,6 +46,35 @@ public class VersionInfo
         LoadGitInfo();
     }
     
+    /// <summary>
+    /// A catch all Method that attempts to resolve and parse a VersionInfo based on the defaults
+    /// </summary>
+    /// <returns></returns>
+    public static Result<VersionInfo> Get()
+    {
+        var repoFoundResult = GitUtil.GetRepoRootPath();
+        if (repoFoundResult is IErrorResult repoErr)
+        {
+            return new ErrorResult<VersionInfo>(repoErr.Message);
+        }
+
+        var versionFileFoundResult = VersionFile.Find(
+            Directory.GetCurrentDirectory(),
+            repoFoundResult.Data);
+
+        if (versionFileFoundResult is IErrorResult verErr)
+        {
+            return new ErrorResult<VersionInfo>(verErr.Message);
+        }
+
+        return new SuccessResult<VersionInfo>(new VersionInfo(versionFileFoundResult.Data));
+    }
+    
+    /// <summary>
+    /// Retrieve the current branch config and return the parsed version for the current branch
+    /// </summary>
+    /// <param name="schema"></param>
+    /// <returns></returns>
     public Result<string> ParseVersion(string schema = "")
     {
         try
@@ -92,6 +121,10 @@ public class VersionInfo
         }
     }
 
+    /// <summary>
+    /// Gets the numeric part of the parsed version ignoring any suffixes 
+    /// </summary>
+    /// <returns></returns>
     public Result<string> GetNumericVersion()
     {
         var parseResult = ParseVersion();
@@ -107,6 +140,11 @@ public class VersionInfo
         return new ErrorResult<string>("Could not parse numeric version");
     }
 
+    /// <summary>
+    /// Sets the provided version as the new one and saves the version.yml
+    /// </summary>
+    /// <param name="newVersion"></param>
+    /// <returns></returns>
     public Result SetVersion(string newVersion)
     {
         var newVersionMatch = RegexPatterns.ValidVersionRegex.Match(newVersion);

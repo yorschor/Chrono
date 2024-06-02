@@ -37,7 +37,7 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
         {
             return 0;
         }
-        var result = VersionFileFinder.FindVersionFile(currentDir, repoRootResult.Data);
+        var result = VersionFile.Find(currentDir, repoRootResult.Data);
 
         if (result is not IErrorResult)
         {

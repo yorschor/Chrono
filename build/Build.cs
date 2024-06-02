@@ -53,7 +53,7 @@ class Build : NukeBuild
                         Log.Error(repoErr.Message);
                         return false;
                     }
-                    var versionFileFoundResult = VersionFileFinder.FindVersionFile(
+                    var versionFileFoundResult = VersionFile.Find(
                         Directory.GetCurrentDirectory(),
                         repoFoundResult.Data);
 

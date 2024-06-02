@@ -24,4 +24,24 @@ public class GitUtil
         }
         return new SuccessResult<string>(rootPath);
     }
+
+    public static Result TagCommit()
+    {
+        var infoFileResult = VersionInfo.Get();
+        if (infoFileResult is IErrorResult infoResErr)
+        {
+            return new ErrorResult(infoResErr.Message);
+        }
+
+        var parseRes= infoFileResult.Data.ParseVersion();
+        if (parseRes is IErrorResult parseErr)
+        {
+            return new ErrorResult(parseErr.Message);
+        }
+        
+        //Tag current Commit 
+        //Change Version to next one
+        //Commit version.yml
+        return null;
+    }
 }

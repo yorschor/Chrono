@@ -24,7 +24,7 @@ public class StampVersionTask : Microsoft.Build.Utilities.Task
                 Log.LogError(repoErr.Message);
                 return false;
             }
-            var versionFileFoundResult = VersionFileFinder.FindVersionFile(
+            var versionFileFoundResult = VersionFile.Find(
                 Directory.GetCurrentDirectory(),
                 repoFoundResult.Data);
 
