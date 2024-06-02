@@ -9,11 +9,12 @@ namespace Chrono.Core;
 public class VersionInfo
 {
     #region Properties
+
     public int Major { get; private set; }
     public int Minor { get; private set; }
     public int Patch { get; private set; }
     public int Build { get; private set; }
-    public int CiBuildNumber { get;  set; }
+    public int CiBuildNumber { get; set; }
     public string BranchName { get; private set; }
     public string[] TagNames { get; private set; }
     public string[] CombinedSearchArray => TagNames.Append(BranchName).ToArray();
@@ -30,7 +31,7 @@ public class VersionInfo
     private readonly string _versionPath;
 
     #endregion
-    
+
     public VersionInfo(string path)
     {
         _versionPath = path;
@@ -45,7 +46,7 @@ public class VersionInfo
 
         LoadGitInfo();
     }
-    
+
     /// <summary>
     /// A catch all Method that attempts to resolve and parse a VersionInfo based on the defaults
     /// </summary>
@@ -55,7 +56,7 @@ public class VersionInfo
         var repoFoundResult = GitUtil.GetRepoRootPath();
         if (repoFoundResult is IErrorResult repoErr)
         {
-            return new ErrorResult<VersionInfo>(repoErr.Message);
+            return Result.Error<VersionInfo>(repoErr);
         }
 
         var versionFileFoundResult = VersionFile.Find(
@@ -64,12 +65,12 @@ public class VersionInfo
 
         if (versionFileFoundResult is IErrorResult verErr)
         {
-            return new ErrorResult<VersionInfo>(verErr.Message);
+            return Result.Error<VersionInfo>(verErr);
         }
 
-        return new SuccessResult<VersionInfo>(new VersionInfo(versionFileFoundResult.Data));
+        return Result.Ok(new VersionInfo(versionFileFoundResult.Data));
     }
-    
+
     /// <summary>
     /// Retrieve the current branch config and return the parsed version for the current branch
     /// </summary>
@@ -97,7 +98,7 @@ public class VersionInfo
 
                 if (string.IsNullOrEmpty(schema))
                 {
-                    return new ErrorResult<string>("No schema could be configured");
+                    return Result.Error<string>("No schema could be configured");
                 }
 
                 _logManager.Trace($"Schema: {schema}");
@@ -113,11 +114,11 @@ public class VersionInfo
                 .Replace("{commitShortHash}", CommitShortHash)
                 .Replace("{buildNumber}", CiBuildNumber.ToString());
             schemaWithValues = ResolveDelimiterBlock(schemaWithValues);
-            return new SuccessResult<string>(ValidateVersionString(schemaWithValues));
+            return Result.Ok(ValidateVersionString(schemaWithValues));
         }
         catch (Exception e)
         {
-            return new ErrorResult<string>(e.ToString());
+            return Result.Error<string>(e.ToString());
         }
     }
 
@@ -133,11 +134,11 @@ public class VersionInfo
             var numericVersionMatch = RegexPatterns.NumericVersionOnlyRegex.Match(parseResult.Data);
             if (numericVersionMatch.Success)
             {
-                return new SuccessResult<string>(numericVersionMatch.Value);
+                return Result.Ok(numericVersionMatch.Value);
             }
         }
 
-        return new ErrorResult<string>("Could not parse numeric version");
+        return Result.Error<string>("Could not parse numeric version");
     }
 
     /// <summary>
@@ -152,22 +153,23 @@ public class VersionInfo
 
         if (!newVersionMatch.Success)
         {
-            return new ErrorResult($"{newVersion} is not a valid version!");
+            return Result.Error<string>($"{newVersion} is not a valid version!");
         }
 
         if (!fileVersionMatch.Success)
         {
             _logManager.Trace($"Info: Version present in version.yml was not correct -> '{File.Version}'");
         }
-        
+
         Major = int.TryParse(newVersionMatch.Groups[1].Value, out var major) ? major : -1;
         Minor = int.TryParse(newVersionMatch.Groups[2].Value, out var minor) ? minor : -1;
         Patch = int.TryParse(newVersionMatch.Groups[3].Value, out var patch) ? patch : -1;
         Build = int.TryParse(newVersionMatch.Groups[4].Value, out var build) ? build : -1;
         if (Major == -1 || Minor == -1)
         {
-            return new ErrorResult("Some went wrong while parsing major and minor values");
+            return Result.Error<string>("Some went wrong while parsing major and minor values");
         }
+
         if (Patch == -1)
         {
             File.Version = $"{Major}.{Minor}";
@@ -180,8 +182,9 @@ public class VersionInfo
         {
             File.Version = $"{Major}.{Minor}.{Patch}.{Build}";
         }
+
         var saveResult = File.Save(_versionPath);
-        return saveResult is IErrorResult ? saveResult : new SuccessResult();
+        return saveResult is IErrorResult ? saveResult : Result.Ok();
     }
 
     #region Internal
@@ -212,8 +215,8 @@ public class VersionInfo
         using var repo = new Repository(repoPath);
 
         var branch = repo.Head;
-        var branchName = branch.FriendlyName;  
-        
+        var branchName = branch.FriendlyName;
+
         var commit = branch.Tip;
         // Get the short commit hash (7 characters)
         var shortCommitHash = commit.Sha.Substring(0, 7);
@@ -227,24 +230,25 @@ public class VersionInfo
     {
         if (MatchRefsToConfig(CombinedSearchArray, File.Default.Release))
         {
-            return new SuccessResult<BranchConfig>(File.Default.Release);
+            return Result.Ok(File.Default.Release);
         }
 
         foreach (var branch in File.Branches)
         {
             if (MatchRefsToConfig(CombinedSearchArray, branch.Value))
             {
-                return new SuccessResult<BranchConfig>(branch.Value);
+                return Result.Ok(branch.Value);
             }
         }
 
-        return new ErrorResult<BranchConfig>("Something went wrong while trying to get current branch");
+        return Result.Error<BranchConfig>("Something went wrong while trying to get current branch");
     }
 
     private bool MatchRefsToConfig(string[] refs, BranchConfig config)
     {
         return refs.Any(t => MatchBranchConfig(t, config));
     }
+
     private bool MatchBranchConfig(string currentBranch, BranchConfig config)
     {
         foreach (var matchSchema in config.Match)

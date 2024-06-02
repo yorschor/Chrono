@@ -39,11 +39,11 @@ public class VersionFile
             var yamlContent = serializer.Serialize(this);
             File.WriteAllText(path, yamlContent);
 
-            return new SuccessResult();
+            return Result.Ok();
         }
         catch (Exception ex)
         {
-            return new ErrorResult(ex.Message);
+            return Result.Error(ex.Message);
         }
     }
     
@@ -51,7 +51,7 @@ public class VersionFile
     {
         if (string.IsNullOrWhiteSpace(startDirectory) || string.IsNullOrWhiteSpace(targetFileName) || string.IsNullOrWhiteSpace(stopDirectory))
         {
-            return new ErrorResult<string>("Directory paths and file name cannot be null or empty.");
+            return Result.Error<string>("Directory paths and file name cannot be null or empty.");
         }
 
         var files = Directory.EnumerateFiles(stopDirectory, targetFileName, SearchOption.AllDirectories);
@@ -59,7 +59,7 @@ public class VersionFile
 
         if (!enumerable.Any())
         {
-            return new ErrorResult<string>("No version.yml present");
+            return Result.Error<string>("No version.yml present");
         }
 
         Logger.Trace($"Found {enumerable.Length} version file(s)");
@@ -70,12 +70,12 @@ public class VersionFile
 
         if (enumerable.Length == 1)
         {
-            if (!VersionFile.IsSubdirectory(startDirectory, Path.GetDirectoryName(enumerable[0])))
+            if (!IsSubdirectory(startDirectory, Path.GetDirectoryName(enumerable[0])))
             {
-                return new SuccessResult<string>(enumerable[0]);
+                return Result.Ok(enumerable[0]);
             }
 
-            return new ErrorResult<string>("The file is in a subdirectory of the start directory.");
+            return Result.Error<string>("The file is in a subdirectory of the start directory.");
         }
 
 
@@ -84,12 +84,12 @@ public class VersionFile
 
         foreach (var file in enumerable)
         {
-            if (VersionFile.IsSubdirectory(startDirectory, Path.GetDirectoryName(file)))
+            if (IsSubdirectory(startDirectory, Path.GetDirectoryName(file)))
             {
                 continue;
             }
 
-            var distance = VersionFile.GetPathDistance(startDirectory, file);
+            var distance = GetPathDistance(startDirectory, file);
             Logger.Trace(distance);
             if (distance < 0 || distance >= minDistance) continue;
             minDistance = distance;
@@ -97,8 +97,8 @@ public class VersionFile
         }
 
         return nearestFile != null
-            ? new SuccessResult<string>(nearestFile)
-            : new ErrorResult<string>("Something went wrong while searching for version.yml");
+            ? Result.Ok(nearestFile)
+            : Result.Error<string>("Something went wrong while searching for version.yml");
     }
 
     #region Helpers
