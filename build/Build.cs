@@ -36,7 +36,7 @@ class Build : NukeBuild
 
     readonly GitHubActions GitHubActions = GitHubActions.Instance;
 
-    const string ProjectName = "Chrono";
+    const string ProjectName = "Chrono.CLI";
     const string TargetProjectName = "Chrono.DotnetTasks";
     const string TestLibs = "Chrono.TestLib.*";
     readonly AbsolutePath PackagesDirectory = RootDirectory / "PackageDirectory";

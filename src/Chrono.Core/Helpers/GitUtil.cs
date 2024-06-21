@@ -25,8 +25,17 @@ public class GitUtil
         return Result.Ok(rootPath);
     }
 
+    /// <summary>
+    /// Tags the current commit with the current version as defined in the version file
+    /// </summary>
+    /// <returns></returns>
     public static Result TagCommit()
     {
+        var rootPathResult = GetRepoRootPath();
+        if (rootPathResult is IErrorResult rootPathErr)
+        {
+            return Result.Error(rootPathErr.Message);
+        }
         var infoFileResult = VersionInfo.Get();
         if (infoFileResult is IErrorResult infoResErr)
         {
@@ -39,9 +48,15 @@ public class GitUtil
             return Result.Error(parseErr.Message);
         }
         
-        //Tag current Commit 
-        //Change Version to next one
-        //Commit version.yml
+        // //Tag current Commit
+        // var repo = new Repository(rootPathResult.Data);
+        // repo.Tags.Add($"v{parseRes.Data.Version}");
+        // Logger.Info($"Tagged commit with version {parseRes.Data.Version}");
+        // //Change Version to next one
+        // repo.Commit($"Version {parseRes.Data.Version}", repo.Head.Tip, repo.Head.Tip);
+        // Logger.Info($"Changed version to {parseRes.Data.NextVersion}");
+        // //Commit version.yml
+        // var versionFile = Path.Combine(rootPathResult.Data, "version.yml");
         return null;
     }
 }
