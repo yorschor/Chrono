@@ -21,14 +21,30 @@ public class GitSettings : BaseCommandSettings
 
 #region Commands
 
-public class ReleaseCommands : Command<ReleaseCommands.Settings>
+public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
         // Create new branch acording to schema 
         // Increment Version on existing branch arcording to schema 
         //  
+        var infoGetResult = VersionInfo.Get();
+        if (infoGetResult is IErrorResult err)
+        {
+            settings.Logger.Error(err.Message);
+            return 0;
+        }
+
+        var parseFullVersionResult = infoGetResult.Data.ParseVersion();
+        if (!parseFullVersionResult.Success) return 0;
+
+        var currentBranchConfig=  infoGetResult.Data.GetConfigForCurrentBranch().Data;
         
+        // Create new Branch. 
+        // Increment Version on existing branch arcording to schema
+        
+        
+        // infoGetResult.Data.
         return 1;
     }
 
@@ -37,7 +53,7 @@ public class ReleaseCommands : Command<ReleaseCommands.Settings>
     }
 }
 
-public class TagCommand : Command<TagCommand.Settings>
+public class CreateTagCommand : Command<CreateTagCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {

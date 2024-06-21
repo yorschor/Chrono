@@ -108,4 +108,40 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
     }
 }
 
+public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
+{
+    public override int Execute(CommandContext context, Settings settings)
+    {
+        if (settings.Trace)
+        {
+            NLogHelper.EnableShortConsoleTarget(true);
+        }
+        
+        var versionComponent = settings.VersionComponent switch
+        {
+            "major" => VersionComponent.Major,
+            "minor" => VersionComponent.Minor,
+            "patch" => VersionComponent.Patch,
+            "build" => VersionComponent.Build,
+            _ => VersionComponent.INVALID
+        };
+        var res = VersionInfo.Get().Data.BumpVersion(versionComponent);
+        if (res is IErrorResult err)
+        {
+            NLogHelper.EnableShortConsoleTarget();
+            AnsiConsole.MarkupLine($"[red]Error: {err.Message}[/]");
+            return 0;
+        }
+
+        NLogHelper.EnableShortConsoleTarget();
+        AnsiConsole.MarkupLine($"[green]Successfully set version to [/]");
+        return 1;
+    }
+
+    public sealed class Settings : VersionSettings
+    {
+        [CommandArgument(0, "<Version Component>")] public string VersionComponent { get; set; }
+    }
+}
+
 #endregion

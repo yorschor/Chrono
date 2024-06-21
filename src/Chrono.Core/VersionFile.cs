@@ -134,9 +134,9 @@ public class VersionFile
 public class DefaultConfig
 {
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
-
+    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; }
+    [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
     [YamlMember(Alias = "precision")] public string Precision { get; set; }
-
     [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }
     [YamlMember(Alias = "release")] public BranchConfig Release { get; set; }
 }
@@ -145,8 +145,8 @@ public class BranchConfig
 {
     [YamlMember(Alias = "match")] public List<string> Match { get; set; }
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
-
+    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; }
+    [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
     [YamlMember(Alias = "precision")] public string Precision { get; set; }
-
     [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }
 }
