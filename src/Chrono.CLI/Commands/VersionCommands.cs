@@ -61,7 +61,8 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             tree.AddNode("SearchArray").AddNodes(versionInfo.CombinedSearchArray);
             AnsiConsole.Write(tree);
         }
-        var parseResult = versionInfo.ParseVersion();
+
+        var parseResult = settings.Numeric ? versionInfo.GetNumericVersion() : versionInfo.ParseVersion();
         if (parseResult is IErrorResult parseErr)
         {
             parseErr.PrintAll();
@@ -74,6 +75,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
 
     public sealed class Settings : VersionSettings
     {
+        [CommandOption("-n|--numeric")] public bool Numeric { get; init; } = false;
     }
 }
 
@@ -116,7 +118,7 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
         {
             NLogHelper.EnableShortConsoleTarget(true);
         }
-        
+
         var versionComponent = settings.VersionComponent switch
         {
             "major" => VersionComponent.Major,
@@ -140,7 +142,8 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
 
     public sealed class Settings : VersionSettings
     {
-        [CommandArgument(0, "<Version Component>")] public string VersionComponent { get; set; }
+        [CommandArgument(0, "<Version Component>")]
+        public string VersionComponent { get; set; }
     }
 }
 

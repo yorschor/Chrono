@@ -20,7 +20,7 @@ public class GitUtil
         Logger.Trace($"Root: {rootPath}");
         if (string.IsNullOrEmpty(rootPath))
         {
-            return Result.Error<string>($"Not Repo found from starting directory {startDir}");
+            return Result.Error<string>($"No Repo found from starting directory {startDir}");
         }
         return Result.Ok(rootPath);
     }

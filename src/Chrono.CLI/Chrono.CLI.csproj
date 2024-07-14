@@ -9,12 +9,13 @@
         <ToolCommandName>chrono</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         
-        <PackageId>Chrono.Cli</PackageId>
+        <PackageId>Chrono.CLI</PackageId>
         <Authors>Ekkehard C. Damisch</Authors>
         <Copyright>Ekkehard C. Damisch</Copyright>
         <PackageProjectUrl>https://github.com/yorschor/Chrono</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/yorschor/Chrono?tab=MIT-1-ov-file</PackageLicenseUrl>
         <PackageTags>git version dotnet msbuild</PackageTags>
+        <RootNamespace>Chrono</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

@@ -2,7 +2,7 @@ using Chrono.Core.Helpers;
 
 namespace Chrono.Core.Test;
 
-public class VersionFileUtilTest
+public class VersionFileTest
 {
     [Theory]
     [InlineData("C:/Users/Example/Documents", "C:/Users/Example/Projects/Project1/report.txt", 3)]
