@@ -8,6 +8,9 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Chrono.Core;
 
+/// <summary>
+/// Represents a version file with configurations for different branches and default settings.
+/// </summary>
 public class VersionFile
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -18,6 +21,12 @@ public class VersionFile
 
     [YamlMember(Alias = "branches")] public Dictionary<string, BranchConfig> Branches { get; set; }
 
+    
+    /// <summary>
+    /// Creates a <see cref="VersionFile"/> instance from the specified YAML file.
+    /// </summary>
+    /// <param name="path">The path to the YAML file.</param>
+    /// <returns>A <see cref="VersionFile"/> instance.</returns>
     public static VersionFile From(string path)
     {
         var deserializer = new DeserializerBuilder()
@@ -28,6 +37,11 @@ public class VersionFile
         return deserializer.Deserialize<VersionFile>(yamlContent);
     }
 
+    /// <summary>
+    /// Saves the current instance to the specified path.
+    /// </summary>
+    /// <param name="path">The path where the file will be saved.</param>
+    /// <returns>A <see cref="Result"/> indicating success or failure.</returns>
     public Result Save(string path)
     {
         try
@@ -47,6 +61,13 @@ public class VersionFile
         }
     }
     
+    /// <summary>
+    /// Finds the specified target file within the directory hierarchy.
+    /// </summary>
+    /// <param name="startDirectory">The starting directory for the search.</param>
+    /// <param name="stopDirectory">The stopping directory for the search.</param>
+    /// <param name="targetFileName">The name of the target file. Defaults to "version.yml".</param>
+    /// <returns>A <see cref="Result{T}"/> containing the path to the file or an error message.</returns>
     public static Result<string> Find(string startDirectory, string stopDirectory, string targetFileName = "version.yml")
     {
         if (string.IsNullOrWhiteSpace(startDirectory) || string.IsNullOrWhiteSpace(targetFileName) || string.IsNullOrWhiteSpace(stopDirectory))
@@ -103,6 +124,12 @@ public class VersionFile
 
     #region Helpers
 
+    /// <summary>
+    /// Determines if a directory is a subdirectory of another directory.
+    /// </summary>
+    /// <param name="baseDir">The base directory.</param>
+    /// <param name="potentialSubDir">The potential subdirectory.</param>
+    /// <returns>True if the potential subdirectory is a subdirectory of the base directory, otherwise false.</returns>
     internal static bool IsSubdirectory(string baseDir, string potentialSubDir)
     {
         var baseDirInfo = new DirectoryInfo(baseDir);
@@ -121,6 +148,12 @@ public class VersionFile
         return false;
     }
 
+    /// <summary>
+    /// Gets the distance between two paths.
+    /// </summary>
+    /// <param name="fromPath">The starting path.</param>
+    /// <param name="toPath">The target path.</param>
+    /// <returns>The distance between the two paths.</returns>
     internal static int GetPathDistance(string fromPath, string toPath)
     {
         var absolut = AbsolutePath.Create(fromPath);
@@ -131,6 +164,9 @@ public class VersionFile
     #endregion
 }
 
+/// <summary>
+/// Represents the default configuration settings.
+/// </summary>
 public class DefaultConfig
 {
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
@@ -141,6 +177,9 @@ public class DefaultConfig
     [YamlMember(Alias = "release")] public BranchConfig Release { get; set; }
 }
 
+/// <summary>
+/// Represents the configuration for a specific branch.
+/// </summary>
 public class BranchConfig
 {
     [YamlMember(Alias = "match")] public List<string> Match { get; set; }

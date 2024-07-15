@@ -40,6 +40,7 @@ public class VersionInfo
     private readonly string _versionPath;
 
     private BranchConfig _currentBranchConfig;
+    private string _parsedVersion = "";
 
     #endregion
 
@@ -59,9 +60,9 @@ public class VersionInfo
     }
 
     /// <summary>
-    /// A catch-all Method that attempts to resolve and parse a VersionInfo based on the defaults
+    /// A catch-all Method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
     public static Result<VersionInfo> Get()
     {
         var repoFoundResult = GitUtil.GetRepoRootPath();
@@ -83,10 +84,10 @@ public class VersionInfo
     }
 
     /// <summary>
-    /// Retrieve the current branch config and return the parsed version for the current branch
+    /// Retrieves the current branch config and returns the parsed version for the current branch.
     /// </summary>
-    /// <param name="schema"></param>
-    /// <returns></returns>
+    /// <param name="schema">The version schema.</param>
+    /// <returns>A result containing the parsed version string.</returns>
     public Result<string> ParseVersion(string schema = "")
     {
         try
@@ -110,6 +111,7 @@ public class VersionInfo
 
                 if (string.IsNullOrEmpty(schema))
                 {
+                    _parsedVersion = "";
                     return Result.Error<string>("No schema could be configured");
                 }
 
@@ -126,42 +128,47 @@ public class VersionInfo
                 .Replace("{commitShortHash}", CommitShortHash)
                 .Replace("{buildNumber}", CiBuildNumber.ToString());
             schemaWithValues = ResolveDelimiterBlock(schemaWithValues);
-            return Result.Ok(ValidateVersionString(schemaWithValues));
+            var validated = ValidateVersionString(schemaWithValues);
+            _parsedVersion = validated;
+            return Result.Ok(validated);
         }
         catch (Exception e)
         {
+            _parsedVersion = "";
             return Result.Error<string>(e.ToString());
         }
     }
 
     /// <summary>
-    /// Gets the numeric part of the parsed version ignoring any suffixes 
+    /// Gets the numeric part of the parsed version ignoring any suffixes.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A result containing the numeric version string.</returns>
     public Result<string> GetNumericVersion()
     {
-        var parseResult = ParseVersion();
-        if (parseResult.Success)
+        if (_parsedVersion == "")
         {
-            var numericVersionMatch = RegexPatterns.NumericVersionOnlyRegex.Match(parseResult.Data);
-            if (numericVersionMatch.Success)
-            {
-                return Result.Ok(numericVersionMatch.Value);
-            }
+            ParseVersion();
         }
 
+        var numericVersionMatch = RegexPatterns.NumericVersionOnlyRegex.Match(_parsedVersion);
+        if (numericVersionMatch.Success)
+        {
+            return Result.Ok(numericVersionMatch.Value);
+        }
+        
+        _parsedVersion = "";
         return Result.Error<string>("Could not parse numeric version");
     }
 
     /// <summary>
-    /// Sets the provided version as the new one and saves the version.yml
+    /// Sets the provided version as the new one and saves the version.yml.
     /// </summary>
-    /// <param name="newVersion"></param>
-    /// <returns></returns>
+    /// <param name="newVersion">The new version string.</param>
+    /// <returns>A result indicating success or failure.</returns>
     public Result SetVersion(string newVersion = "")
     {
         var setFromString = !string.IsNullOrEmpty(newVersion);
-
+        _parsedVersion = "";
         var newVersionMatch = RegexPatterns.ValidVersionRegex.Match(newVersion ?? string.Empty);
         if (setFromString)
         {
@@ -210,9 +217,9 @@ public class VersionInfo
     }
 
     /// <summary>
-    /// Gets the current branch config as a result
+    /// Gets the current branch config as a result.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A result containing the branch configuration.</returns>
     public Result<BranchConfig> GetConfigForCurrentBranch()
     {
         if (MatchRefsToConfig(CombinedSearchArray, File.Default.Release))
@@ -231,6 +238,11 @@ public class VersionInfo
         return Result.Error<BranchConfig>("Something went wrong while trying to get current branch");
     }
 
+    /// <summary>
+    /// Bumps the version based on the specified component.
+    /// </summary>
+    /// <param name="component">The version component to bump.</param>
+    /// <returns>A result indicating success or failure.</returns>
     public Result BumpVersion(VersionComponent component)
     {
         var parseResult = ParseVersion();
@@ -266,6 +278,7 @@ public class VersionInfo
         {
             return Result.Error<string>(setErr.Message);
         }
+
         return Result.Ok();
     }
 

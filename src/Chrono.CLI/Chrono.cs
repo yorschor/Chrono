@@ -9,27 +9,31 @@ public static class Chrono
     public static int Main(string[] args)
     {
         var app = new CommandApp();
-
-        app.Configure(config =>
-        {
-            config.SetApplicationName("chrono"); 
-            
-            config.AddCommand<InitCommand>("init")
-                .WithDescription("")
-                .WithExample("init");
-            
-            config.AddCommand<GetVersionCommand>("get")
-                .WithDescription("")
-                .WithExample("get");
-            config.AddCommand<SetVersionCommand>("set")
-                .WithDescription("")
-                .WithExample("set");
-
-            config.AddCommand<GetInfoCommand>("info");
-
-        });
+        app.Configure(GetAppConfigurator());
         return app.Run(args);
     }
+    
+    public static Action<IConfigurator> GetAppConfigurator() => config =>
+    {
+        config.SetApplicationName("chrono"); 
+            
+        config.AddCommand<InitCommand>("init")
+            .WithDescription("")
+            .WithExample("init");
+            
+        config.AddCommand<GetVersionCommand>("get")
+            .WithDescription("")
+            .WithExample("get");
+        config.AddCommand<SetVersionCommand>("set")
+            .WithDescription("")
+            .WithExample("set");
+        config.AddCommand<BumpVersionCommand>("bump")
+            .WithDescription("")
+            .WithExample("bump");
+
+        config.AddCommand<GetInfoCommand>("info");
+
+    };
 }
 
 public class BaseCommandSettings : CommandSettings

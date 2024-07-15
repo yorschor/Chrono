@@ -70,7 +70,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
         }
         AnsiConsole.Console.WriteLine(parseResult.Data);
         NLogHelper.EnableShortConsoleTarget();
-        return 0;
+        return 1;
     }
 
     public sealed class Settings : VersionSettings
@@ -127,16 +127,16 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
             "build" => VersionComponent.Build,
             _ => VersionComponent.INVALID
         };
-        var res = VersionInfo.Get().Data.BumpVersion(versionComponent);
+        var infoRes = VersionInfo.Get();
+        var res = infoRes.Data.BumpVersion(versionComponent);
         if (res is IErrorResult err)
         {
             NLogHelper.EnableShortConsoleTarget();
             AnsiConsole.MarkupLine($"[red]Error: {err.Message}[/]");
             return 0;
         }
-
         NLogHelper.EnableShortConsoleTarget();
-        AnsiConsole.MarkupLine($"[green]Successfully set version to [/]");
+        AnsiConsole.MarkupLine($"[green]Successfully set version to {infoRes.Data.ParseVersion().Data}[/]");
         return 1;
     }
 
