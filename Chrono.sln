@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono", "src\Chrono\Chrono.csproj", "{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.CLI", "src\Chrono.CLI\Chrono.CLI.csproj", "{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{CDAA9ADB-B99C-4867-B58A-BA684B2BF535}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,6 +23,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{37F6F95A-3DE3-4128-9286-4D0C822518AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core.Test", "src\Tests\Chrono.Core.Test\Chrono.Core.Test.csproj", "{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.CLI.Test", "Chrono.CLI.Test\Chrono.CLI.Test.csproj", "{938B82BE-83FB-4354-B984-4B83633DFB6C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,10 +50,15 @@ Global
 		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{938B82BE-83FB-4354-B984-4B83633DFB6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{938B82BE-83FB-4354-B984-4B83633DFB6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{938B82BE-83FB-4354-B984-4B83633DFB6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{938B82BE-83FB-4354-B984-4B83633DFB6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{16D3B882-21CD-41B1-8705-1519152B7A62} = {CDAA9ADB-B99C-4867-B58A-BA684B2BF535}
 		{6734EC58-E93A-4DBB-892D-B52BA5FA30D8} = {CDAA9ADB-B99C-4867-B58A-BA684B2BF535}
 		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0} = {37F6F95A-3DE3-4128-9286-4D0C822518AD}
+		{938B82BE-83FB-4354-B984-4B83633DFB6C} = {37F6F95A-3DE3-4128-9286-4D0C822518AD}
 	EndGlobalSection
 EndGlobal
