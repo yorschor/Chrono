@@ -1,8 +1,12 @@
-﻿using Chrono.Core.Helpers;
+﻿using System.Net.Http;
+using Chrono.Core.Helpers;
 using NLog;
 using Nuke.Common.IO;
+using YamlDotNet.Core;
+using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+
 // ReSharper disable ClassNeverInstantiated.Global
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
@@ -21,7 +25,7 @@ public class VersionFile
 
     [YamlMember(Alias = "branches")] public Dictionary<string, BranchConfig> Branches { get; set; }
 
-    
+
     /// <summary>
     /// Creates a <see cref="VersionFile"/> instance from the specified YAML file.
     /// </summary>
@@ -29,12 +33,82 @@ public class VersionFile
     /// <returns>A <see cref="VersionFile"/> instance.</returns>
     public static VersionFile From(string path)
     {
+        // var yamlContent = File.ReadAllText(path);
+        //
+        // var deserializer = new DeserializerBuilder()
+        //     .WithNamingConvention(CamelCaseNamingConvention.Instance)
+        //     .Build();
+        //
+        // var versionFile = deserializer.Deserialize<VersionFile>(yamlContent);
+        //
+        //
+        // return versionFile;
+        return FromAsync(path).GetAwaiter().GetResult();
+    }
+    public static async Task<VersionFile> FromAsync(string path)
+    {
+        var mainYamlContent = File.ReadAllText(path);
+        var finalYamlContent = mainYamlContent;
+
         var deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 
-        var yamlContent = File.ReadAllText(path);
-        return deserializer.Deserialize<VersionFile>(yamlContent);
+        var tempVersionFile = deserializer.Deserialize<VersionFile>(mainYamlContent);
+
+        if (!string.IsNullOrEmpty(tempVersionFile.Default?.InheritFrom))
+        {
+            var inheritedYamlContentResult = await FetchYamlFromUriAsync(tempVersionFile.Default?.InheritFrom);
+            if (inheritedYamlContentResult.Success)
+            {
+                var inheritedYamlContent = inheritedYamlContentResult.Data;
+                finalYamlContent = MergeYamlContent(inheritedYamlContent, mainYamlContent);
+            }
+            else if (inheritedYamlContentResult is IErrorResult errorResult)
+            {
+                Logger.Error(errorResult.Message);
+            }
+        }
+
+        return deserializer.Deserialize<VersionFile>(finalYamlContent);
+    }
+
+    
+    public static async Task<Result<string>> FetchYamlFromUriAsync(string uri)
+    {
+        if (string.IsNullOrEmpty(uri))
+        {
+            return Result.Error<string>("URI is not set.");
+        }
+
+        try
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetStringAsync(uri);
+            return Result.Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return Result.Error<string>($"Failed to fetch the YAML file: {ex.Message}");
+        }
+    }
+
+    private static string MergeYamlContent(string baseYaml, string overrideYaml)
+    {
+        using var baseReader = new StringReader(baseYaml);
+        using var overrideReader = new StringReader(overrideYaml);
+
+        var parser = new MergingParser(new Parser(baseReader));
+        var mergingParser = new MergingParser(new Parser(overrideReader));
+
+        var yamlStream = new YamlStream();
+        yamlStream.Load(parser);
+        var mergedStream = new YamlStream();
+        mergedStream.Load(mergingParser);
+
+        using var stringWriter = new StringWriter();
+        mergedStream.Save(stringWriter);
+        return stringWriter.ToString();
     }
 
     /// <summary>
@@ -60,7 +134,7 @@ public class VersionFile
             return Result.Error(ex.Message);
         }
     }
-    
+
     /// <summary>
     /// Finds the specified target file within the directory hierarchy.
     /// </summary>
@@ -164,28 +238,33 @@ public class VersionFile
     #endregion
 }
 
-/// <summary>
-/// Represents the default configuration settings.
-/// </summary>
+#region Models
+
 public class DefaultConfig
 {
+    [YamlMember(Alias = "inheritFrom")] public string InheritFrom { get; set; }
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
-    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; }
+
+    [YamlMember(Alias = "newBranchSchema")]
+    public string NewBranchSchema { get; set; }
+
     [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
     [YamlMember(Alias = "precision")] public string Precision { get; set; }
     [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }
     [YamlMember(Alias = "release")] public BranchConfig Release { get; set; }
 }
 
-/// <summary>
-/// Represents the configuration for a specific branch.
-/// </summary>
 public class BranchConfig
 {
     [YamlMember(Alias = "match")] public List<string> Match { get; set; }
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
-    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; }
+
+    [YamlMember(Alias = "newBranchSchema")]
+    public string NewBranchSchema { get; set; }
+
     [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
     [YamlMember(Alias = "precision")] public string Precision { get; set; }
     [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }
 }
+
+#endregion
