@@ -65,13 +65,16 @@ public class CliTestHelper : IDisposable
                                                               release:
                                                                 match:
                                                                   - ^v.*
+                                                                from:
+                                                                  - ^trunk$
+                                                                newBranchSchema: 'release/v{major}.{minor}.{patch}}'
                                                                 versionSchema: '{major}.{minor}.{patch}'
-                                                                precision:
+                                                                precision: minor
                                                                 prereleaseTag:
                                                             branches:
                                                               release:
                                                                 match:
-                                                                  - ^release/.*
+                                                                  - ^release/v.*
                                                                 versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{commitShortHash}'
                                                                 precision: patch
                                                                 prereleaseTag: rc

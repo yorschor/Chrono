@@ -34,8 +34,8 @@ public class VersionCommandTest
     {
         Debug.WriteLine("GetVersionOnReleaseBranchTest...");
         using var repo = new Repository(App.TempDirectory);
-        repo.CreateBranch("release/test");
-        LibGit2Sharp.Commands.Checkout(repo, "release/test");
+        repo.CreateBranch("release/v1.0.0");
+        LibGit2Sharp.Commands.Checkout(repo, "release/v1.0.0");
         var hash = repo.Head.Tip.Sha;
         App.RunAndAssert(["get"], "1.0.0-rc-" + hash[..7]);
     }
