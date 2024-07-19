@@ -1,12 +1,26 @@
 = Chrono
 
-Current Version:
+== 📚 About
+
+[cols="^3,^1", frame=none grid=cols]
+|===
+a|
+[cols=">1,<1,>4", frame=none, grid=none]
+!===
+
+a! image::https://img.shields.io/badge/c%23-%23239120 .svg?&logo=csharp&logoColor=white[C#]
+a! image:https://img.shields.io/nuget/v/Chrono.Cli[NuGet Version]
+
+a! Current Version:
 include::version.yml[lines="3"]
 
-== 📚 About 
+!===
 Chrono is a git versioning tool with a focus on being customizable and easy to configure.
 
 It is inspired by the likes of https://github.com/GitTools/GitVersion[GitVersion] and https://github.com/dotnet/Nerdbank.GitVersioning[Nerdbank.Gitversioning].
+
+a|image::icon.png[]
+|===
 
 
 === Commands
