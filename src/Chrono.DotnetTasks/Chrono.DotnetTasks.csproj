@@ -13,6 +13,7 @@
         <PackageProjectUrl>https://github.com/yorschor/Chrono</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/yorschor/Chrono?tab=MIT-1-ov-file</PackageLicenseUrl>
         <PackageTags>git version dotnet msbuild</PackageTags>
+        <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,6 +29,11 @@
 
     <!--    Nuget Package content-->
     <ItemGroup>
+        <None Include="..\..\icon.png">
+          <Pack>True</Pack>
+          <PackagePath></PackagePath>
+          <Link>icon.png</Link>
+        </None>
         <None Include="Chrono.DotnetTasks.props" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="Chrono.DotnetTasks.targets" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="bin\$(Configuration)\net6.0\runtimes\**" Pack="true" PackagePath="build\runtimes\" Visible="false"/>

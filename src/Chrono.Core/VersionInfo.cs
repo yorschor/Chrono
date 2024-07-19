@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Chrono.Core.Helpers;
+using Huxy;
 using LibGit2Sharp;
 using NLog;
 using Version = System.Version;
@@ -66,18 +67,18 @@ public class VersionInfo
     public static Result<VersionInfo> Get()
     {
         var repoFoundResult = GitUtil.GetRepoRootPath();
-        if (repoFoundResult is IErrorResult repoErr)
+        if (repoFoundResult is IErrorResult)
         {
-            return Result.Error<VersionInfo>(repoErr);
+            return Result.Error<VersionInfo>(repoFoundResult);
         }
 
         var versionFileFoundResult = VersionFile.Find(
             Directory.GetCurrentDirectory(),
             repoFoundResult.Data);
 
-        if (versionFileFoundResult is IErrorResult verErr)
+        if (!versionFileFoundResult)
         {
-            return Result.Error<VersionInfo>(verErr);
+            return Result.Error<VersionInfo>(versionFileFoundResult);
         }
 
         return Result.Ok(new VersionInfo(versionFileFoundResult.Data));
@@ -246,9 +247,9 @@ public class VersionInfo
     public Result BumpVersion(VersionComponent component)
     {
         var parseResult = ParseVersion();
-        if (parseResult is IErrorResult err)
+        if (parseResult is IErrorResult)
         {
-            return Result.Error<string>(err.Message);
+            return Result.Error<string>(parseResult);
         }
 
         switch (component)
@@ -274,9 +275,9 @@ public class VersionInfo
         }
 
         var setResult = SetVersion();
-        if (setResult is IErrorResult setErr)
+        if (setResult is IErrorResult)
         {
-            return Result.Error<string>(setErr.Message);
+            return Result.Error<string>(setResult);
         }
 
         return Result.Ok();

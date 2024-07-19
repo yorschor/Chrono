@@ -1,3 +1,4 @@
+using Huxy;
 using LibGit2Sharp;
 using NLog;
 using NLog.Fluent;
@@ -32,20 +33,20 @@ public class GitUtil
     public static Result TagCommit()
     {
         var rootPathResult = GetRepoRootPath();
-        if (rootPathResult is IErrorResult rootPathErr)
+        if (rootPathResult is IErrorResult)
         {
-            return Result.Error(rootPathErr.Message);
+            return Result.Error(rootPathResult);
         }
         var infoFileResult = VersionInfo.Get();
-        if (infoFileResult is IErrorResult infoResErr)
+        if (infoFileResult is IErrorResult)
         {
-            return Result.Error(infoResErr.Message);
+            return Result.Error(infoFileResult);
         }
 
         var parseRes= infoFileResult.Data.ParseVersion();
-        if (parseRes is IErrorResult parseErr)
+        if (parseRes is IErrorResult)
         {
-            return Result.Error(parseErr.Message);
+            return Result.Error(parseRes);
         }
         
         // //Tag current Commit

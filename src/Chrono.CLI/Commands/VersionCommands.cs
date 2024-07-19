@@ -1,5 +1,6 @@
 ﻿using Chrono.Core;
 using Chrono.Core.Helpers;
+using Huxy;
 using Nuke.Common.Utilities.Collections;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -30,9 +31,9 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
         }
 
         var repoFoundResult = GitUtil.GetRepoRootPath();
-        if (repoFoundResult is IErrorResult repoErr)
+        if (repoFoundResult is IErrorResult)
         {
-            repoErr.PrintAll();
+            repoFoundResult.PrintErrors();
             return 0;
         }
 
@@ -40,9 +41,9 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             Directory.GetCurrentDirectory(),
             repoFoundResult.Data);
 
-        if (versionFileFoundResult is IErrorResult verErr)
+        if (versionFileFoundResult is IErrorResult)
         {
-            verErr.PrintAll();
+            repoFoundResult.PrintErrors();
             return 1;
         }
 
@@ -63,11 +64,12 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
         }
 
         var parseResult = settings.Numeric ? versionInfo.GetNumericVersion() : versionInfo.ParseVersion();
-        if (parseResult is IErrorResult parseErr)
+        if (parseResult is IErrorResult)
         {
-            parseErr.PrintAll();
+            parseResult.PrintErrors();
             return 0;
         }
+
         AnsiConsole.Console.WriteLine(parseResult.Data);
         NLogHelper.EnableShortConsoleTarget();
         return 1;
@@ -92,10 +94,10 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
         var p = Path.Combine(Environment.CurrentDirectory, versionFileName);
         var versionInfo = new VersionInfo(p);
         var setResult = versionInfo.SetVersion(settings.NewVersion);
-        if (setResult is IErrorResult err)
+        if (setResult is IErrorResult)
         {
             NLogHelper.EnableShortConsoleTarget();
-            AnsiConsole.MarkupLine($"[red]Error: {err.Message}[/]");
+            AnsiConsole.MarkupLine($"[red]Error: {setResult.Message}[/]");
             return 0;
         }
 
@@ -129,12 +131,13 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
         };
         var infoRes = VersionInfo.Get();
         var res = infoRes.Data.BumpVersion(versionComponent);
-        if (res is IErrorResult err)
+        if (res is IErrorResult)
         {
             NLogHelper.EnableShortConsoleTarget();
-            AnsiConsole.MarkupLine($"[red]Error: {err.Message}[/]");
+            AnsiConsole.MarkupLine($"[red]Error: {res.Message}[/]");
             return 0;
         }
+
         NLogHelper.EnableShortConsoleTarget();
         AnsiConsole.MarkupLine($"[green]Successfully set version to {infoRes.Data.ParseVersion().Data}[/]");
         return 1;

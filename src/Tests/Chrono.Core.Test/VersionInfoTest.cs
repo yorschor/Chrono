@@ -1,4 +1,5 @@
 using Chrono.Core.Helpers;
+using Huxy;
 
 namespace Chrono.Core.Test
 {
@@ -103,9 +104,9 @@ version: 'invalid_version'
             var result = versionInfo.SetVersion("invalid_version");
 
             Assert.False(result.Success);
-            if (result is IErrorResult errorResult)
+            if (result is IErrorResult)
             {
-                Assert.Equal("invalid_version is not a valid version!", errorResult.Message);
+                Assert.Equal("invalid_version is not a valid version!", result.Message);
             }
         }
 

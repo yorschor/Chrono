@@ -16,6 +16,7 @@
         <PackageLicenseUrl>https://github.com/yorschor/Chrono?tab=MIT-1-ov-file</PackageLicenseUrl>
         <PackageTags>git version dotnet msbuild</PackageTags>
         <RootNamespace>Chrono</RootNamespace>
+        <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -30,6 +31,11 @@
     <ItemGroup>
       <None Update="NLog.config">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Include="..\..\icon.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+        <Link>icon.png</Link>
       </None>
     </ItemGroup>
 

@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
 using Chrono.Core.Helpers;
+using Huxy;
 using NLog;
 using Nuke.Common.IO;
 using YamlDotNet.Core;
@@ -64,9 +65,9 @@ public class VersionFile
                 var inheritedYamlContent = inheritedYamlContentResult.Data;
                 finalYamlContent = MergeYamlContent(inheritedYamlContent, mainYamlContent);
             }
-            else if (inheritedYamlContentResult is IErrorResult errorResult)
+            else if (inheritedYamlContentResult is IErrorResult)
             {
-                Logger.Error(errorResult.Message);
+                Logger.Error(inheritedYamlContentResult);
             }
         }
 

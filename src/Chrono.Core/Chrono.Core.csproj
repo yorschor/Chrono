@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Huxy" />
       <PackageReference Include="LibGit2Sharp" />
       <PackageReference Include="NLog" />
       <PackageReference Include="Nuke.Utilities" />

@@ -1,5 +1,6 @@
 ﻿using Chrono.Core;
 using Chrono.Core.Helpers;
+using Huxy;
 using Nuke.Common.Utilities.Collections;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -29,9 +30,9 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
         // Increment Version on existing branch arcording to schema 
         //  
         var infoGetResult = VersionInfo.Get();
-        if (infoGetResult is IErrorResult err)
+        if (infoGetResult is IErrorResult)
         {
-            settings.Logger.Error(err.Message);
+            settings.Logger.Error(infoGetResult.Message);
             return 0;
         }
 
