@@ -8,6 +8,19 @@ Chrono is a git versioning tool with a focus on being customizable and easy to c
 
 It is inspired by the likes of https://github.com/GitTools/GitVersion[GitVersion] and https://github.com/dotnet/Nerdbank.GitVersioning[Nerdbank.Gitversioning].
 
+
+=== Commands
+[source, text]
+----
+Chrono
+├── init
+├── info
+├── get
+├── set <Version> 
+├── bump <Version component> 
+├── tag
+└── release
+----
 === ❗ Important
 
 This project is in active development and while the format of the version.yml will probably not change drastically the cli and nuget package for the msbuild task might :)  
@@ -57,7 +70,7 @@ If you want your dotnet projects to be automatically versioned first make sure y
 
 Then call 
 
-[source]
+[source, shell]
 ----
 chrono init
 ----

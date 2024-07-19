@@ -13,20 +13,20 @@
 |===
 
 == Minimal example  
-[source, yml]
+[source, yaml]
 ----
 version: "1.0.0"
 default:
-  versionschema: "{major}.{minor}.{patch}[-]{branchname}[-]{commitShortHash}"
+  versionSchema: "{major}.{minor}.{patch}[-]{branchname}[-]{commitShortHash}"
   precision: "minor"  
   release:
     match:
       - "^release/.*"
-    versionschema: "{major}.{minor}.{patch}"
+    versionSchema: "{major}.{minor}.{patch}"
 ----
 == Full example
 
-[source, yml]
+[source, yaml]
 ----
 # [Required] Current version in the format major.minor.patch.build (patch and build are optional)
 version: "1.0.0" 
@@ -34,24 +34,23 @@ version: "1.0.0"
 default:
 
   # [Required] Regex schema for the default version. 
-  versionschema: "{major}.{minor}.{patch}-{branchname}-{prereleaseTag}-{commitShortHash}"
+  versionSchema: "{major}.{minor}.{patch}-{branchname}-{prereleaseTag}-{commitShortHash}"
   
   # default precision of how to increase a version (if not set defaults to minor)
   precision: "minor" 
   
-  # default tag thats made avlible as a variable
+  # default tag that's made available as a variable
   prereleaseTag: "local"
   
   # [Required] specific branch config for relase branches or tags
   release:
     # [Required] List of regex branch matchers for release builds
     match:
-      - "^release/.*"
-    # [Required] version schema for relase branches/tags
-    versionschema: "{major}.{minor}[-]{patch}"
-    # List of regex branch matchers that are allowed as a relase branch source (if left empty no restrictions apply)
-    from: 
-      - "^trunk$"
+      - "^v.*" # Example for a release tag
+      - "^release/.*" # Example fora release branch
+    # [Required] version schema for release branches/tags
+    versionSchema: "{major}.{minor}[-]{patch}"
+    newBranc  hSchema: "release/v{major}.{minor}.{patch}"
 
 # additional branch configs 
 branches:
@@ -61,6 +60,7 @@ branches:
     versionSchema: "{major}.{minor}.{patch}-{branch}-alpha-{commitShortHash}"
     precision: "patch"
     prereleaseTag: "alpha"
+    newBranchSchema: "develop/{major}.{minor}.{patch}"
   
   feature:
     match: 
@@ -68,4 +68,5 @@ branches:
     versionSchema: "{major}.{minor}.{patch}-feature-{branch}-{commitShortHash}"
     precision: "patch"
     prereleaseTag: "beta"
+    newBranchSchema: "release/v{major}.{minor}.{patch}"
 ----
