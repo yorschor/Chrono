@@ -65,8 +65,6 @@ public class CliTestHelper : IDisposable
                                                               release:
                                                                 match:
                                                                   - ^v.*
-                                                                from:
-                                                                  - ^trunk$
                                                                 newBranchSchema: 'release/v{major}.{minor}.{patch}}'
                                                                 versionSchema: '{major}.{minor}.{patch}'
                                                                 precision: minor

@@ -65,7 +65,7 @@ class Build : NukeBuild
             
                     var versionInfo = new VersionInfo(versionFileFoundResult.Data);
             
-                    var parseFullVersionResult = versionInfo.ParseVersion();
+                    var parseFullVersionResult = versionInfo.GetVersion();
                     if (parseFullVersionResult.Success)
                     {
                         Version = parseFullVersionResult.Data;

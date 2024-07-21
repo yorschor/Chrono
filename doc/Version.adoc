@@ -50,7 +50,8 @@ default:
       - "^release/.*" # Example fora release branch
     # [Required] version schema for release branches/tags
     versionSchema: "{major}.{minor}[-]{patch}"
-    newBranc  hSchema: "release/v{major}.{minor}.{patch}"
+    newBranchSchema: "release/v{major}.{minor}.{patch}"
+    newTagSchema: "v{major}.{minor}.{patch}"
 
 # additional branch configs 
 branches:
@@ -61,6 +62,7 @@ branches:
     precision: "patch"
     prereleaseTag: "alpha"
     newBranchSchema: "develop/{major}.{minor}.{patch}"
+    newTagSchema: "v{major}.{minor}.{patch}"
   
   feature:
     match: 
@@ -68,5 +70,6 @@ branches:
     versionSchema: "{major}.{minor}.{patch}-feature-{branch}-{commitShortHash}"
     precision: "patch"
     prereleaseTag: "beta"
-    newBranchSchema: "release/v{major}.{minor}.{patch}"
+    newBranchSchema: "feature/{major}.{minor}.{patch}"
+    newTagSchema: "v{major}.{minor}.{patch}"
 ----

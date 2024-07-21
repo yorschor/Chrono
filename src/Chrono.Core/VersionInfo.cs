@@ -47,7 +47,7 @@ public class VersionInfo
 
     #endregion
 
-    public VersionInfo(string path)
+    internal VersionInfo(string path)
     {
         _versionPath = path;
         File = VersionFile.From(_versionPath);
@@ -60,6 +60,8 @@ public class VersionInfo
         }
 
         LoadGitInfo();
+        var currentBranchResult = GetConfigForCurrentBranch();
+        _currentBranchConfig = currentBranchResult.Success ? currentBranchResult.Data : File.Default;
     }
 
     /// <summary>
@@ -91,14 +93,13 @@ public class VersionInfo
     /// </summary>
     /// <param name="schema">The version schema.</param>
     /// <returns>A result containing the parsed version string.</returns>
-    public Result<string> ParseVersion(string schema = "")
+    public Result<string> GetVersion(string schema = "")
     {
         try
         {
             if (string.IsNullOrEmpty(schema))
             {
                 _logManager.Trace("No schema provided. Trying to resolve schema from branch config");
-                ResolveBranchConfig();
                 schema = _currentBranchConfig.VersionSchema;
                 _logManager.Trace($"Schema: {schema}");
             }
@@ -123,7 +124,7 @@ public class VersionInfo
     {
         if (_parsedVersion == "")
         {
-            ParseVersion();
+            GetVersion();
         }
 
         var numericVersionMatch = RegexPatterns.NumericVersionOnlyRegex.Match(_parsedVersion);
@@ -196,7 +197,6 @@ public class VersionInfo
     {
         try
         {
-            ResolveBranchConfig();
             return Result.Ok(ParseSchema(_currentBranchConfig.NewBranchSchema));
         }
         catch (Exception e)
@@ -209,7 +209,6 @@ public class VersionInfo
     {
         try
         {
-            ResolveBranchConfig();
             return Result.Ok(ParseSchema(_currentBranchConfig.NewTagSchema));
         }
         catch (Exception e)
@@ -226,6 +225,7 @@ public class VersionInfo
     {
         if (MatchRefsToConfig(CombinedSearchArray, File.Default.Release))
         {
+            _logManager.Trace("Release branch matched!");
             return Result.Ok(File.Default.Release);
         }
 
@@ -233,8 +233,15 @@ public class VersionInfo
         {
             if (MatchRefsToConfig(CombinedSearchArray, branch.Value))
             {
+                _logManager.Trace($"{branch.Key} branch matched!");
                 return Result.Ok(branch.Value);
             }
+        }
+
+        if (File.Default != null)
+        {
+            _logManager.Trace("No branch could be matched. Using default configuration!");
+            return Result.Ok((BranchConfig)File.Default);
         }
 
         return Result.Error<BranchConfig>("Something went wrong while trying to get current branch");
@@ -247,7 +254,7 @@ public class VersionInfo
     /// <returns>A result indicating success or failure.</returns>
     public Result BumpVersion(VersionComponent component)
     {
-        var parseResult = ParseVersion();
+        var parseResult = GetVersion();
         if (parseResult is IErrorResult)
         {
             return Result.Error<string>(parseResult);
@@ -285,25 +292,6 @@ public class VersionInfo
     }
 
     #region Internal
-
-    private Result ResolveBranchConfig()
-    {
-        try
-        {
-            var branchConfig = GetConfigForCurrentBranch();
-            _currentBranchConfig = branchConfig ? branchConfig.Data : File.Default;
-            if (!branchConfig)
-            {
-                _logManager.Trace("No branch could be matched. Using default configuration!");
-            }
-        }
-        catch (Exception e)
-        {
-            return Result.Error<string>(e.ToString());
-        }
-
-        return Result.Ok();
-    }
 
     private string ParseSchema(string schema)
     {

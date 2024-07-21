@@ -33,13 +33,14 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
             settings.Logger.Error(infoGetResult.Message);
             return 0;
         }
-
-        var parseFullVersionResult = infoGetResult.Data.ParseVersion();
+        var versionInfo = infoGetResult.Data;
+        
+        var parseFullVersionResult = versionInfo.GetVersion();
         if (!parseFullVersionResult.Success) return 0;
 
-        var currentBranchConfig = infoGetResult.Data.GetConfigForCurrentBranch();
+        var currentBranchConfig = versionInfo.GetConfigForCurrentBranch();
 
-        if (currentBranchConfig)
+        if (!currentBranchConfig)
         {
             settings.Logger.Error(currentBranchConfig.Message);
             return 0;
@@ -55,23 +56,26 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
                 return 0;
             }
         }
+
         // 2 Create new branch acording to schema without checking out
-        currentBranchConfig.Data.NewBranchSchema;
-        var branch = infoGetResult.Data.Repo.Branches.Add(newBranchName, infoGetResult.Data.Repo.Head.Tip);
+        var newBranchName = currentBranchConfig.Data.NewBranchSchema;
+        settings.Logger.Info($"Creating new branch {newBranchName}");
+        // var branch = infoGetResult.Data.Repo.Branches.Add(newBranchName, infoGetResult.Data.Repo.Head.Tip);
 
         // 3 Increment Version on existing branch arcording to schema
-        
+
         // 4 Commit changes of new version if -c | --commit is set
-        if (settings.Commit)
-        {
-            LibGit2Sharp.Commands.Stage(infoGetResult.Data.Repo, "version.yml");
-
-            var author = new Signature("Chrono CLI", "chrono@version.cli", DateTime.Now);
-
-            var commit = infoGetResult.Data.Repo.Commit("Chrono: Set version. {incrementVersionResult.NewVersion} -> {incrementVersionResult.NewVersion}", author, author);
-
-            settings.Logger.Information("Changes committed with message: Incremented version to " + incrementVersionResult.NewVersion);
-        }
+        // if (settings.Commit)
+        // {
+        //     LibGit2Sharp.Commands.Stage(infoGetResult.Data.Repo, "version.yml");
+        //
+        //     var author = new Signature("Chrono CLI", "chrono@version.cli", DateTime.Now);
+        //
+        //     var commit = infoGetResult.Data.Repo.Commit(
+        //         "Chrono: Set version. {incrementVersionResult.NewVersion} -> {incrementVersionResult.NewVersion}", author, author);
+        //
+        //     // settings.Logger.Info("Changes committed with message: Incremented version to " + incrementVersionResult.NewVersion);
+        // }
 
         // infoGetResult.Data.
         return 1;

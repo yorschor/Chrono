@@ -26,7 +26,7 @@ public class StampVersionTask : Microsoft.Build.Utilities.Task
                 return false;
             }
 
-            var parseFullVersionResult = infoGetResult.Data.ParseVersion();
+            var parseFullVersionResult = infoGetResult.Data.GetVersion();
             if (parseFullVersionResult.Success)
             {
                 InformationalVersion = parseFullVersionResult.Data;

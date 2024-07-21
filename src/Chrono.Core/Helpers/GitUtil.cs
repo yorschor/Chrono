@@ -43,7 +43,7 @@ public class GitUtil
             return Result.Error(infoFileResult);
         }
 
-        var parseRes= infoFileResult.Data.ParseVersion();
+        var parseRes= infoFileResult.Data.GetVersion();
         if (parseRes is IErrorResult)
         {
             return Result.Error(parseRes);

@@ -38,7 +38,7 @@ namespace Chrono.Core.Test
 version: 'invalid_version'
 ";
 
-        private VersionInfo CreateVersionInfoInstance(string yamlContent)
+        private static VersionInfo CreateVersionInfoInstance(string yamlContent)
         {
             var tempFilePath = Path.GetTempFileName();
             File.WriteAllText(tempFilePath, yamlContent);
@@ -68,7 +68,7 @@ version: 'invalid_version'
         public void TestParseVersion_ValidSchema_ReturnsParsedVersion()
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
-            var result = versionInfo.ParseVersion();
+            var result = versionInfo.GetVersion();
 
             Assert.True(result.Success);
             Assert.Equal("1.0.0", result.Data);

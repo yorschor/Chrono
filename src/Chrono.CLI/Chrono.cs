@@ -39,7 +39,7 @@ public static class Chrono
                 .WithDescription("Creates a new release branch");
             createConfig.AddCommand<CreateTagCommand>("tag")
                 .WithDescription("Creates a new tag");
-            createConfig.AddCommand<CreateBranchCommand>("release")
+            createConfig.AddCommand<CreateBranchCommand>("branch")
                 .WithDescription("Creates a new branch");
         });
 

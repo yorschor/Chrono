@@ -30,27 +30,34 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             NLogHelper.EnableShortConsoleTarget(true);
         }
 
-        var repoFoundResult = GitUtil.GetRepoRootPath();
-        if (repoFoundResult is IErrorResult)
+        // var repoFoundResult = GitUtil.GetRepoRootPath();
+        // if (repoFoundResult is IErrorResult)
+        // {
+        //     repoFoundResult.PrintErrors();
+        //     return 0;
+        // }
+        //
+        // var versionFileFoundResult = VersionFile.Find(
+        //     Directory.GetCurrentDirectory(),
+        //     repoFoundResult.Data);
+        //
+        // if (versionFileFoundResult is IErrorResult)
+        // {
+        //     repoFoundResult.PrintErrors();
+        //     return 1;
+        // }
+
+        var versionInfoResult = VersionInfo.Get();
+        if (!versionInfoResult)
         {
-            repoFoundResult.PrintErrors();
+            versionInfoResult.PrintErrors();
             return 0;
         }
 
-        var versionFileFoundResult = VersionFile.Find(
-            Directory.GetCurrentDirectory(),
-            repoFoundResult.Data);
-
-        if (versionFileFoundResult is IErrorResult)
-        {
-            repoFoundResult.PrintErrors();
-            return 1;
-        }
-
-        var versionInfo = new VersionInfo(versionFileFoundResult.Data);
+        var versionInfo = versionInfoResult.Data;
         if (settings.Debug)
         {
-            var tree = new Tree($"VersionInfo for [gray]{versionFileFoundResult.Data}[/]");
+            var tree = new Tree($"VersionInfo for [gray]{versionInfo}[/]");
             tree.AddNode($"Major: {versionInfo.Major}");
             tree.AddNode($"Minor: {versionInfo.Minor}");
             tree.AddNode($"Patch: {versionInfo.Patch}");
@@ -63,7 +70,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             AnsiConsole.Write(tree);
         }
 
-        var parseResult = settings.Numeric ? versionInfo.GetNumericVersion() : versionInfo.ParseVersion();
+        var parseResult = settings.Numeric ? versionInfo.GetNumericVersion() : versionInfo.GetVersion();
         if (parseResult is IErrorResult)
         {
             parseResult.PrintErrors();
@@ -90,9 +97,14 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
             NLogHelper.EnableShortConsoleTarget(true);
         }
 
-        const string versionFileName = "version.yml";
-        var p = Path.Combine(Environment.CurrentDirectory, versionFileName);
-        var versionInfo = new VersionInfo(p);
+        var versionInfoResult = VersionInfo.Get();
+        if (!versionInfoResult)
+        {
+            versionInfoResult.PrintErrors();
+            return 0;
+        }
+        var versionInfo = versionInfoResult.Data;
+        
         var setResult = versionInfo.SetVersion(settings.NewVersion);
         if (setResult is IErrorResult)
         {
@@ -139,7 +151,7 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
         }
 
         NLogHelper.EnableShortConsoleTarget();
-        AnsiConsole.MarkupLine($"[green]Successfully set version to {infoRes.Data.ParseVersion().Data}[/]");
+        AnsiConsole.MarkupLine($"[green]Successfully set version to {infoRes.Data.GetVersion().Data}[/]");
         return 1;
     }
 
