@@ -241,17 +241,9 @@ public class VersionFile
 
 #region Models
 
-public class DefaultConfig
+public class DefaultConfig : BranchConfig
 {
     [YamlMember(Alias = "inheritFrom")] public string InheritFrom { get; set; }
-    [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
-
-    [YamlMember(Alias = "newBranchSchema")]
-    public string NewBranchSchema { get; set; }
-
-    [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
-    [YamlMember(Alias = "precision")] public string Precision { get; set; }
-    [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }
     [YamlMember(Alias = "release")] public BranchConfig Release { get; set; }
 }
 
