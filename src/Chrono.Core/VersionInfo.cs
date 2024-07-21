@@ -28,7 +28,7 @@ public class VersionInfo
     public string BranchName { get; private set; }
     public string[] TagNames { get; private set; }
     public string[] CombinedSearchArray => TagNames.Append(BranchName).ToArray();
-    public string PrereleaseTag => _currentBranchConfig.PrereleaseTag;
+    public string PrereleaseTag => CurrentBranchConfig.PrereleaseTag;
     public string CommitShortHash { get; private set; }
     public VersionFile File { get; }
 
@@ -42,7 +42,7 @@ public class VersionInfo
 
     private readonly string _versionPath;
 
-    private BranchConfig _currentBranchConfig;
+    public BranchConfig CurrentBranchConfig { get; private set; }
     private string _parsedVersion = "";
 
     #endregion
@@ -61,7 +61,7 @@ public class VersionInfo
 
         LoadGitInfo();
         var currentBranchResult = GetConfigForCurrentBranch();
-        _currentBranchConfig = currentBranchResult.Success ? currentBranchResult.Data : File.Default;
+        CurrentBranchConfig = currentBranchResult.Success ? currentBranchResult.Data : File.Default;
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public class VersionInfo
             if (string.IsNullOrEmpty(schema))
             {
                 _logManager.Trace("No schema provided. Trying to resolve schema from branch config");
-                schema = _currentBranchConfig.VersionSchema;
+                schema = CurrentBranchConfig.VersionSchema;
                 _logManager.Trace($"Schema: {schema}");
             }
 
@@ -193,11 +193,17 @@ public class VersionInfo
         return saveResult is IErrorResult ? saveResult : Result.Ok();
     }
 
-    public Result<string> GetNewBranchName()
+    public Result<string> GetNewBranchName(bool releaseBranch = false)
     {
+        var newBranchSchema = releaseBranch ? File.Default.Release.NewBranchSchema : CurrentBranchConfig.NewBranchSchema;
+        if (string.IsNullOrEmpty(newBranchSchema))
+        {
+            return Result.Error<string>("No branch schema configured. Aborting!");
+        }
+
         try
         {
-            return Result.Ok(ParseSchema(_currentBranchConfig.NewBranchSchema));
+            return Result.Ok(ParseSchema(newBranchSchema));
         }
         catch (Exception e)
         {
@@ -205,11 +211,17 @@ public class VersionInfo
         }
     }
 
-    public Result<string> GetNewTagName()
+    public Result<string> GetNewTagName(bool releaseBranch = false)
     {
+        var newBranchSchema = releaseBranch ? File.Default.Release.NewTagSchema : CurrentBranchConfig.NewTagSchema;
+        if (string.IsNullOrEmpty(newBranchSchema))
+        {
+            return Result.Error<string>("No tag schema configured. Aborting!");
+        }
+
         try
         {
-            return Result.Ok(ParseSchema(_currentBranchConfig.NewTagSchema));
+            return Result.Ok(ParseSchema(newBranchSchema));
         }
         catch (Exception e)
         {
@@ -291,6 +303,32 @@ public class VersionInfo
         return Result.Ok();
     }
 
+    public Result<string> GetNewBranchNameFromKey(string key)
+    {
+        if (File.Branches.TryGetValue(key, out var branchConfig))
+        {
+            var newBranchName = branchConfig.NewBranchSchema;
+            if (string.IsNullOrEmpty(newBranchName))
+            {
+               return Result.Error<string>($"No branch schema configured for {key}");
+            }
+            return  Result.Ok(ParseSchema(newBranchName));
+        }
+        return Result.Error<string>($"No config for branch {key} found");
+    }
+
+    public static VersionComponent VersionComponentFromString(string value)
+    {
+        return value switch
+        {
+            "major" => VersionComponent.Major,
+            "minor" => VersionComponent.Minor,
+            "patch" => VersionComponent.Patch,
+            "build" => VersionComponent.Build,
+            _ => VersionComponent.INVALID
+        };
+    }
+    
     #region Internal
 
     private string ParseSchema(string schema)
