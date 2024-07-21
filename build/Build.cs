@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Chrono.Core;
 using Chrono.Core.Helpers;
+using Huxy;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.IO;
@@ -42,51 +43,43 @@ class Build : NukeBuild
     readonly AbsolutePath PackagesDirectory = RootDirectory / "PackageDirectory";
     readonly AbsolutePath SourceDirectory = RootDirectory / "src";
 
-    Target PrepareVersions => t => t.
-        Executes(() =>
+    Target PrepareVersions => t => t.Executes(() =>
+    {
+        try
+        {
+            var infoGetResult = VersionInfo.Get();
+            if (infoGetResult is IErrorResult)
             {
-                try
-                {
-                    var repoFoundResult = GitUtil.GetRepoRootPath();
-                    if (repoFoundResult is IErrorResult repoErr)
-                    {
-                        Log.Error(repoErr.Message);
-                        return false;
-                    }
-                    var versionFileFoundResult = VersionFile.Find(
-                        Directory.GetCurrentDirectory(),
-                        repoFoundResult.Data);
+                Log.Error(infoGetResult.Message);
+                return false;
+            }
 
-                    if (versionFileFoundResult is IErrorResult verErr)
-                    {
-                        Log.Error(verErr.Message);
-                        return false;
-                    }
-            
-                    var versionInfo = new VersionInfo(versionFileFoundResult.Data);
-            
-                    var parseFullVersionResult = versionInfo.GetVersion();
-                    if (parseFullVersionResult.Success)
-                    {
-                        Version = parseFullVersionResult.Data;
-                    }
-                    Log.Information("Chrono -> Resolving full version to "+ parseFullVersionResult.Data);
-                    var parseNumericVersionResult = versionInfo.GetNumericVersion();
-                    if (parseNumericVersionResult.Success)
-                    {
-                        NumericVersion = parseNumericVersionResult.Data;
-                    }
-                    Log.Information("Chrono -> Resolving numeric version to " + parseNumericVersionResult.Data);
+            var versionInfo = infoGetResult.Data;
 
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.Message);
-                    return false;
-                }
-            });
-    
+            var parseFullVersionResult = versionInfo.GetVersion();
+            if (parseFullVersionResult.Success)
+            {
+                Version = parseFullVersionResult.Data;
+            }
+
+            Log.Information("Chrono -> Resolving full version to " + parseFullVersionResult.Data);
+            var parseNumericVersionResult = versionInfo.GetNumericVersion();
+            if (parseNumericVersionResult.Success)
+            {
+                NumericVersion = parseNumericVersionResult.Data;
+            }
+
+            Log.Information("Chrono -> Resolving numeric version to " + parseNumericVersionResult.Data);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex.Message);
+            return false;
+        }
+    });
+
     Target Compile => t => t
         .DependsOn(PrepareVersions)
         .Executes(() =>
