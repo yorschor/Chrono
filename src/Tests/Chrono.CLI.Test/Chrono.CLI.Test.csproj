@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\src\Chrono.CLI\Chrono.CLI.csproj" />
+      <ProjectReference Include="..\..\Chrono.CLI\Chrono.CLI.csproj" />
     </ItemGroup>
 
 </Project>

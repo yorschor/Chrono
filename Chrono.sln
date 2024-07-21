@@ -24,7 +24,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{37F6F95A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core.Test", "src\Tests\Chrono.Core.Test\Chrono.Core.Test.csproj", "{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.CLI.Test", "Chrono.CLI.Test\Chrono.CLI.Test.csproj", "{938B82BE-83FB-4354-B984-4B83633DFB6C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.CLI.Test", "src\Tests\Chrono.CLI.Test\Chrono.CLI.Test.csproj", "{938B82BE-83FB-4354-B984-4B83633DFB6C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{1D73FC45-5798-49AF-9B9F-3D9F06B4F126}"
+	ProjectSection(SolutionItems) = preProject
+		doc\examples\v1.yml = doc\examples\v1.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,5 +65,6 @@ Global
 		{6734EC58-E93A-4DBB-892D-B52BA5FA30D8} = {CDAA9ADB-B99C-4867-B58A-BA684B2BF535}
 		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0} = {37F6F95A-3DE3-4128-9286-4D0C822518AD}
 		{938B82BE-83FB-4354-B984-4B83633DFB6C} = {37F6F95A-3DE3-4128-9286-4D0C822518AD}
+		{1D73FC45-5798-49AF-9B9F-3D9F06B4F126} = {16D3B882-21CD-41B1-8705-1519152B7A62}
 	EndGlobalSection
 EndGlobal
