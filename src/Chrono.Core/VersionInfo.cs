@@ -32,6 +32,8 @@ public class VersionInfo
     public string CommitShortHash { get; private set; }
     public VersionFile File { get; }
 
+    public Repository Repo { get; private set; }
+
     #endregion
 
     #region Members
@@ -156,7 +158,7 @@ public class VersionInfo
         {
             return Result.Ok(numericVersionMatch.Value);
         }
-        
+
         _parsedVersion = "";
         return Result.Error<string>("Could not parse numeric version");
     }
@@ -308,9 +310,9 @@ public class VersionInfo
             return;
         }
 
-        using var repo = new Repository(repoPath);
+        Repo = new Repository(repoPath);
 
-        var branch = repo.Head;
+        var branch = Repo.Head;
         var branchName = branch.FriendlyName;
 
         var commit = branch.Tip;
@@ -319,7 +321,7 @@ public class VersionInfo
 
         BranchName = branchName;
         CommitShortHash = shortCommitHash;
-        TagNames = repo.Tags.Where(tag => tag.Target.Sha == commit.Sha).Select(tag => tag.FriendlyName).ToArray();
+        TagNames = Repo.Tags.Where(tag => tag.Target.Sha == commit.Sha).Select(tag => tag.FriendlyName).ToArray();
     }
 
     private bool MatchRefsToConfig(string[] refs, BranchConfig config)
