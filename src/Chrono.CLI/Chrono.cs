@@ -12,27 +12,39 @@ public static class Chrono
         app.Configure(GetAppConfigurator());
         return app.Run(args);
     }
-    
+
     public static Action<IConfigurator> GetAppConfigurator() => config =>
     {
-        config.SetApplicationName("chrono"); 
-            
+        config.SetApplicationName("chrono");
+
         config.AddCommand<InitCommand>("init")
-            .WithDescription("")
+            .WithDescription("Initializes the current directory with the required files for Chrono to work")
             .WithExample("init");
-            
+
         config.AddCommand<GetVersionCommand>("get")
-            .WithDescription("")
+            .WithDescription("Gets the current version of the project")
             .WithExample("get");
+
         config.AddCommand<SetVersionCommand>("set")
-            .WithDescription("")
+            .WithDescription("Sets the current version of the project")
             .WithExample("set");
+
         config.AddCommand<BumpVersionCommand>("bump")
-            .WithDescription("")
+            .WithDescription("Increments the current version of the project")
             .WithExample("bump");
 
-        config.AddCommand<GetInfoCommand>("info");
+        config.AddBranch("create", createConfig =>
+        {
+            createConfig.AddCommand<CreateReleaseBranchCommand>("release")
+                .WithDescription("Creates a new release branch");
+            createConfig.AddCommand<CreateTagCommand>("tag")
+                .WithDescription("Creates a new tag");
+            createConfig.AddCommand<CreateBranchCommand>("release")
+                .WithDescription("Creates a new branch");
+        });
 
+        config.AddCommand<GetInfoCommand>("info")
+            .WithDescription("Gets information about Chrono");
     };
 }
 
