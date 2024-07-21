@@ -11,6 +11,8 @@ default:
     versionSchema: '{major}.{minor}.{patch}'
     precision:
     prereleaseTag:
+    newBranchSchema: "release/v{major}.{minor}.{patch}"
+    newTagSchema: "v{major}.{minor}.{patch}"
 branches:
   release:
     match:
