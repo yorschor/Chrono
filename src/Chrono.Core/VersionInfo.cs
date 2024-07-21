@@ -28,7 +28,7 @@ public class VersionInfo
     public string BranchName { get; private set; }
     public string[] TagNames { get; private set; }
     public string[] CombinedSearchArray => TagNames.Append(BranchName).ToArray();
-    public string PrereleaseTag { get; private set; }
+    public string PrereleaseTag => _currentBranchConfig.PrereleaseTag;
     public string CommitShortHash { get; private set; }
     public VersionFile File { get; }
 
@@ -98,28 +98,9 @@ public class VersionInfo
             if (string.IsNullOrEmpty(schema))
             {
                 _logManager.Trace("No schema provided. Trying to resolve schema from branch config");
-                var branchConfig = GetConfigForCurrentBranch();
-                if (branchConfig is not IErrorResult)
-                {
-                    _currentBranchConfig = branchConfig.Data;
-                    schema = _currentBranchConfig.VersionSchema;
-                    PrereleaseTag = _currentBranchConfig.PrereleaseTag;
-                }
-                else
-                {
-                    schema = File.Default.VersionSchema;
-                    PrereleaseTag = File.Default.PrereleaseTag;
-                    _logManager.Trace("No branch could be matched. Using default configuration!");
-                }
-
-                if (string.IsNullOrEmpty(schema))
-                {
-                    _parsedVersion = "";
-                    return Result.Error<string>("No schema could be configured");
-                }
-
+                ResolveBranchConfig();
+                schema = _currentBranchConfig.VersionSchema;
                 _logManager.Trace($"Schema: {schema}");
-                _logManager.Trace($"PrereleaseTag: {PrereleaseTag}");
             }
 
             var schemaWithValues = ParseSchema(schema);
@@ -211,6 +192,32 @@ public class VersionInfo
         return saveResult is IErrorResult ? saveResult : Result.Ok();
     }
 
+    public Result<string> GetNewBranchName()
+    {
+        try
+        {
+            ResolveBranchConfig();
+            return Result.Ok(ParseSchema(_currentBranchConfig.NewBranchSchema));
+        }
+        catch (Exception e)
+        {
+            return Result.Error<string>(e.ToString());
+        }
+    }
+
+    public Result<string> GetNewTagName()
+    {
+        try
+        {
+            ResolveBranchConfig();
+            return Result.Ok(ParseSchema(_currentBranchConfig.NewTagSchema));
+        }
+        catch (Exception e)
+        {
+            return Result.Error<string>(e.ToString());
+        }
+    }
+
     /// <summary>
     /// Gets the current branch config as a result.
     /// </summary>
@@ -278,6 +285,25 @@ public class VersionInfo
     }
 
     #region Internal
+
+    private Result ResolveBranchConfig()
+    {
+        try
+        {
+            var branchConfig = GetConfigForCurrentBranch();
+            _currentBranchConfig = branchConfig ? branchConfig.Data : File.Default;
+            if (!branchConfig)
+            {
+                _logManager.Trace("No branch could be matched. Using default configuration!");
+            }
+        }
+        catch (Exception e)
+        {
+            return Result.Error<string>(e.ToString());
+        }
+
+        return Result.Ok();
+    }
 
     private string ParseSchema(string schema)
     {
