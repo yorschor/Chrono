@@ -122,15 +122,7 @@ public class VersionInfo
                 _logManager.Trace($"PrereleaseTag: {PrereleaseTag}");
             }
 
-            var schemaWithValues = schema
-                .Replace("{major}", Major.ToString())
-                .Replace("{minor}", Minor.ToString())
-                .Replace("{patch}", Patch.ToString())
-                .Replace("{branch}", BranchName)
-                .Replace("{prereleaseTag}", PrereleaseTag)
-                .Replace("{commitShortHash}", CommitShortHash)
-                .Replace("{buildNumber}", CiBuildNumber.ToString());
-            schemaWithValues = ResolveDelimiterBlock(schemaWithValues);
+            var schemaWithValues = ParseSchema(schema);
             var validated = ValidateVersionString(schemaWithValues);
             _parsedVersion = validated;
             return Result.Ok(validated);
@@ -286,6 +278,19 @@ public class VersionInfo
     }
 
     #region Internal
+
+    private string ParseSchema(string schema)
+    {
+        var schemaWithValues = schema
+            .Replace("{major}", Major.ToString())
+            .Replace("{minor}", Minor.ToString())
+            .Replace("{patch}", Patch.ToString())
+            .Replace("{branch}", BranchName)
+            .Replace("{prereleaseTag}", PrereleaseTag)
+            .Replace("{commitShortHash}", CommitShortHash)
+            .Replace("{buildNumber}", CiBuildNumber.ToString());
+        return ResolveDelimiterBlock(schemaWithValues);
+    }
 
     private string ValidateVersionString(string version)
     {
