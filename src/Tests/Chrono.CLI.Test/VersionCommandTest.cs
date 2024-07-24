@@ -66,6 +66,7 @@ public class VersionCommandTest
         Debug.WriteLine("BumpVersionCommandTest...");
         using var repo = new Repository(App.TempDirectory);
         var hash = repo.Head.Tip.Sha;
+        Thread.Sleep(100);
         App.RunAndAssert(["get"], "1.0.0-trunk." + hash[..7]);
         App.RunAndAssert(["bump", "patch"], "");
         App.RunAndAssert(["get"], "1.0.1-trunk." + hash[..7]);

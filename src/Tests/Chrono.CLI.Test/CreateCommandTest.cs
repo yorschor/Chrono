@@ -62,7 +62,7 @@ namespace Chrono.CLI.Test
             repo.Commit("Initial commit", new Signature("Test User", "test@example.com", DateTimeOffset.Now), new Signature("Test User", "test@example.com", DateTimeOffset.Now));
 
             // Run the command
-            _app.RunAndAssert(new[] { "create-branch", "feature/test" }, "Creating new branch feature/test");
+            _app.RunAndAssert(["create", "branch", "feature/test"], "Creating new branch feature/test");
 
             // Check branch creation
             var newBranch = repo.Branches["feature/test"];
