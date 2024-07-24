@@ -40,7 +40,7 @@ public class TinyRepo
         return Result.Ok(new TinyRepo(directory.FullName));
     }
 
-    public string GetCurrentBranch()
+    public string GetCurrentBranchPath()
     {
         var headFilePath = Path.Combine(GitDirectory, ".git", "HEAD");
         if (!File.Exists(headFilePath))
@@ -52,10 +52,23 @@ public class TinyRepo
         if (headContent.StartsWith("ref:"))
         {
             var branchPath = headContent.Substring(5).Trim();
-            return branchPath.Substring(branchPath.LastIndexOf('/') + 1);
+            return branchPath;
         }
 
         return "detached HEAD";
+    }
+
+    public string GetCurrentBranchName()
+    {
+        var branchPath = GetCurrentBranchPath();
+        if (branchPath == "detached HEAD")
+        {
+            return "HEAD";
+        }
+        else
+        {
+            return branchPath.Replace("refs/heads/", "");
+        }
     }
 
     public Commit GetCurrentCommit()
@@ -67,14 +80,14 @@ public class TinyRepo
 
     public string GetCurrentCommitHash()
     {
-        var branchName = GetCurrentBranch();
-        if (branchName == "detached HEAD")
+        var branchPath = GetCurrentBranchPath();
+        if (branchPath == "detached HEAD")
         {
             var headFilePath = Path.Combine(GitDirectory, ".git", "HEAD");
             return File.ReadAllText(headFilePath).Trim();
         }
 
-        var branchFilePath = Path.Combine(GitDirectory, ".git", "refs", "heads", branchName);
+        var branchFilePath = Path.Combine(GitDirectory, ".git", branchPath);
         if (!File.Exists(branchFilePath))
         {
             throw new FileNotFoundException($"Branch file not found: {branchFilePath}");
@@ -136,8 +149,8 @@ public class TinyRepo
         // Check if the object is a tag object
         if (decompressedContent.StartsWith("tag"))
         {
-            var commitHashStart = decompressedContent.IndexOf("object ") + 7;
-            var commitHashEnd = decompressedContent.IndexOf("\n", commitHashStart);
+            var commitHashStart = decompressedContent.IndexOf("object ", StringComparison.Ordinal) + 7;
+            var commitHashEnd = decompressedContent.IndexOf("\n", commitHashStart, StringComparison.Ordinal);
             return decompressedContent.Substring(commitHashStart, commitHashEnd - commitHashStart).Trim();
         }
 

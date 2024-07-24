@@ -29,7 +29,7 @@ public class TinyRepoTest
 
         // Act
         var tinyRepo = TinyRepo.Discover().Data;
-        var branchName = tinyRepo.GetCurrentBranch();
+        var branchName = tinyRepo.GetCurrentBranchName();
 
         // Assert
         Assert.Equal(repo.Head.FriendlyName, branchName);
