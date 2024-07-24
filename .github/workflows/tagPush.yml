@@ -38,8 +38,8 @@ jobs:
         run: ./build.cmd PushNugetPackage
         env:
           NuGetApiKey: ${{ secrets.NUGET_API_KEY }}
-      - name: 'Publish: PackageDirectory'
+      - name: 'Publish: out'
         uses: actions/upload-artifact@v3
         with:
-          name: PackageDirectory
-          path: PackageDirectory
+          name: out
+          path: out

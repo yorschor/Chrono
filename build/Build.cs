@@ -40,7 +40,7 @@ class Build : NukeBuild
     const string ProjectName = "Chrono.CLI";
     const string TargetProjectName = "Chrono.DotnetTasks";
     const string TestLibs = "Chrono.TestLib.*";
-    readonly AbsolutePath PackagesDirectory = RootDirectory / "PackageDirectory";
+    readonly AbsolutePath PackagesDirectory = RootDirectory / "out";
     readonly AbsolutePath SourceDirectory = RootDirectory / "src";
 
     Target PrepareVersions => t => t.Executes(() =>
@@ -89,6 +89,15 @@ class Build : NukeBuild
                 .SetConfiguration(Configuration)
                 .SetSelfContained(true)
             );
+            // DotNetTasks.DotNetPublish(s => s
+            //     .SetProject(Solution.GetProject(TargetProjectName))
+            //     .SetConfiguration(Configuration)
+            //     .SetVersion(Version)
+            //     .SetAssemblyVersion(NumericVersion)
+            //     .SetFileVersion(NumericVersion)
+            //     .SetSelfContained(true)
+            //     .SetFramework("net6.0")
+            // );
             DotNetTasks.DotNetPublish(s => s
                 .SetProject(Solution.GetProject(TargetProjectName))
                 .SetConfiguration(Configuration)
@@ -96,16 +105,7 @@ class Build : NukeBuild
                 .SetAssemblyVersion(NumericVersion)
                 .SetFileVersion(NumericVersion)
                 .SetSelfContained(true)
-                .SetFramework("net6.0")
-            );
-            DotNetTasks.DotNetPublish(s => s
-                .SetProject(Solution.GetProject(TargetProjectName))
-                .SetConfiguration(Configuration)
-                .SetVersion(Version)
-                .SetAssemblyVersion(NumericVersion)
-                .SetFileVersion(NumericVersion)
-                .SetSelfContained(true)
-                .SetFramework("net472")
+                .SetFramework("netstandard2.0")
             );
         });
 
@@ -151,6 +151,6 @@ class Build : NukeBuild
                 .SetTargetPath(PackagesDirectory / "*.nupkg")
                 .SetApiKey(NuGetApiKey)
                 .SetSource(localNugetStoreName));
-            DotNetTasks.DotNet($"tool update -g {ProjectName} --add-source {localNugetStoreName} --no-cache --ignore-failed-sources");
+            DotNetTasks.DotNet($"tool update -g {ProjectName} --add-source {localNugetStoreName} --no-cache --ignore-failed-sources --version {Version}");
         });
 }
