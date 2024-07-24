@@ -271,26 +271,33 @@ public class VersionInfo
             return Result.Error<string>(parseResult);
         }
 
+        var minorUsed = Minor != -1;
+        var patchUsed = Patch != -1;
+        var buildUsed = Build != -1;
+
         switch (component)
         {
             case VersionComponent.Major:
                 Major++;
-                Minor = 0;
-                Patch = 0;
-                Build = 0;
+                Minor = minorUsed ? 0 : Minor;
+                Patch = patchUsed ? 0 : Patch;
+                Build = buildUsed ? 0 : Build;
                 break;
             case VersionComponent.Minor:
                 Minor++;
-                Patch = 0;
-                Build = 0;
+                Patch = patchUsed ? 0 : Patch;
+                Build = buildUsed ? 0 : Build;
                 break;
             case VersionComponent.Patch:
                 Patch++;
-                Build = 0;
+                Build = buildUsed ? 0 : Build;
                 break;
             case VersionComponent.Build:
                 Build++;
                 break;
+            case VersionComponent.INVALID:
+            default:
+                return Result.Error<string>("Invalid version component");
         }
 
         var setResult = SetVersion();
@@ -309,10 +316,12 @@ public class VersionInfo
             var newBranchName = branchConfig.NewBranchSchema;
             if (string.IsNullOrEmpty(newBranchName))
             {
-               return Result.Error<string>($"No branch schema configured for {key}");
+                return Result.Error<string>($"No branch schema configured for {key}");
             }
-            return  Result.Ok(ParseSchema(newBranchName));
+
+            return Result.Ok(ParseSchema(newBranchName));
         }
+
         return Result.Error<string>($"No config for branch {key} found");
     }
 
@@ -327,7 +336,7 @@ public class VersionInfo
             _ => VersionComponent.INVALID
         };
     }
-    
+
     #region Internal
 
     private string ParseSchema(string schema)
@@ -368,7 +377,7 @@ public class VersionInfo
 
         TinyRepo = repoResult.Data;
 
-        var branchName = TinyRepo.GetCurrentBranch();
+        var branchName = TinyRepo.GetCurrentBranchName();
         // var branchName = branch.FriendlyName;
 
         // var commit = branch.Tip;
@@ -377,7 +386,8 @@ public class VersionInfo
 
         BranchName = branchName;
         CommitShortHash = shortCommitHash;
-        TagNames = TinyRepo.GetTagsPointingToCurrentCommit().Where(tag => tag.CommitHash == TinyRepo.GetCurrentCommitHash()).Select(tag => tag.Name).ToArray();
+        TagNames = TinyRepo.GetTagsPointingToCurrentCommit().Where(tag => tag.CommitHash == TinyRepo.GetCurrentCommitHash()).Select(tag => tag.Name)
+            .ToArray();
     }
 
     private bool MatchRefsToConfig(string[] refs, BranchConfig config)
