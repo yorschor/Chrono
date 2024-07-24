@@ -20,6 +20,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="LibGit2Sharp" />
       <PackageReference Include="Spectre.Console" />
       <PackageReference Include="Spectre.Console.Cli" />
     </ItemGroup>

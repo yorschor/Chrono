@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Chrono.Core.Helpers;
 using Huxy;
-using LibGit2Sharp;
 using NLog;
 using Version = System.Version;
 
@@ -32,7 +31,7 @@ public class VersionInfo
     public string CommitShortHash { get; private set; }
     public VersionFile File { get; }
 
-    public Repository Repo { get; private set; }
+    public TinyRepo TinyRepo { get; private set; }
 
     #endregion
 
@@ -70,7 +69,7 @@ public class VersionInfo
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
     public static Result<VersionInfo> Get()
     {
-        var repoFoundResult = GitUtil.GetRepoRootPath();
+        var repoFoundResult = TinyRepo.Discover();
         if (repoFoundResult is IErrorResult)
         {
             return Result.Error<VersionInfo>(repoFoundResult);
@@ -78,7 +77,7 @@ public class VersionInfo
 
         var versionFileFoundResult = VersionFile.Find(
             Directory.GetCurrentDirectory(),
-            repoFoundResult.Data);
+            repoFoundResult.Data.GitDirectory);
 
         if (!versionFileFoundResult)
         {
@@ -359,26 +358,26 @@ public class VersionInfo
 
     private void LoadGitInfo()
     {
-        var repoPath = Repository.Discover(Environment.CurrentDirectory);
+        var repoResult = TinyRepo.Discover();
 
-        if (repoPath == null)
+        if (repoResult is IErrorResult)
         {
-            _logManager.Warn("No Git repository found!");
+            _logManager.Warn(repoResult.Message);
             return;
         }
 
-        Repo = new Repository(repoPath);
+        TinyRepo = repoResult.Data;
 
-        var branch = Repo.Head;
-        var branchName = branch.FriendlyName;
+        var branchName = TinyRepo.GetCurrentBranch();
+        // var branchName = branch.FriendlyName;
 
-        var commit = branch.Tip;
+        // var commit = branch.Tip;
         // Get the short commit hash (7 characters)
-        var shortCommitHash = commit.Sha.Substring(0, 7);
+        var shortCommitHash = TinyRepo.GetCurrentCommitHash().Substring(0, 7);
 
         BranchName = branchName;
         CommitShortHash = shortCommitHash;
-        TagNames = Repo.Tags.Where(tag => tag.Target.Sha == commit.Sha).Select(tag => tag.FriendlyName).ToArray();
+        TagNames = TinyRepo.GetTagsPointingToCurrentCommit().Where(tag => tag.CommitHash == TinyRepo.GetCurrentCommitHash()).Select(tag => tag.Name).ToArray();
     }
 
     private bool MatchRefsToConfig(string[] refs, BranchConfig config)

@@ -30,7 +30,7 @@ public class CreateSettings : BaseCommandSettings
         if (!versionInfo.GetVersion()) return null;
 
         //If working tree is dirty, ask if user wants to continue
-        var repoIsDirty = infoGetResult.Data.Repo.RetrieveStatus(new StatusOptions()).Any();
+        var repoIsDirty = GetRepo().Data.RetrieveStatus(new StatusOptions()).Any();
         if (repoIsDirty)
         {
             if (!AnsiConsole.Confirm("Working tree isn't clean. Do you want to continue?"))
@@ -64,10 +64,10 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
             AnsiConsole.MarkupLine(newBranchNameResult.Message);
             return 0;
         }
-
+        var repo = settings.GetRepo().Data;
         settings.Logger.Trace($"Creating new branch {newBranchNameResult.Data}");
         AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
-        var branch = versionInfo.Repo.Branches.Add(newBranchNameResult.Data, versionInfo.Repo.Head.Tip);
+        var branch = repo.Branches.Add(newBranchNameResult.Data, repo.Head.Tip);
 
         // 2 Increment Version on existing branch arcording to schema
         var oldversion = versionInfo.GetNumericVersion();
@@ -77,11 +77,11 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
         // 3 Commit changes of new version if -c | --commit is set
         if (settings.Commit)
         {
-            LibGit2Sharp.Commands.Stage(versionInfo.Repo, "version.yml");
+            LibGit2Sharp.Commands.Stage(repo, "version.yml");
 
             var author = new Signature("Chrono CLI", "chrono@version.cli", DateTime.Now);
 
-            var commit = versionInfo.Repo.Commit(
+            var commit = repo.Commit(
                 $"Chrono: Set version. {oldversion.Data} => {newVersion.Data}", author, author);
         }
 
@@ -111,8 +111,8 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
                 AnsiConsole.MarkupLine(newTagNameResult.Message);
                 return 0;
             }
-
-            var tag = versionInfo.Repo.Tags.Add(newTagNameResult.Data, versionInfo.Repo.Head.Tip);
+            var repo = settings.GetRepo().Data;
+            var tag = repo.Tags.Add(newTagNameResult.Data, repo.Head.Tip);
             AnsiConsole.MarkupLine($"Tag {newTagNameResult.Data} created");
             return 1;
         }
@@ -144,9 +144,10 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
                 AnsiConsole.MarkupLine(newBranchNameResult.Message);
                 return 0;
             }
+            var repo = settings.GetRepo().Data;
             
             AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
-            versionInfo.Repo.Branches.Add(newBranchNameResult.Data, versionInfo.Repo.Head.Tip);
+            repo.Branches.Add(newBranchNameResult.Data, repo.Head.Tip);
             return 1;
         }
         catch (Exception e)

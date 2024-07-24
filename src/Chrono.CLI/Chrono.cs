@@ -1,4 +1,6 @@
 ﻿using Chrono.Commands;
+using Huxy;
+using LibGit2Sharp;
 using NLog;
 using Spectre.Console.Cli;
 
@@ -54,4 +56,23 @@ public class BaseCommandSettings : CommandSettings
 
     [CommandOption("-d|--debug")] public bool Debug { get; init; } = false;
     [CommandOption("-t|--trace")] public bool Trace { get; init; } = false;
+
+    public Result<Repository> GetRepo(string startDir = "")
+    {
+        if (string.IsNullOrEmpty(startDir))
+        {
+            startDir = Directory.GetCurrentDirectory();
+        }
+
+        var repoPath = Repository.Discover(Environment.CurrentDirectory);
+        Logger.Trace($"Discovered Repo: {repoPath}");
+        var rootPath = Directory.GetParent(repoPath)?.Parent?.FullName;
+        Logger.Trace($"Root: {rootPath}");
+        if (string.IsNullOrEmpty(rootPath))
+        {
+            return Result.Error<Repository>($"No Repo found from starting directory {startDir}");
+        }
+
+        return Result.Ok(new Repository(rootPath));
+    }
 }

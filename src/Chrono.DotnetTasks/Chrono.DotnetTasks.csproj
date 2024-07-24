@@ -31,7 +31,7 @@
     <ItemGroup>
         <None Include="..\..\icon.png">
           <Pack>True</Pack>
-          <PackagePath></PackagePath>
+          <PackagePath/>
           <Link>icon.png</Link>
         </None>
         <None Include="Chrono.DotnetTasks.props" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>

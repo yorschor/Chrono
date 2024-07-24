@@ -4,12 +4,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <LangVersion>default</LangVersion>
-        <TargetFrameworks>net6.0;net472</TargetFrameworks>
+        <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="DotNetZip.NetStandard" />
       <PackageReference Include="Huxy" />
-      <PackageReference Include="LibGit2Sharp" />
       <PackageReference Include="NLog" />
       <PackageReference Include="Nuke.Utilities" />
       <PackageReference Include="System.Net.Http" />

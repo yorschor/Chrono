@@ -33,12 +33,12 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
 
         var currentDir = Directory.GetCurrentDirectory();
         settings.Logger.Trace($"Current dir: {currentDir}");
-        var repoRootResult = GitUtil.GetRepoRootPath();
+        var repoRootResult = settings.GetRepo();
         if (!repoRootResult.Success)
         {
             return 0;
         }
-        var result = VersionFile.Find(currentDir, repoRootResult.Data);
+        var result = VersionFile.Find(currentDir, repoRootResult.Data.Info.WorkingDirectory);
 
         if (result is not IErrorResult)
         {
