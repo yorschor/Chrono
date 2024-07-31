@@ -1,6 +1,4 @@
 ﻿using Chrono.Core;
-using Chrono.Core.Helpers;
-using Huxy;
 using Microsoft.Build.Framework;
 
 namespace Chrono.DotnetTasks;
@@ -20,14 +18,14 @@ public class StampVersionTask : Microsoft.Build.Utilities.Task
         try
         {
             var infoGetResult = VersionInfo.Get();
-            if (infoGetResult is IErrorResult)
+            if (!infoGetResult)
             {
                 Log.LogError(infoGetResult.Message);
                 return false;
             }
 
             var parseFullVersionResult = infoGetResult.Data.GetVersion();
-            if (parseFullVersionResult.Success)
+            if (parseFullVersionResult)
             {
                 InformationalVersion = parseFullVersionResult.Data;
             }
