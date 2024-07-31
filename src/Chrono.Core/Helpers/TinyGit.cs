@@ -34,7 +34,7 @@ public class TinyRepo
 
         if (directory == null)
         {
-            return Result.Error<TinyRepo>("No git directory found");
+            return Result.Error<TinyRepo>("No git directory found!");
         }
 
         return Result.Ok(new TinyRepo(directory.FullName));

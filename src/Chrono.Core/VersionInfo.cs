@@ -378,9 +378,6 @@ public class VersionInfo
         TinyRepo = repoResult.Data;
 
         var branchName = TinyRepo.GetCurrentBranchName();
-        // var branchName = branch.FriendlyName;
-
-        // var commit = branch.Tip;
         // Get the short commit hash (7 characters)
         var shortCommitHash = TinyRepo.GetCurrentCommitHash().Substring(0, 7);
 
