@@ -18,7 +18,7 @@ namespace Chrono.CLI.Test
             repo.Commit("Initial commit", new Signature("Test User", "test@example.com", DateTimeOffset.Now), new Signature("Test User", "test@example.com", DateTimeOffset.Now));
 
             // Run the command
-            _app.RunAndAssert(["create", "release"], "Creating new branch");
+            _app.RunAndAssert(["release"], "Creating new branch");
 
             // Check branch creation
             var newBranch = repo.Branches["release/v1.0.0"];
@@ -42,7 +42,7 @@ namespace Chrono.CLI.Test
             repo.Commit("Initial commit", new Signature("Test User", "test@example.com", DateTimeOffset.Now), new Signature("Test User", "test@example.com", DateTimeOffset.Now));
 
             // Run the command
-            _app.RunAndAssert(new[] { "create-tag" }, "Tag v1.0.0 created");
+            _app.RunAndAssert(["tag"], "Tag v1.0.0 created");
 
             // Check tag creation
             var tag = repo.Tags["v1.0.0"];
@@ -62,10 +62,10 @@ namespace Chrono.CLI.Test
             repo.Commit("Initial commit", new Signature("Test User", "test@example.com", DateTimeOffset.Now), new Signature("Test User", "test@example.com", DateTimeOffset.Now));
 
             // Run the command
-            _app.RunAndAssert(["create", "branch", "feature/test"], "Creating new branch feature/test");
+            _app.RunAndAssert(["branch"], "Creating new branch feature/v1.0.0");
 
             // Check branch creation
-            var newBranch = repo.Branches["feature/test"];
+            var newBranch = repo.Branches["feature/v1.0.0"];
             Assert.NotNull(newBranch);
             Assert.Equal(initialHash, newBranch.Tip.Sha);
         }

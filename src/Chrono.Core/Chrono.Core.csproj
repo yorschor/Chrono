@@ -10,8 +10,10 @@
     <ItemGroup>
       <PackageReference Include="DotNetZip.NetStandard" />
       <PackageReference Include="Huxy" />
+      <PackageReference Include="LibGit2Sharp" />
       <PackageReference Include="NLog" />
       <PackageReference Include="Nuke.Utilities" />
+      <PackageReference Include="System.Memory" />
       <PackageReference Include="System.Net.Http" />
       <PackageReference Include="YamlDotNet" />
     </ItemGroup>

@@ -1,22 +1,26 @@
----
-version:
-  0.8.0
+version: 0.8.3
 default:
-  versionSchema: '{major}.{minor}.{patch}[-]{branch}[.]{commitShortHash}'
-  precision: minor
-  prereleaseTag: local
+  inheritFrom: 
   release:
     match:
-      - ^v.*
+    - ^v.*
     versionSchema: '{major}.{minor}.{patch}'
-    precision:
-    prereleaseTag:
-    newBranchSchema: "release/v{major}.{minor}.{patch}"
-    newTagSchema: "v{major}.{minor}.{patch}"
+    newBranchSchema: release/v{major}.{minor}.{patch}
+    newTagSchema: v{major}.{minor}.{patch}
+    precision: 
+    prereleaseTag: 
+  match: 
+  versionSchema: '{major}.{minor}.{patch}[-]{branch}[.]{commitShortHash}'
+  newBranchSchema: 
+  newTagSchema: 
+  precision: minor
+  prereleaseTag: local
 branches:
   release:
     match:
-      - ^release/.*
+    - ^release/.*
     versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{commitShortHash}'
+    newBranchSchema: 
+    newTagSchema: 
     precision: patch
     prereleaseTag: rc

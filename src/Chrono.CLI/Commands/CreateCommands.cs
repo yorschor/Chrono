@@ -30,7 +30,7 @@ public class CreateSettings : BaseCommandSettings
         if (!versionInfo.GetVersion()) return null;
 
         //If working tree is dirty, ask if user wants to continue
-        var repoIsDirty = GetRepo().Data.RetrieveStatus(new StatusOptions()).Any();
+        var repoIsDirty = GetRepo().Data.RetrieveStatus(new StatusOptions()).IsDirty;
         if (repoIsDirty)
         {
             if (!AnsiConsole.Confirm("Working tree isn't clean. Do you want to continue?"))
@@ -136,7 +136,13 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
         {
             var versionInfo = settings.ValidateVersionInfo();
             if (versionInfo is null) return 0;
+            var repoResult = settings.GetRepo();
+            if (!repoResult) return 0;
 
+            if (string.IsNullOrEmpty(settings.BranchKey))
+            {
+                settings.BranchKey = repoResult.Data.Head.FriendlyName;
+            }
             var newBranchNameResult = versionInfo.GetNewBranchNameFromKey(settings.BranchKey);
             if (!newBranchNameResult)
             {
@@ -144,10 +150,9 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
                 AnsiConsole.MarkupLine(newBranchNameResult.Message);
                 return 0;
             }
-            var repo = settings.GetRepo().Data;
             
             AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
-            repo.Branches.Add(newBranchNameResult.Data, repo.Head.Tip);
+            repoResult.Data.Branches.Add(newBranchNameResult.Data, repoResult.Data.Head.Tip);
             return 1;
         }
         catch (Exception e)
@@ -159,7 +164,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
 
     public sealed class Settings : CreateSettings
     {
-        [CommandArgument(0, "<BranchKey>")] public string BranchKey { get; set; }
+        [CommandArgument(0, "[BranchKey]")] public string BranchKey { get; set; }
     }
 }
 

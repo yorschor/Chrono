@@ -89,6 +89,7 @@ class Build : NukeBuild
                 .SetConfiguration(Configuration)
                 .SetSelfContained(true)
             );
+
             DotNetTasks.DotNetPublish(s => s
                 .SetProject(Solution.GetProject(TargetProjectName))
                 .SetConfiguration(Configuration)
@@ -96,7 +97,17 @@ class Build : NukeBuild
                 .SetAssemblyVersion(NumericVersion)
                 .SetFileVersion(NumericVersion)
                 .SetSelfContained(true)
-                .SetFramework("netstandard2.0")
+                .SetFramework("net6.0")
+            );
+            
+            DotNetTasks.DotNetPublish(s => s
+                .SetProject(Solution.GetProject(TargetProjectName))
+                .SetConfiguration(Configuration)
+                .SetVersion(Version)
+                .SetAssemblyVersion(NumericVersion)
+                .SetFileVersion(NumericVersion)
+                .SetSelfContained(true)
+                .SetFramework("net472")
             );
         });
 

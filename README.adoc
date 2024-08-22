@@ -2,10 +2,10 @@
 
 == 📚 About
 
-[cols="^3,^1", frame=none grid=cols]
+[cols="^3,^1",frame=none grid=cols]
 |===
 a|
-[cols=">1,<1,>4", frame=none, grid=none]
+[cols=">1,<1,>4",frame=none,grid=none]
 !===
 
 a! image::https://img.shields.io/badge/c%23-%23239120 .svg?&logo=csharp&logoColor=white[C#]
@@ -22,34 +22,34 @@ It is inspired by the likes of https://github.com/GitTools/GitVersion[GitVersion
 a|image::icon.png[]
 |===
 
-
 === Commands
-[source, text]
+
+[source,text]
 ----
 Chrono
 ├── init
 ├── info
 ├── get
 ├── set <Version> 
-├── bump <Version component> 
-├── tag
-└── release
+└── bump <Version component> 
 ----
-=== ❗ Important
 
-This project is in active development and while the format of the version.yml will probably not change drastically the cli and nuget package for the msbuild task might :)  
+=== ❗ Important things first
 
+WARNING: The Chrono.DotnetTasks package doesn't check if the working tree is clean while parsing a version.
+This may lead to unexpected results if disregarded!
+
+The Chrono.Cli however will warn you if you are working on a dirty working tree. link:doc/DotnetVersioning.adoc[Why?]
 
 === 🚀 Getting started 
-
-
 
 Install/Update the dotnet tool using
 
 |===
 |Install|Update
 
-a| [source]
+a|
+[source]
 ----
 dotnet tool install -g Chrono
 ----
@@ -61,10 +61,11 @@ dotnet tool update -g Chrono
 
 |===
 
-Next up create a version.yml (for now only a version.yml at the root of your git repo is supported) 
+Next up create a version.yml (for now only a version.yml at the root of your git repo is supported)
 
 For the content of version.yml either checkout the minimal example below.
-[source, yml]
+
+[source,yml]
 ----
 version: "1.0.0"
 default:
@@ -78,16 +79,17 @@ default:
 
 or read the full link:doc/Version.adoc[documentation].
 
-
 ==== 🕹️ ️Automatic Version stamping (dotnet) 
-If you want your dotnet projects to be automatically versioned first make sure your projects are using SDK style project files and dont have existing AssemblyVersion.cs files or the likes present.
 
-Then call 
+If you want your dotnet projects to be automatically versioned first make sure your projects are using SDK style project files and don't have existing AssemblyVersion.cs files or the likes present.
 
-[source, shell]
+Then call
+
+[source,shell]
 ----
 chrono init
 ----
+
 in your project root.
 
 This adds a Directory.Build.props file to the directory which takes care of including the DotnetTasks package into your projects.

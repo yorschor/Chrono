@@ -34,16 +34,13 @@ public static class Chrono
         config.AddCommand<BumpVersionCommand>("bump")
             .WithDescription("Increments the current version of the project")
             .WithExample("bump");
-
-        config.AddBranch("create", createConfig =>
-        {
-            createConfig.AddCommand<CreateReleaseBranchCommand>("release")
-                .WithDescription("Creates a new release branch");
-            createConfig.AddCommand<CreateTagCommand>("tag")
-                .WithDescription("Creates a new tag");
-            createConfig.AddCommand<CreateBranchCommand>("branch")
-                .WithDescription("Creates a new branch");
-        });
+        
+        config.AddCommand<CreateReleaseBranchCommand>("release")
+            .WithDescription("Creates a new release branch");
+        config.AddCommand<CreateTagCommand>("tag")
+            .WithDescription("Creates a new tag");
+        config.AddCommand<CreateBranchCommand>("branch")
+            .WithDescription("Creates a new branch");
 
         config.AddCommand<GetInfoCommand>("info")
             .WithDescription("Gets information about Chrono");

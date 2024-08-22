@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Chrono.Core.Helpers;
 using Huxy;
+using LibGit2Sharp;
 using NLog;
 using Version = System.Version;
 
@@ -23,7 +24,6 @@ public class VersionInfo
     public int Minor { get; private set; }
     public int Patch { get; private set; }
     public int Build { get; private set; }
-    public int CiBuildNumber { get; set; }
     public string BranchName { get; private set; }
     public string[] TagNames { get; private set; }
     public string[] CombinedSearchArray => TagNames.Append(BranchName).ToArray();
@@ -31,7 +31,7 @@ public class VersionInfo
     public string CommitShortHash { get; private set; }
     public VersionFile File { get; }
 
-    public TinyRepo TinyRepo { get; private set; }
+    public Repository Repo { get; private set; }
 
     #endregion
 
@@ -43,10 +43,11 @@ public class VersionInfo
 
     public BranchConfig CurrentBranchConfig { get; private set; }
     private string _parsedVersion = "";
+    private bool _allowDirtyRepo;
 
     #endregion
 
-    internal VersionInfo(string path)
+    internal VersionInfo(string path, bool allowDirtyRepo = false)
     {
         _versionPath = path;
         File = VersionFile.From(_versionPath);
@@ -57,6 +58,8 @@ public class VersionInfo
             Patch = version.Build;
             Build = version.Revision;
         }
+
+        _allowDirtyRepo = allowDirtyRepo;
 
         LoadGitInfo();
         var currentBranchResult = GetConfigForCurrentBranch();
@@ -69,15 +72,13 @@ public class VersionInfo
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
     public static Result<VersionInfo> Get()
     {
-        var repoFoundResult = TinyRepo.Discover();
-        if (repoFoundResult is IErrorResult)
+        var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
+        if (string.IsNullOrEmpty(gitDirectory))
         {
-            return Result.Error<VersionInfo>(repoFoundResult);
+            return Result.Error<VersionInfo>("No git directory found!");
         }
 
-        var versionFileFoundResult = VersionFile.Find(
-            Directory.GetCurrentDirectory(),
-            repoFoundResult.Data.GitDirectory);
+        var versionFileFoundResult = VersionFile.Find(Directory.GetCurrentDirectory(), gitDirectory);
 
         if (!versionFileFoundResult)
         {
@@ -345,14 +346,34 @@ public class VersionInfo
             .Replace("{major}", Major.ToString())
             .Replace("{minor}", Minor.ToString())
             .Replace("{patch}", Patch.ToString())
+            .Replace("{build}", Build.ToString())
             .Replace("{branch}", BranchName)
             .Replace("{prereleaseTag}", PrereleaseTag)
-            .Replace("{commitShortHash}", CommitShortHash)
-            .Replace("{buildNumber}", CiBuildNumber.ToString());
+            .Replace("{commitShortHash}", CommitShortHash);
+        schemaWithValues = ResolveEnvironmentVariables(schemaWithValues);
         return ResolveDelimiterBlock(schemaWithValues);
     }
 
-    private string ValidateVersionString(string version)
+    private string ResolveEnvironmentVariables(string schema)
+    {
+        var unresolvedVariables = RegexPatterns.CurlyBracketsRegex.Matches(schema);
+        foreach (Match match in unresolvedVariables)
+        {
+            var variableName = match.Value.Replace("{", "").Replace("}", "");
+            var variableValue = Environment.GetEnvironmentVariable(variableName);
+            if (string.IsNullOrEmpty(variableValue))
+            {
+                variableValue = string.Empty;
+                _logManager.Trace($"Environment variable '{variableName}' not found. Using empty string instead.");
+            }
+
+            schema = schema.Replace(match.Value, variableValue);
+        }
+
+        return schema;
+    }
+
+    private static string ValidateVersionString(string version)
     {
         return version.Replace('/', '-');
     }
@@ -367,24 +388,24 @@ public class VersionInfo
 
     private void LoadGitInfo()
     {
-        var repoResult = TinyRepo.Discover();
+        var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
 
-        if (repoResult is IErrorResult)
+        if (string.IsNullOrEmpty(gitDirectory))
         {
-            _logManager.Warn(repoResult.Message);
+            _logManager.Warn("No git directory found!");
             return;
         }
 
-        TinyRepo = repoResult.Data;
+        Repo = new Repository(gitDirectory);
 
-        var branchName = TinyRepo.GetCurrentBranchName();
+        var branchName = Repo.Head.FriendlyName;
         // Get the short commit hash (7 characters)
-        var shortCommitHash = TinyRepo.GetCurrentCommitHash().Substring(0, 7);
+        var shortCommitHash = Repo.Head.Tip.Sha.Substring(0, 7);
 
         BranchName = branchName;
-        CommitShortHash = shortCommitHash;
-        TagNames = TinyRepo.GetTagsPointingToCurrentCommit().Where(tag => tag.CommitHash == TinyRepo.GetCurrentCommitHash()).Select(tag => tag.Name)
-            .ToArray();
+        CommitShortHash = Repo.RetrieveStatus(new StatusOptions()).IsDirty && !_allowDirtyRepo ? "0000000" : shortCommitHash;
+
+        TagNames = Repo.Tags.Where(tag => tag.Target.Sha == Repo.Head.Tip.Sha).Select(tag => tag.FriendlyName).ToArray();
     }
 
     private bool MatchRefsToConfig(string[] refs, BranchConfig config)

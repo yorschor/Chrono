@@ -1,19 +1,77 @@
-= Version
+= Version file
 
-[%autowidth, caption=, frame=none, options="header"]
+== Structure
+A version file consists of 3 different parts. 
+
+* The version property
+* The default config
+* A list of branch configs
+
+In general a version file needs at least the version property and the default config (which includes a release config).
+You can also inherit from another version file by specifying the inheritFrom property. 
+
+NOTE: Only one version file can be inherited from.
+
+At any point you can replace a value with a variable using the **\{VariableName}** syntax.
+
+== Variables
+
+Variables are handled as simple string replacements. If a variable not defined/set, it will be replaced with an empty string. A trace will be logged if a variable is not set but besides that nothing happens.
+
+[%autowidth,caption=,frame=none,options="header"]
 .Available Variables for version scheme
 |===
 | Placeholder       | Description
-| {major}         | Major version number.
-| {minor}         | Minor version number.
-| {patch}         | Patch version number.
-| {branchName}    | Name of the branch.
-| {prereleaseTag} | Pre-release tag (e.g., alpha, beta, local).
-| {commitShortHash} | Short hash of the commit.
+| {major}         | Major version number
+| {minor}         | Minor version number
+| {patch}         | Patch version number
+| {build}         | Build version number
+| {branch}    | Name of the branch -> NOTE: Might not be unique depending on your git and ci setup!
+| {prereleaseTag} | Pre-release tag (e.g., alpha, beta, local)
+| {commitShortHash} | Short hash of the commit
 |===
 
-== Minimal example  
-[source, yaml]
+.Environment variables
+Any environment variable can be used in the version schema.
+
+IMPORTANT: Environment that don't exist will be replaced with an empty string!
+
+So use with care! Environments differ between machines and can be modified by the user. If your goal is to have consistent versions across machines it's encouraged to not use them.
+
+== Delimiter Blocks
+
+When you expect that a variable might be empty, you can use a delimiter block to prevent the version from becoming malformed. Delimiter blocks are defined by the **[Delimiter]** syntax.
+
+=== Example:
+
+Consider the following example:
+[source,yaml]
+----
+versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{commitShortHash}'
+----
+
+If the `prereleaseTag` is not set, the version will appear as:
+----
+major.minor.patch--commitShortHash
+----
+Note the extra hyphen. To avoid this, you can use a delimiter block:
+
+[source,yaml]
+----
+versionSchema: '{major}.{minor}.{patch}[-]{prereleaseTag}-{commitShortHash}'
+----
+
+With this, if `prereleaseTag` is not set, the version will render as:
+----
+major.minor.patch-commitShortHash
+----
+
+By using delimiter blocks, you ensure that your version strings remain properly formatted, even when certain variables are empty.
+
+== Examples  
+
+=== Minimal self-contained example
+[source,yaml]
 ----
 version: "1.0.0"
 default:
@@ -24,9 +82,18 @@ default:
       - "^release/.*"
     versionSchema: "{major}.{minor}.{patch}"
 ----
-== Full example
 
-[source, yaml]
+=== Minimal inherited example
+[source,yaml]
+----
+version: "1.0.0"
+default:
+  inheritFrom: "https://raw.githubusercontent.com/yorschor/Chrono/trunk/version.yml"
+----
+
+=== Full example
+
+[source,yaml]
 ----
 # [Required] Current version in the format major.minor.patch.build (patch and build are optional)
 version: "1.0.0" 
@@ -72,4 +139,19 @@ branches:
     prereleaseTag: "beta"
     newBranchSchema: "feature/{major}.{minor}.{patch}"
     newTagSchema: "v{major}.{minor}.{patch}"
+----
+
+
+
+[source, text]
+----
+└── Chrono/
+├── init
+├── help
+├── get [-n | numeric] [-f | nofail {true}]
+├── set <Version> [-c | commit]
+├── bump <Version component>
+├── tag
+├── release
+└── branch
 ----

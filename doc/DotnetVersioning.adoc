@@ -1,0 +1,45 @@
+= Dotnet Versioning
+
+== Introduction
+
+The Chrono.DotnetTasks package is a nuget package that provides a set of MSBuild tasks for versioning .NET projects.
+
+This document serves as a guide for developers who want to use Chrono with their dotnet projects.
+
+
+== Prerequisites
+
+Before you start, make sure your project meets the following requirements:
+
+* Use SDK style project file
+* Uses Git 🤪
+
+== Setting up the project
+
+. Add the Chrono.DotnetTasks package to every project that should be versioned.
+
+It's recommended to add the package to the `Directory.Build.props` file in order to all projects use the same configuration.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup>
+        <PackageReference Include="Chrono.DotnetTasks" Condition="!Exists('packages.config')" Version="{version}" PrivateAssets="all"/>
+    </ItemGroup>
+    <PropertyGroup>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    </PropertyGroup>
+</Project>
+----
+
+NOTE: <IncludeSourceRevisionInInformationalVersion> is needed from .NET 8 upwards.
+If you're using an older version of .NET you can remove it.
+
+[start=2]
+. Add a version.yml file to the root of your project.
+This file will contain the version information for your project.
+Please consider the link:Version.adoc[documentation] for more information.
+
+. Build your project and check the versions of your assemblies.

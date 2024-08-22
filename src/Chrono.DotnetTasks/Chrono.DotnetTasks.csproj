@@ -4,9 +4,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>default</LangVersion>
         <DevelopmentDependency>true</DevelopmentDependency>
-        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <IncludeBuildOutput>true</IncludeBuildOutput>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>net6.0;net472</TargetFrameworks>
         <Title>Chrono.DotnetTasks</Title>
         <Authors>Ekkehard C. Damisch</Authors>
         <Copyright>Ekkehard C. Damisch</Copyright>
@@ -36,7 +36,9 @@
         </None>
         <None Include="Chrono.DotnetTasks.props" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="Chrono.DotnetTasks.targets" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
-        <None Include="bin\$(Configuration)\netstandard2.0\publish\**\*.dll" Pack="true" PackagePath="build\netstandard2.0." Visible="false"/>
+        <None Include="bin\$(Configuration)\net6.0\runtimes\**" Pack="true" PackagePath="build\runtimes\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net472\publish\**\*" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net6.0\publish\**\*" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
     </ItemGroup>
 
 </Project>

@@ -61,7 +61,7 @@ version: 'invalid_version'
         [Fact]
         public void TestConstructor_InvalidYaml_ThrowsException()
         {
-            Assert.Throws<FormatException>(() => CreateVersionInfoInstance(InvalidYamlContent));
+            Assert.Throws<NullReferenceException>(() => CreateVersionInfoInstance(InvalidYamlContent));
         }
 
         [Fact]

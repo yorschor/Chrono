@@ -1,0 +1,15 @@
+= PSA: Don't Shoot Yourself in the Foot
+
+Chrono can do many things. But in the end it's only a yaml parser with some string replacement logic. 
+
+While i strive to make Chrono as simple as possible to set up and use and  ensure that everything is documented properly and in working order it's ultimately your responsibility to use it correctly.
+
+So please consider the following points. 
+
+
+* You are responsible for evaluating Chrono to fit your specific use case.
+so 
+* Consider your requirements
+* Test Chrono to confirm it meets your needs
+* Ensure it works as expected in your specific scenario
+

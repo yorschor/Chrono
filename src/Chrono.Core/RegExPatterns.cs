@@ -6,6 +6,7 @@ public static class RegexPatterns
 {
     public static Regex DuplicateBlocksRegex { get; } = new(@"(\[[^\]]*\])(?=\[[^\]]*\])", RegexOptions.Compiled);
     public static Regex EndBlockRegex { get; } = new(@"(\[[^\]]*\])$", RegexOptions.Compiled);
+    public static Regex CurlyBracketsRegex { get; } = new(@"\{.*?\}", RegexOptions.Compiled);
     public static Regex BlockContentRegex { get; } = new(@"\{([^\}]*)\}|\[([^\]]*)\]", RegexOptions.Compiled);
     public static Regex ValidVersionRegex { get; } = new(@"^(\d+)\.(\d+)(?:\.(\d+))?(?:\.(\d+))?$", RegexOptions.Compiled);
     public static Regex NumericVersionOnlyRegex { get; } = new(@"^\d+\.\d+(?:\.\d+)?(?:\.\d+)?", RegexOptions.Compiled);

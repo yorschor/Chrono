@@ -12,7 +12,6 @@ public class CiHelper
         return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GITLAB_CI"));
     }
     static bool IsJenkinsCi()
-
     {
         return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JENKINS_URL"));
     }
