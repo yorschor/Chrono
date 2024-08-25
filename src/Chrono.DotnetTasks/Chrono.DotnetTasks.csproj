@@ -36,9 +36,10 @@
         </None>
         <None Include="Chrono.DotnetTasks.props" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="Chrono.DotnetTasks.targets" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
-        <None Include="bin\$(Configuration)\net6.0\publish\runtimes\**" Pack="true" PackagePath="build\runtimes\" Visible="false"/>
-        <None Include="bin\$(Configuration)\net472\publish\*.dll" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>
-        <None Include="bin\$(Configuration)\net472\publish\LibGit2Sharp.dll.config" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>
+<!--        <None Include="bin\$(Configuration)\net6.0\publish\runtimes\**" Pack="true" PackagePath="build\runtimes\" Visible="false"/>-->
+        <None Include="bin\$(Configuration)\net472\publish\**\*.*" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>
+<!--        <None Include="bin\$(Configuration)\net472\publish\*.dll" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>-->
+<!--        <None Include="bin\$(Configuration)\net472\publish\LibGit2Sharp.dll.config" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>-->
         <None Include="bin\$(Configuration)\net6.0\publish\*.dll" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
         <None Include="bin\$(Configuration)\net6.0\publish\Chrono.DotnetTasks.deps.json" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
     </ItemGroup>

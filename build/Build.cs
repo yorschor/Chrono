@@ -129,18 +129,13 @@ class Build : NukeBuild
         if (File.Exists(configFilePath))
         {
             var content = File.ReadAllText(configFilePath);
-            if (Path.GetExtension(configFilePath) == ".config")
-            {
-                const string pattern = @"target=""lib/(?<platform>[^/]+)/(?<filename>[^""]+)""";
-                const string replacement = @"target=""../runtimes/${platform}/native/${filename}""";
-                content = Regex.Replace(content, pattern, replacement);
-            }
-            else
-            {
                 const string pattern = @"runtimes/(?<platform>[^/]+)/native/(?<filename>[^""]+)";
-                const string replacement = @"../runtimes/${platform}/native/${filename}";
+                const string replacement = @"../MSBuildFull/lib/${platform}/${filename}";
                 content = Regex.Replace(content, pattern, replacement);
-            }
+
+                content = content.Replace("../MSBuildFull/lib/win-arm64/", "../MSBuildFull/lib/win32/arm64/");
+                content = content.Replace("../MSBuildFull/lib/win-x64/", "../MSBuildFull/lib/win32/x64/");
+                content = content.Replace("../MSBuildFull/lib/win-x86/", "../MSBuildFull/lib/win32/x86/");
             
             File.WriteAllText(configFilePath, content);
         }
