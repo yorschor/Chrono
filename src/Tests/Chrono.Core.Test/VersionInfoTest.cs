@@ -1,5 +1,6 @@
 using Chrono.Core.Helpers;
 using Huxy;
+using LibGit2Sharp;
 
 namespace Chrono.Core.Test
 {
@@ -38,12 +39,12 @@ namespace Chrono.Core.Test
 version: 'invalid_version'
 ";
 
-        private static VersionInfo CreateVersionInfoInstance(string yamlContent)
+        private static VersionInfo CreateVersionInfoInstance(string yamlContent, bool allowDirtyRepo = true)
         {
             var tempFilePath = Path.GetTempFileName();
             File.WriteAllText(tempFilePath, yamlContent);
 
-            return new VersionInfo(tempFilePath);
+            return new VersionInfo(tempFilePath,  allowDirtyRepo);
         }
 
         [Fact]

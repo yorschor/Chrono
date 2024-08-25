@@ -46,6 +46,7 @@ public class VersionFile
         // return versionFile;
         return FromAsync(path).GetAwaiter().GetResult();
     }
+
     public static async Task<VersionFile> FromAsync(string path)
     {
         var mainYamlContent = File.ReadAllText(path);
@@ -74,7 +75,7 @@ public class VersionFile
         return deserializer.Deserialize<VersionFile>(finalYamlContent);
     }
 
-    
+
     public static async Task<Result<string>> FetchYamlFromUriAsync(string uri)
     {
         if (string.IsNullOrEmpty(uri))
@@ -244,6 +245,7 @@ public class VersionFile
 public class DefaultConfig : BranchConfig
 {
     [YamlMember(Alias = "inheritFrom")] public string InheritFrom { get; set; }
+    [YamlMember(Alias = "dirtyRepo")] public string DirtyRepo { get; set; } = "dirty-repo";
     [YamlMember(Alias = "release")] public BranchConfig Release { get; set; }
 }
 
@@ -251,10 +253,7 @@ public class BranchConfig
 {
     [YamlMember(Alias = "match")] public List<string> Match { get; set; }
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
-
-    [YamlMember(Alias = "newBranchSchema")]
-    public string NewBranchSchema { get; set; }
-
+    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; }
     [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
     [YamlMember(Alias = "precision")] public string Precision { get; set; }
     [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }

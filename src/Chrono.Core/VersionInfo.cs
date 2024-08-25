@@ -78,7 +78,7 @@ public class VersionInfo
             return Result.Error<VersionInfo>("No git directory found!");
         }
 
-        var versionFileFoundResult = VersionFile.Find(Directory.GetCurrentDirectory(), gitDirectory);
+        var versionFileFoundResult = VersionFile.Find(Directory.GetCurrentDirectory(), gitDirectory.Substring(0, gitDirectory.Length - 4));
 
         if (!versionFileFoundResult)
         {
@@ -403,7 +403,8 @@ public class VersionInfo
         var shortCommitHash = Repo.Head.Tip.Sha.Substring(0, 7);
 
         BranchName = branchName;
-        CommitShortHash = Repo.RetrieveStatus(new StatusOptions()).IsDirty && !_allowDirtyRepo ? "0000000" : shortCommitHash;
+        // CommitShortHash = shortCommitHash;
+        CommitShortHash = Repo.RetrieveStatus(new StatusOptions()).IsDirty && !_allowDirtyRepo ? File.Default.DirtyRepo : shortCommitHash;
 
         TagNames = Repo.Tags.Where(tag => tag.Target.Sha == Repo.Head.Tip.Sha).Select(tag => tag.FriendlyName).ToArray();
     }

@@ -54,9 +54,10 @@ public class VersionCommandTest
     {
         Debug.WriteLine("SetVersionCommandTest...");
         using var repo = new Repository(App.TempDirectory);
-        var hash = repo.Head.Tip.Sha;
         
-        App.RunAndAssert(["set", "5.6.4"], "");
+        App.RunAndAssert(["set", "5.6.4"], ""); 
+        App.CommitVersion(repo);
+        var hash = repo.Head.Tip.Sha;
         App.RunAndAssert(["get"], "5.6.4-trunk." + hash[..7]);
     }
     
@@ -65,14 +66,32 @@ public class VersionCommandTest
     {
         Debug.WriteLine("BumpVersionCommandTest...");
         using var repo = new Repository(App.TempDirectory);
+        Thread.Sleep(100);
+        var hash = repo.Head.Tip.Sha;
+        App.RunAndAssert(["get"], "1.0.0-trunk." + hash[..7]);
+        App.RunAndAssert(["bump", "patch"], "");
+        App.CommitVersion(repo);
+        hash = repo.Head.Tip.Sha;
+        App.RunAndAssert(["get"], "1.0.1-trunk." + hash[..7]);
+        App.RunAndAssert(["bump", "minor"], "");
+        App.CommitVersion(repo);
+        hash = repo.Head.Tip.Sha;
+        App.RunAndAssert(["get"], "1.1.0-trunk." + hash[..7]);
+        App.RunAndAssert(["bump", "major"], "");
+        App.CommitVersion(repo);
+        hash = repo.Head.Tip.Sha;
+        App.RunAndAssert(["get"], "2.0.0-trunk." + hash[..7]);
+    }
+    
+    [Fact]
+    public void DirtyRepoTest()
+    {
+        Debug.WriteLine("DirtyRepoTest...");
+        using var repo = new Repository(App.TempDirectory);
         var hash = repo.Head.Tip.Sha;
         Thread.Sleep(100);
         App.RunAndAssert(["get"], "1.0.0-trunk." + hash[..7]);
-        App.RunAndAssert(["bump", "patch"], "");
-        App.RunAndAssert(["get"], "1.0.1-trunk." + hash[..7]);
-        App.RunAndAssert(["bump", "minor"], "");
-        App.RunAndAssert(["get"], "1.1.0-trunk." + hash[..7]);
-        App.RunAndAssert(["bump", "major"], "");
-        App.RunAndAssert(["get"], "2.0.0-trunk." + hash[..7]);
+        File.WriteAllText(App.TempDirectory + "/test.txt", "test");
+        App.RunAndAssert(["get"], "1.0.0-trunk." + "dirty-repo");
     }
 }

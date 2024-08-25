@@ -4,14 +4,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>default</LangVersion>
         <DevelopmentDependency>true</DevelopmentDependency>
-        <IncludeBuildOutput>true</IncludeBuildOutput>
-        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
         <TargetFrameworks>net6.0;net472</TargetFrameworks>
         <Title>Chrono.DotnetTasks</Title>
         <Authors>Ekkehard C. Damisch</Authors>
         <Copyright>Ekkehard C. Damisch</Copyright>
         <PackageProjectUrl>https://github.com/yorschor/Chrono</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/yorschor/Chrono?tab=MIT-1-ov-file</PackageLicenseUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>git version dotnet msbuild</PackageTags>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
@@ -36,9 +36,11 @@
         </None>
         <None Include="Chrono.DotnetTasks.props" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="Chrono.DotnetTasks.targets" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
-        <None Include="bin\$(Configuration)\net6.0\runtimes\**" Pack="true" PackagePath="build\runtimes\" Visible="false"/>
-        <None Include="bin\$(Configuration)\net472\publish\**\*" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>
-        <None Include="bin\$(Configuration)\net6.0\publish\**\*" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net6.0\publish\runtimes\**" Pack="true" PackagePath="build\runtimes\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net472\publish\*.dll" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net472\publish\*.json" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net6.0\publish\*.dll" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net6.0\publish\*.json" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
     </ItemGroup>
 
 </Project>
