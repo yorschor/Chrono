@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using Chrono.Core;
 using Chrono.Core.Helpers;
 using Huxy;
@@ -99,7 +100,7 @@ class Build : NukeBuild
                 .SetSelfContained(true)
                 .SetFramework("net6.0")
             );
-            
+
             DotNetTasks.DotNetPublish(s => s
                 .SetProject(Solution.GetProject(TargetProjectName))
                 .SetConfiguration(Configuration)
@@ -111,8 +112,46 @@ class Build : NukeBuild
             );
         });
 
-    Target Pack => t => t
+    Target AdjustDependencies => t => t
         .DependsOn(Compile)
+        .Executes(() =>
+        {
+            var p = Solution.GetProject(TargetProjectName)?.Directory;
+            var net472 = p / "bin" / Configuration / "net472" / "publish" / "LibGit2Sharp.dll.config";
+            var net6 = p / "bin" / Configuration / "net6.0" / "publish" / "Chrono.DotnetTasks.deps.json";
+            
+            AdjustDllConfigPaths(net472);
+            AdjustDllConfigPaths(net6);
+        });
+
+    void AdjustDllConfigPaths(string configFilePath)
+    {
+        if (File.Exists(configFilePath))
+        {
+            var content = File.ReadAllText(configFilePath);
+            if (Path.GetExtension(configFilePath) == ".config")
+            {
+                const string pattern = @"target=""lib/(?<platform>[^/]+)/(?<filename>[^""]+)""";
+                const string replacement = @"target=""../runtimes/${platform}/native/${filename}""";
+                content = Regex.Replace(content, pattern, replacement);
+            }
+            else
+            {
+                const string pattern = @"runtimes/(?<platform>[^/]+)/native/(?<filename>[^""]+)";
+                const string replacement = @"../runtimes/${platform}/native/${filename}";
+                content = Regex.Replace(content, pattern, replacement);
+            }
+            
+            File.WriteAllText(configFilePath, content);
+        }
+        else
+        {
+            Logger.Warn($"File not found: {configFilePath}");
+        }
+    }
+
+    Target Pack => t => t
+        .DependsOn(AdjustDependencies)
         .Produces(PackagesDirectory / "*.nupkg")
         .Executes(() =>
         {
@@ -153,6 +192,7 @@ class Build : NukeBuild
                 .SetTargetPath(PackagesDirectory / "*.nupkg")
                 .SetApiKey(NuGetApiKey)
                 .SetSource(localNugetStoreName));
-            DotNetTasks.DotNet($"tool update -g {ProjectName} --add-source {localNugetStoreName} --no-cache --ignore-failed-sources --version {Version}");
+            DotNetTasks.DotNet(
+                $"tool update -g {ProjectName} --add-source {localNugetStoreName} --no-cache --ignore-failed-sources --version {Version}");
         });
 }

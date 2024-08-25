@@ -80,6 +80,7 @@
           "items": {
             "type": "string",
             "enum": [
+              "AdjustDependencies",
               "Compile",
               "LocalDeploy",
               "Pack",
@@ -98,6 +99,7 @@
           "items": {
             "type": "string",
             "enum": [
+              "AdjustDependencies",
               "Compile",
               "LocalDeploy",
               "Pack",
