@@ -108,7 +108,11 @@ default:
   
   # default tag that's made available as a variable
   prereleaseTag: "local"
-  
+
+  # If worktree is dirty the short hash will be replaced by dirtyRepo unless allowDirtyRepo is set explicitly
+  # If not set explicitly  defaults to "dirty-repo"
+  dirtyRepo: "dirty-repo"
+
   # [Required] specific branch config for relase branches or tags
   release:
     # [Required] List of regex branch matchers for release builds
