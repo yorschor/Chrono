@@ -1,4 +1,5 @@
 ﻿using Chrono.Commands;
+using Chrono.Core.Helpers;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
@@ -17,6 +18,7 @@ public static class Chrono
 
     public static Action<IConfigurator> GetAppConfigurator() => config =>
     {
+        NLogHelper.ConfigureNLog();
         config.SetApplicationName("chrono");
 
         config.AddCommand<InitCommand>("init")

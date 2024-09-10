@@ -30,9 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="NLog.config">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Include="..\..\icon.png">
         <Pack>True</Pack>
         <PackagePath></PackagePath>
