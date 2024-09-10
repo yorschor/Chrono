@@ -18,7 +18,6 @@ public class CreateSettings : BaseCommandSettings
 {
     internal VersionInfo? ValidateVersionInfo()
     {
-        // 0 Validate Version
         var infoGetResult = VersionInfo.Get();
         if (infoGetResult is IErrorResult)
         {

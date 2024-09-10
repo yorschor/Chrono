@@ -30,23 +30,6 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             NLogHelper.EnableShortConsoleTarget(true);
         }
 
-        // var repoFoundResult = GitUtil.GetRepoRootPath();
-        // if (repoFoundResult is IErrorResult)
-        // {
-        //     repoFoundResult.PrintErrors();
-        //     return 0;
-        // }
-        //
-        // var versionFileFoundResult = VersionFile.Find(
-        //     Directory.GetCurrentDirectory(),
-        //     repoFoundResult.Data);
-        //
-        // if (versionFileFoundResult is IErrorResult)
-        // {
-        //     repoFoundResult.PrintErrors();
-        //     return 1;
-        // }
-
         var versionInfoResult = VersionInfo.Get();
         if (!versionInfoResult)
         {

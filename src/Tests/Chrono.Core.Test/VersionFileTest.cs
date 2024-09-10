@@ -141,6 +141,24 @@ branches:
         Assert.Equal(1, distance);
     }
 
+    [Fact]
+    public void MergeYamlContent_ValidYaml_ReturnsMergedContent()
+    {
+        throw new NotImplementedException();
+    }
+
+    [Fact]
+    public void AccessFallbackBranchProperty_ValueExists_ReturnsValue()
+    {
+        throw new NotImplementedException();
+    }
+    
+    [Fact]
+    public void AccessFallbackBranchProperty_ValueDoesntExists_ReturnsDefault()
+    {
+        throw new NotImplementedException();
+    }
+
     ~VersionFileTests()
     {
         // Cleanup sample YAML file

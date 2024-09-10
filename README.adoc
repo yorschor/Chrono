@@ -22,6 +22,16 @@ It is inspired by the likes of https://github.com/GitTools/GitVersion[GitVersion
 a|image::icon.png[]
 |===
 
+=== TODO
+
+* [.line-through]#Fallback to default if value isnt set#
+* Test fallback 
+* Build 0.9 version
+* Adjust config 
+* Ci specific stuff?
+* Continue if dirty  ->  Also in dotnet build project 
+
+
 === Commands
 
 [source,text]
@@ -33,13 +43,6 @@ Chrono
 ├── set <Version> 
 └── bump <Version component> 
 ----
-
-=== ❗ Important things first
-
-WARNING: The Chrono.DotnetTasks package doesn't check if the working tree is clean while parsing a version.
-This may lead to unexpected results if disregarded!
-
-The Chrono.Cli however will warn you if you are working on a dirty working tree. link:doc/DotnetVersioning.adoc[Why?]
 
 === 🚀 Getting started 
 

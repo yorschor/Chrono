@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core.Test", "src\Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.CLI.Test", "src\Tests\Chrono.CLI.Test\Chrono.CLI.Test.csproj", "{938B82BE-83FB-4354-B984-4B83633DFB6C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{1D73FC45-5798-49AF-9B9F-3D9F06B4F126}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReferenceConfigs", "ReferenceConfigs", "{1D73FC45-5798-49AF-9B9F-3D9F06B4F126}"
 	ProjectSection(SolutionItems) = preProject
 		doc\examples\v1.yml = doc\examples\v1.yml
 	EndProjectSection

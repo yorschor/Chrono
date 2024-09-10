@@ -139,5 +139,22 @@ version: 'invalid_version'
             Assert.NotNull(result.Data);
             Assert.Equal("{major}.{minor}.{patch}", result.Data.VersionSchema);
         }
+
+        [Fact]
+        public void GetNewBranchName_ValidBranch_ReturnsNewBranchName()
+        {
+            throw new NotImplementedException();
+        }
+        
+        [Fact]
+        public void GetNewBranchNameByKey_ValidKey_ReturnsNewBranchName()
+        {
+            throw new NotImplementedException();
+        }
+        [Fact]
+        public void GetNewTagName_ValidTag_ReturnsTagName()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
