@@ -24,12 +24,13 @@ a|image::icon.png[]
 
 === TODO
 
-* [.line-through]#Fallback to default if value isnt set#
-* Test fallback 
+* [.line-through]#Fallback to default if value isnt set# -> Done
+* [.line-through]#Test fallback# -> Done
 * Build 0.9 version
 * Adjust config 
-* Ci specific stuff?
-* Continue if dirty  ->  Also in dotnet build project 
+* [.line-through]#Ci specific stuff?# -> Handled via Enviroment variables
+* Continue if dirty  ->  Also in dotnet build project
+* test Dotnet versioning
 
 
 === Commands

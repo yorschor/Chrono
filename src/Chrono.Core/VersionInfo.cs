@@ -41,7 +41,7 @@ public class VersionInfo
 
     private readonly string _versionPath;
 
-    public BranchConfig CurrentBranchConfig { get; private set; }
+    public BranchConfigWithFallback CurrentBranchConfig { get; private set; }
     private string _parsedVersion = "";
     private bool _allowDirtyRepo;
 
@@ -63,19 +63,23 @@ public class VersionInfo
 
         LoadGitInfo();
         var currentBranchResult = GetConfigForCurrentBranch();
-        CurrentBranchConfig = currentBranchResult.Success ? currentBranchResult.Data : File.Default;
+        if (!currentBranchResult)
+        {
+            throw new Exception(currentBranchResult.Message);
+        }
+        CurrentBranchConfig = new BranchConfigWithFallback(File.Default, currentBranchResult.Data);
     }
 
     /// <summary>
     /// A catch-all Method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
     /// </summary>
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
-    public static Result<VersionInfo> Get()
+    public static Result<VersionInfo> Get(bool allowDirtyRepo = false)
     {
         var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
         if (string.IsNullOrEmpty(gitDirectory))
         {
-            return Result.Error<VersionInfo>("No git directory found!");
+            return Result.Error<VersionInfo>("Chrono GitVersioning: No git directory found!");
         }
 
         var versionFileFoundResult = VersionFile.Find(Directory.GetCurrentDirectory(), gitDirectory.Substring(0, gitDirectory.Length - 4));
@@ -85,7 +89,14 @@ public class VersionInfo
             return Result.Error<VersionInfo>(versionFileFoundResult);
         }
 
-        return Result.Ok(new VersionInfo(versionFileFoundResult.Data));
+        try
+        {
+            return Result.Ok(new VersionInfo(versionFileFoundResult.Data, allowDirtyRepo));
+        }
+        catch (Exception e)
+        {
+            return Result.Error<VersionInfo>(e.ToString());
+        }
     }
 
     /// <summary>
@@ -240,7 +251,7 @@ public class VersionInfo
             _logManager.Trace("Release branch matched!");
             return Result.Ok(File.Default.Release);
         }
-
+        
         foreach (var branch in File.Branches)
         {
             if (MatchRefsToConfig(CombinedSearchArray, branch.Value))
@@ -317,7 +328,7 @@ public class VersionInfo
             var newBranchName = branchConfig.NewBranchSchema;
             if (string.IsNullOrEmpty(newBranchName))
             {
-                return Result.Error<string>($"No branch schema configured for {key}");
+                return Result.Error<string>($"No new branch schema configured for branch config ''{key}''");
             }
 
             return Result.Ok(ParseSchema(newBranchName));

@@ -30,7 +30,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             NLogHelper.EnableShortConsoleTarget(true);
         }
 
-        var versionInfoResult = VersionInfo.Get();
+        var versionInfoResult = VersionInfo.Get(settings.IgnoreDirty);
         if (!versionInfoResult)
         {
             versionInfoResult.PrintErrors();
@@ -80,13 +80,8 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
             NLogHelper.EnableShortConsoleTarget(true);
         }
 
-        var versionInfoResult = VersionInfo.Get();
-        if (!versionInfoResult)
-        {
-            versionInfoResult.PrintErrors();
-            return 0;
-        }
-        var versionInfo = versionInfoResult.Data;
+        var versionInfo = settings.ValidateVersionInfo();
+        if (versionInfo is null) return 0;
         
         var setResult = versionInfo.SetVersion(settings.NewVersion);
         if (setResult is IErrorResult)
@@ -124,8 +119,9 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
             "build" => VersionComponent.Build,
             _ => VersionComponent.INVALID
         };
-        var infoRes = VersionInfo.Get();
-        var res = infoRes.Data.BumpVersion(versionComponent);
+        var versionInfo = settings.ValidateVersionInfo();
+        if (versionInfo is null) return 0;
+        var res = versionInfo.BumpVersion(versionComponent);
         if (res is IErrorResult)
         {
             NLogHelper.EnableShortConsoleTarget();
@@ -134,7 +130,7 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
         }
 
         NLogHelper.EnableShortConsoleTarget();
-        AnsiConsole.MarkupLine($"[green]Successfully set version to {infoRes.Data.GetVersion().Data}[/]");
+        AnsiConsole.MarkupLine($"[green]Successfully set version to {versionInfo.GetVersion().Data}[/]");
         return 1;
     }
 

@@ -1,8 +1,10 @@
 ﻿using Chrono.Commands;
+using Chrono.Core;
 using Chrono.Core.Helpers;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace Chrono;
@@ -20,6 +22,8 @@ public static class Chrono
     {
         NLogHelper.ConfigureNLog();
         config.SetApplicationName("chrono");
+        config.UseAssemblyInformationalVersion();
+        // config.SetApplicationVersion(typeof(Chrono).Assembly.GetName().Version?.ToString());
 
         config.AddCommand<InitCommand>("init")
             .WithDescription("Initializes the current directory with the required files for Chrono to work")
@@ -55,6 +59,8 @@ public class BaseCommandSettings : CommandSettings
 
     [CommandOption("-d|--debug")] public bool Debug { get; init; } = false;
     [CommandOption("-t|--trace")] public bool Trace { get; init; } = false;
+    
+    [CommandOption("-i|--ignore-dirty")] public bool IgnoreDirty { get; init; } = false;
 
     public Result<Repository> GetRepo(string startDir = "")
     {
@@ -73,5 +79,30 @@ public class BaseCommandSettings : CommandSettings
         }
 
         return Result.Ok(new Repository(rootPath));
+    }
+
+    public bool ContinueIfDirty()
+    {
+        var repoIsDirty = GetRepo().Data.RetrieveStatus(new StatusOptions()).IsDirty;
+        if (!repoIsDirty) return true;
+        else if (IgnoreDirty) return true;
+        if (AnsiConsole.Confirm("Working tree isn't clean. Do you want to continue?")) return true;
+        AnsiConsole.MarkupLine("Aborting! No changes have bee made!");
+        return false;
+    }
+    
+    internal VersionInfo? ValidateVersionInfo()
+    {
+        var infoGetResult = VersionInfo.Get(IgnoreDirty);
+        if (infoGetResult is IErrorResult)
+        {
+            Logger.Error(infoGetResult.Message);
+            return null;
+        }
+
+        var versionInfo = infoGetResult.Data;
+        if (!versionInfo.GetVersion()) return null;
+
+        return ContinueIfDirty() ? versionInfo : null;
     }
 }

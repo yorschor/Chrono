@@ -16,31 +16,7 @@ namespace Chrono.Commands;
 
 public class CreateSettings : BaseCommandSettings
 {
-    internal VersionInfo? ValidateVersionInfo()
-    {
-        var infoGetResult = VersionInfo.Get();
-        if (infoGetResult is IErrorResult)
-        {
-            Logger.Error(infoGetResult.Message);
-            return null;
-        }
-
-        var versionInfo = infoGetResult.Data;
-        if (!versionInfo.GetVersion()) return null;
-
-        //If working tree is dirty, ask if user wants to continue
-        var repoIsDirty = GetRepo().Data.RetrieveStatus(new StatusOptions()).IsDirty;
-        if (repoIsDirty)
-        {
-            if (!AnsiConsole.Confirm("Working tree isn't clean. Do you want to continue?"))
-            {
-                AnsiConsole.MarkupLine("Aborting! No changes have bee made!");
-                return null;
-            }
-        }
-
-        return versionInfo;
-    }
+   
 }
 
 #endregion
