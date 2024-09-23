@@ -24,8 +24,8 @@ public class VersionInfo
     public int Minor { get; private set; }
     public int Patch { get; private set; }
     public int Build { get; private set; }
-    public string BranchName { get; private set; }
-    public string[] TagNames { get; private set; }
+    public string BranchName { get; internal set; }
+    public string[] TagNames { get; internal set; }
     public string[] CombinedSearchArray => TagNames.Append(BranchName).ToArray();
     public string PrereleaseTag => CurrentBranchConfig.PrereleaseTag;
     public string CommitShortHash { get; private set; }
