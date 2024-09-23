@@ -1,4 +1,4 @@
-version: 0.8.11.3
+version: 0.8.11.19
 default:
   inheritFrom: 
   dirtyRepo: dirty-repo
