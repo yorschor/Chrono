@@ -11,15 +11,15 @@ namespace Chrono.Core.Test
                                                version: '1.0.0'
                                                default:
                                                  versionSchema: '{major}.{minor}.{patch}'
-                                                 newBranchSchema: 'branchSchema'
-                                                 newTagSchema: 'tagSchema'
+                                                 newBranchSchema: '{branch}schema'
+                                                 newTagSchema: 'specificTagSchema[-]{branch}'
                                                  precision: 'high'
                                                  prereleaseTag: 'beta'
                                                  release:
                                                    match:
                                                      - 'release'
                                                    versionSchema: '{major}.{minor}.{patch}'
-                                                   newBranchSchema: 'branchSchema'
+                                                   newBranchSchema: 'releaseSchema[-]{branch}'
                                                    newTagSchema: 'tagSchema'
                                                    precision: 'high'
                                                    prereleaseTag: 'beta'
@@ -28,7 +28,7 @@ namespace Chrono.Core.Test
                                                    match:
                                                      - 'main'
                                                    versionSchema: '{major}.{minor}.{patch}'
-                                                   newBranchSchema: 'branchSchema'
+                                                   newBranchSchema: 'specificBranchSchema[-]{branch}'
                                                    newTagSchema: 'tagSchema'
                                                    precision: 'high'
                                                    prereleaseTag: 'beta'
@@ -44,7 +44,7 @@ version: 'invalid_version'
             var tempFilePath = Path.GetTempFileName();
             File.WriteAllText(tempFilePath, yamlContent);
 
-            return new VersionInfo(tempFilePath,  allowDirtyRepo);
+            return new VersionInfo(tempFilePath, allowDirtyRepo);
         }
 
         [Fact]
@@ -143,18 +143,40 @@ version: 'invalid_version'
         [Fact]
         public void GetNewBranchName_ValidBranch_ReturnsNewBranchName()
         {
-            throw new NotImplementedException();
+            var versionInfo = CreateVersionInfoInstance(TestYamlContent);
+            versionInfo.BranchName = "aBranchWithAName";
+            var result = versionInfo.GetNewBranchName();
+
+            Assert.True(result.Success);
+            Assert.NotNull(result.Data);
+            Assert.Equal("aBranchWithANameschema", result.Data);
         }
-        
+
         [Fact]
         public void GetNewBranchNameByKey_ValidKey_ReturnsNewBranchName()
         {
-            throw new NotImplementedException();
+            var versionInfo = CreateVersionInfoInstance(TestYamlContent);
+            // Set to some branch
+            versionInfo.BranchName = "relaese/Test";
+            var result = versionInfo.GetNewBranchNameFromKey("main");
+
+            Assert.True(result.Success);
+            Assert.NotNull(result.Data);
+            //Schema from "main" branch is used with current branch name being "relaese/Test"
+            Assert.Equal("specificBranchSchema-relaese/Test", result.Data);
         }
+
         [Fact]
         public void GetNewTagName_ValidTag_ReturnsTagName()
         {
-            throw new NotImplementedException();
+            //default branch config is used
+            var versionInfo = CreateVersionInfoInstance(TestYamlContent);
+            var result = versionInfo.GetNewTagName();
+
+            Assert.True(result.Success);
+            Assert.NotNull(result.Data);
+
+            Assert.Equal($"specificTagSchema-{versionInfo.BranchName}", result.Data);
         }
     }
 }

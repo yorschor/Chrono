@@ -1,3 +1,7 @@
+using YamlDotNet.RepresentationModel;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
+
 namespace Chrono.Core.Test;
 
 public class VersionFileTests
@@ -142,22 +146,149 @@ branches:
     }
 
     [Fact]
-    public void MergeYamlContent_ValidYaml_ReturnsMergedContent()
+    public void AccessFallbackBranchProperty_MixedValues_ReturnsCorrectValues()
     {
-        throw new NotImplementedException();
+        // Arrange
+        var defaultConfig = new BranchConfig
+        {
+            Match = ["defaultMatch"],
+            VersionSchema = "defaultVersionSchema",
+            NewBranchSchema = "defaultNewBranchSchema",
+            NewTagSchema = "defaultNewTagSchema",
+            Precision = "defaultPrecision",
+            PrereleaseTag = "defaultPrereleaseTag"
+        };
+
+        var specificConfig = new BranchConfig
+        {
+            // Should fallback to default
+            Match = null,
+            Precision = null,
+            NewBranchSchema = null,
+
+            // Should use specific
+            VersionSchema = "specificVersionSchema",
+            NewTagSchema = "specificNewTagSchema",
+            PrereleaseTag = "specificPrereleaseTag"
+        };
+
+        var configWithFallback = new BranchConfigWithFallback(defaultConfig, specificConfig);
+
+        // Act & Assert
+        // Properties expected to use defaultConfig values
+        Assert.Equal(defaultConfig.Match, configWithFallback.Match);
+        Assert.Equal(defaultConfig.NewBranchSchema, configWithFallback.NewBranchSchema);
+        Assert.Equal(defaultConfig.Precision, configWithFallback.Precision);
+
+        // Properties expected to use specificConfig values
+        Assert.Equal(specificConfig.VersionSchema, configWithFallback.VersionSchema);
+        Assert.Equal(specificConfig.NewTagSchema, configWithFallback.NewTagSchema);
+        Assert.Equal(specificConfig.PrereleaseTag, configWithFallback.PrereleaseTag);
     }
 
+    #region YamlMerging
+
     [Fact]
-    public void AccessFallbackBranchProperty_ValueExists_ReturnsValue()
+    public void MergeYamlContent_ValidYaml_ReturnsMergedContent()
     {
-        throw new NotImplementedException();
+        const string baseYaml = """
+                                version: "1.0.0"
+                                default:
+                                  versionSchema: "{major}.{minor}.{patch}"
+                                  precision: "minor"  
+                                  release:
+                                    match:
+                                      - "^release/.*"
+                                """;
+
+        const string overrideYaml = """
+                                    version: "3.2.4"
+                                    default:
+                                        versionSchema: "{major}.{minor}.{patch}[-]{branchname}[-]{commitShortHash}"
+                                    """;
+
+        const string expectedMergedYaml = """
+                                          version: "3.2.4"
+                                          default:
+                                            versionSchema: "{major}.{minor}.{patch}[-]{branchname}[-]{commitShortHash}"
+                                            precision: "minor"  
+                                            release:
+                                              match:
+                                                - "^release/.*"
+                                          """;
+
+        var mergedYaml = VersionFile.MergeYamlContent(baseYaml, overrideYaml);
+
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+
+        var mergedObject = deserializer.Deserialize(new StringReader(mergedYaml));
+        var expectedObject = deserializer.Deserialize(new StringReader(expectedMergedYaml));
+
+        Assert.True(AreEqual(mergedObject, expectedObject), "The merged YAML content does not match the expected content.");
     }
-    
-    [Fact]
-    public void AccessFallbackBranchProperty_ValueDoesntExists_ReturnsDefault()
+
+
+    private bool AreEqual(object? obj1, object? obj2)
     {
-        throw new NotImplementedException();
+        if (obj1 == null || obj2 == null)
+        {
+            return obj1 == obj2;
+        }
+
+        if (obj1.GetType() != obj2.GetType())
+        {
+            return false;
+        }
+
+        switch (obj1)
+        {
+            case IDictionary<object, object> dict1 when obj2 is IDictionary<object, object> dict2:
+            {
+                if (dict1.Count != dict2.Count)
+                {
+                    return false;
+                }
+
+                foreach (var key in dict1.Keys)
+                {
+                    if (!dict2.ContainsKey(key))
+                    {
+                        return false;
+                    }
+
+                    if (!AreEqual(dict1[key], dict2[key]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            case IList<object> list1 when obj2 is IList<object> list2:
+            {
+                if (list1.Count != list2.Count)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < list1.Count; i++)
+                {
+                    if (!AreEqual(list1[i], list2[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            default:
+                return obj1.Equals(obj2);
+        }
     }
+
+    #endregion
 
     ~VersionFileTests()
     {
