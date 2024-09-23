@@ -95,22 +95,39 @@ public class VersionFile
         }
     }
 
-    private static string MergeYamlContent(string baseYaml, string overrideYaml)
+    internal static string MergeYamlContent(string baseYaml, string overrideYaml)
     {
-        using var baseReader = new StringReader(baseYaml);
-        using var overrideReader = new StringReader(overrideYaml);
+        var deserializer = new DeserializerBuilder().Build();
+        var serializer = new SerializerBuilder().Build();
 
-        var parser = new MergingParser(new Parser(baseReader));
-        var mergingParser = new MergingParser(new Parser(overrideReader));
+        // Deserialize the base and override YAML strings into dynamic objects
+        var baseYamlObject = deserializer.Deserialize(new StringReader(baseYaml));
+        var overrideYamlObject = deserializer.Deserialize(new StringReader(overrideYaml));
+        
+        var mergedYamlObject = MergeYamlObjects(baseYamlObject, overrideYamlObject);
+        var writer = new StringWriter();
+        serializer.Serialize(writer, mergedYamlObject);
+        return writer.ToString();
+    }
 
-        var yamlStream = new YamlStream();
-        yamlStream.Load(parser);
-        var mergedStream = new YamlStream();
-        mergedStream.Load(mergingParser);
-
-        using var stringWriter = new StringWriter();
-        mergedStream.Save(stringWriter);
-        return stringWriter.ToString();
+    private static object MergeYamlObjects(object baseObj, object overrideObj)
+    {
+        switch (baseObj)
+        {
+            case IDictionary<object, object> baseDict when overrideObj is IDictionary<object, object> overrideDict:
+            {
+                foreach (var key in overrideDict.Keys)
+                {
+                    var baseValue = baseDict.ContainsKey(key) ? baseDict[key] : null;
+                    baseDict[key] = MergeYamlObjects(baseValue, overrideDict[key]);
+                }
+                return baseDict;
+            }
+            case IList<object> when overrideObj is IList<object> overrideList:
+                return overrideList;
+            default:
+                return overrideObj ?? baseObj;
+        }
     }
 
     /// <summary>
