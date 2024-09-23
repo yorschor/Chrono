@@ -16,7 +16,6 @@ namespace Chrono.Commands;
 
 public class CreateSettings : BaseCommandSettings
 {
-   
 }
 
 #endregion
@@ -39,6 +38,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
             AnsiConsole.MarkupLine(newBranchNameResult.Message);
             return 0;
         }
+
         var repo = settings.GetRepo().Data;
         settings.Logger.Trace($"Creating new branch {newBranchNameResult.Data}");
         AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
@@ -54,10 +54,12 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
         {
             LibGit2Sharp.Commands.Stage(repo, "version.yml");
 
-            var author = new Signature("Chrono CLI", "chrono@version.cli", DateTime.Now);
+            var signature = repo.Config.BuildSignature(DateTimeOffset.Now)
+                            ?? new Signature("Chrono CLI", "chrono@version.cli", DateTime.Now);
+            var author = new Signature(signature.Name, signature.Email, signature.When);
 
-            var commit = repo.Commit(
-                $"Chrono: Set version. {oldversion.Data} => {newVersion.Data}", author, author);
+            var commit = repo.Commit(settings.CommitMessage.Replace("{oldVersion}", oldversion.Data).Replace("{newVersion}", newVersion.Data), author,
+                author);
         }
 
         return 1;
@@ -66,6 +68,9 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
     public sealed class Settings : CreateSettings
     {
         [CommandOption("-c|--commit")] public bool Commit { get; init; } = false;
+        
+        [CommandArgument(1, "[Commit Message {oldVersion} {newVersion}]")]
+        public string CommitMessage { get; init; } = "Chrono: Set version {oldVersion} => {newVersion}";
     }
 }
 
@@ -86,6 +91,7 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
                 AnsiConsole.MarkupLine(newTagNameResult.Message);
                 return 0;
             }
+
             var repo = settings.GetRepo().Data;
             var tag = repo.Tags.Add(newTagNameResult.Data, repo.Head.Tip);
             AnsiConsole.MarkupLine($"Tag {newTagNameResult.Data} created");
@@ -118,6 +124,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
             {
                 settings.BranchKey = repoResult.Data.Head.FriendlyName;
             }
+
             var newBranchNameResult = versionInfo.GetNewBranchNameFromKey(settings.BranchKey);
             if (!newBranchNameResult)
             {
@@ -125,7 +132,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
                 AnsiConsole.MarkupLine(newBranchNameResult.Message);
                 return 0;
             }
-            
+
             AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
             repoResult.Data.Branches.Add(newBranchNameResult.Data, repoResult.Data.Head.Tip);
             return 1;
