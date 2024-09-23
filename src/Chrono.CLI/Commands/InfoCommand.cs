@@ -1,4 +1,5 @@
-﻿using Chrono.Core;
+﻿using System.Reflection;
+using Chrono.Core;
 using Chrono.Core.Helpers;
 using Chrono.Helpers;
 using Huxy;
@@ -6,6 +7,7 @@ using LibGit2Sharp;
 using NLog;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using YamlDotNet.Core;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
@@ -27,47 +29,29 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        // if (settings.Trace)
-        // {
-        //     NLogHelper.EnableShortConsoleTarget(true);
-        // }
-        //
-        // var currentDir = Directory.GetCurrentDirectory();
-        // settings.Logger.Trace($"Current dir: {currentDir}");
-        // var repoRootResult = settings.GetRepo();
-        // if (!repoRootResult.Success)
-        // {
-        //     return 0;
-        // }
-        // var result = VersionFile.Find(currentDir, repoRootResult.Data.Info.WorkingDirectory);
-        //
-        // if (result is not IErrorResult)
-        // {
-        //     AnsiConsole.MarkupLine(result.Data);
-        //     return 1;
-        // }
-        //
-        // NLogHelper.EnableShortConsoleTarget();
-        // AnsiConsole.MarkupLine("Could not find any version.yml for " + currentDir);
-        
         var layout = new Layout("Root")
-            .SplitColumns(
-                new Layout("Left")
-                    .SplitRows(
-                        new Layout("Header"),
-                        new Layout("InfoPanel")
-                        ),
-                new Layout("Right")
-                    .SplitRows(
-                        new Layout("Logo"),
-                        new Layout("Bottom")));
+            .SplitRows(
+                new Layout("TopSpace"),
+                new Layout("Figlet").Ratio(2),
+                new Layout("Version"),
+                new Layout("Description"),
+                new Layout("Footer")
+                    .SplitColumns(
+                        new Layout("Left"),
+                        new Layout("Right")));
         var rootPanel = new Panel(layout)
         {
             Border = BoxBorder.None
         };
-        layout["Header"].Update(new Panel(new FigletText("Chrono")));
-        layout["Logo"].Update(new Panel(AsciiLogo.Get()));
-        
+        layout["TopSpace"].Update(new Rule());
+        layout["Figlet"].Update(new FigletText(FFont.Get, "Chrono").Centered().Justify(Justify.Center).Color(Color.Green));
+        layout["Version"].Update(Align.Center(new Markup($"[bold]Version:[/] {Assembly.GetEntryAssembly().GetName().Version}")));
+        layout["Description"]
+            .Update(Align.Center(new Text("Easy Git versioning for the rest of us \n your project | your version | your rules")));
+        layout["Left"].Update(Align.Left(new Markup("[blue3_1]https://github.com/yorschor/Chrono[/]"), VerticalAlignment.Bottom));
+        layout["Right"].Update(Align.Right(new Markup("Made with ❤️ by [deeppink3_1]Ekkehard C. Damisch[/] in [red]Austria[/]"),
+            VerticalAlignment.Bottom));
+
         AnsiConsole.Write(rootPanel);
         return 0;
     }

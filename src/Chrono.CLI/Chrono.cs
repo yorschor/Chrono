@@ -1,6 +1,7 @@
 ﻿using Chrono.Commands;
 using Chrono.Core;
 using Chrono.Core.Helpers;
+using Chrono.Helpers;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
@@ -23,8 +24,7 @@ public static class Chrono
         NLogHelper.ConfigureNLog();
         config.SetApplicationName("chrono");
         config.UseAssemblyInformationalVersion();
-        // config.SetApplicationVersion(typeof(Chrono).Assembly.GetName().Version?.ToString());
-
+        
         config.AddCommand<InitCommand>("init")
             .WithDescription("Initializes the current directory with the required files for Chrono to work")
             .WithExample("init");
