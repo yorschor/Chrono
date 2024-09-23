@@ -8,6 +8,7 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>chrono</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
         
         <PackageId>Chrono.CLI</PackageId>
         <Authors>Ekkehard C. Damisch</Authors>
