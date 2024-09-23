@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Chrono.Core;
 using Chrono.Core.Helpers;
@@ -9,6 +10,7 @@ using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Utilities.Collections;
 using Serilog;
 
 [GitHubActions(
@@ -72,6 +74,12 @@ class Build : NukeBuild
 
             Log.Information("Chrono -> Resolving numeric version to " + parseNumericVersionResult.Data);
 
+            var res = versionInfo.BumpVersion(VersionComponent.Build);
+            if (!res)
+            {
+                res.Errors.ForEach(e => Log.Error(e.ToString() ?? string.Empty));
+            }
+            Log.Information("Chrono -> Bumped build version " + versionInfo.GetNumericVersion().Data);
             return true;
         }
         catch (Exception ex)
