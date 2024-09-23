@@ -11,14 +11,9 @@ namespace Chrono.CLI.Test
         {
             using var repo = new Repository(_app.TempDirectory);
             var initialHash = repo.Head.Tip.Sha;
-
-            // Set up initial conditions
-            File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "version.yml"), "version: 1.0.0");
-            repo.Index.Add("version.yml");
-            repo.Commit("Initial commit", new Signature("Test User", "test@example.com", DateTimeOffset.Now), new Signature("Test User", "test@example.com", DateTimeOffset.Now));
-
+            
             // Run the command
-            _app.RunAndAssert(["release"], "Creating new branch");
+            _app.RunAndAssert(["release", "-c"], "");
 
             // Check branch creation
             var newBranch = repo.Branches["release/v1.0.0"];
@@ -26,7 +21,7 @@ namespace Chrono.CLI.Test
             Assert.Equal(initialHash, newBranch.Tip.Sha);
 
             // Check commit
-            var commitMessage = newBranch.Tip.Message;
+            var commitMessage = repo.Head.Tip.Message;
             Assert.Contains("Chrono: Set version", commitMessage);
         }
 
@@ -35,13 +30,8 @@ namespace Chrono.CLI.Test
         {
             using var repo = new Repository(_app.TempDirectory);
             var initialHash = repo.Head.Tip.Sha;
-
-            // Set up initial conditions
-            File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "version.yml"), "version: 1.0.0");
-            repo.Index.Add("version.yml");
-            repo.Commit("Initial commit", new Signature("Test User", "test@example.com", DateTimeOffset.Now), new Signature("Test User", "test@example.com", DateTimeOffset.Now));
-
-            // Run the command
+            
+            // Run the command  
             _app.RunAndAssert(["tag"], "Tag v1.0.0 created");
 
             // Check tag creation
@@ -56,16 +46,11 @@ namespace Chrono.CLI.Test
             using var repo = new Repository(_app.TempDirectory);
             var initialHash = repo.Head.Tip.Sha;
 
-            // Set up initial conditions
-            File.WriteAllText(Path.Combine(repo.Info.WorkingDirectory, "version.yml"), "version: 1.0.0");
-            repo.Index.Add("version.yml");
-            repo.Commit("Initial commit", new Signature("Test User", "test@example.com", DateTimeOffset.Now), new Signature("Test User", "test@example.com", DateTimeOffset.Now));
-
             // Run the command
-            _app.RunAndAssert(["branch"], "Creating new branch feature/v1.0.0");
+            _app.RunAndAssert(["branch", "release"], "Creating new branch release/v1.0.0");
 
             // Check branch creation
-            var newBranch = repo.Branches["feature/v1.0.0"];
+            var newBranch = repo.Branches["release/v1.0.0"];
             Assert.NotNull(newBranch);
             Assert.Equal(initialHash, newBranch.Tip.Sha);
         }

@@ -84,7 +84,7 @@ public class VersionCommandTest
     }
     
     [Fact]
-    public void DirtyRepoTest()
+    public void DirtyRepoTestDefaultDontAllowDirty()
     {
         Debug.WriteLine("DirtyRepoTest...");
         using var repo = new Repository(App.TempDirectory);
@@ -93,5 +93,17 @@ public class VersionCommandTest
         App.RunAndAssert(["get"], "1.0.0-trunk." + hash[..7]);
         File.WriteAllText(App.TempDirectory + "/test.txt", "test");
         App.RunAndAssert(["get"], "1.0.0-trunk." + "dirty-repo");
+    }
+    
+    [Fact]
+    public void DirtyRepoTestAllowDirty()
+    {
+        Debug.WriteLine("DirtyRepoTest...");
+        using var repo = new Repository(App.TempDirectory);
+        var hash = repo.Head.Tip.Sha;
+        Thread.Sleep(100);
+        App.RunAndAssert(["get"], "1.0.0-trunk." + hash[..7]);
+        File.WriteAllText(App.TempDirectory + "/test.txt", "test");
+        App.RunAndAssert(["get", "-i"], "1.0.0-trunk." + hash[..7]);
     }
 }

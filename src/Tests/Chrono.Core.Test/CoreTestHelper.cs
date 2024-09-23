@@ -40,11 +40,12 @@ public class CoreTestHelper : IDisposable
                                                             default:
                                                               versionSchema: '{major}.{minor}.{patch}[-]{branch}[.]{commitShortHash}'
                                                               precision: minor
+                                                              newTagSchema: 'v{major}.{minor}.{patch}'
                                                               prereleaseTag: local
                                                               release:
                                                                 match:
                                                                   - ^v.*
-                                                                newBranchSchema: 'release/v{major}.{minor}.{patch}}'
+                                                                newBranchSchema: 'release/v{major}.{minor}.{patch}'
                                                                 versionSchema: '{major}.{minor}.{patch}'
                                                                 precision: minor
                                                                 prereleaseTag:
@@ -52,8 +53,10 @@ public class CoreTestHelper : IDisposable
                                                               release:
                                                                 match:
                                                                   - ^release/v.*
+                                                                newBranchSchema: 'release/v{major}.{minor}.{patch}'
                                                                 versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{commitShortHash}'
                                                                 precision: patch
+                                                                newTagSchema: 'v{major}.{minor}.{patch}'
                                                                 prereleaseTag: rc
                                                             """;
 
