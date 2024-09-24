@@ -1,8 +1,6 @@
 ﻿using Chrono.Core;
 using Chrono.Core.Helpers;
-using Huxy;
 using LibGit2Sharp;
-using Nuke.Common.Utilities.Collections;
 using Spectre.Console;
 using Spectre.Console.Cli;
 

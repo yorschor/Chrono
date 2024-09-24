@@ -1,6 +1,4 @@
-using Chrono.Core.Helpers;
 using Huxy;
-using LibGit2Sharp;
 
 namespace Chrono.Core.Test
 {

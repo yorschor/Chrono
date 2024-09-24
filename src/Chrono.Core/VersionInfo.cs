@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Chrono.Core.Helpers;
 using Huxy;
 using LibGit2Sharp;
 using NLog;

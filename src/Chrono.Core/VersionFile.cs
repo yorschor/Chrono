@@ -1,11 +1,7 @@
 ﻿using System.Net.Http;
-using Chrono.Core.Helpers;
 using Huxy;
 using NLog;
 using Nuke.Common.IO;
-using LibGit2Sharp;
-using YamlDotNet.Core;
-using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 

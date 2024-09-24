@@ -2,7 +2,6 @@
 using Chrono.Commands;
 using Chrono.Core;
 using Chrono.Core.Helpers;
-using Chrono.Helpers;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
