@@ -22,16 +22,14 @@ It is inspired by the likes of https://github.com/GitTools/GitVersion[GitVersion
 a|image::icon.png[]
 |===
 
-=== TODO
+=== Road to 1.0 
 
-* [.line-through]#Fallback to default if value isnt set# -> Done
-* [.line-through]#Test fallback# -> Done
-* Build 0.9 version
-* Adjust config 
-* [.line-through]#Ci specific stuff?# -> Handled via Enviroment variables
-* Continue if dirty  ->  Also in dotnet build project
-* test Dotnet versioning
-
+* Build intermediate 0.9 version -> no public release though
+* Ensure config examples are up to date
+* Adjust documentation
+* Debug builds for dotnet tasks should work
+* Create self-contained builds for various platforms
+* Enhance logging and error handling/reporting
 
 === Commands
 
@@ -73,12 +71,12 @@ For the content of version.yml either checkout the minimal example below.
 ----
 version: "1.0.0"
 default:
-  versionschema: "{major}.{minor}.{patch}[-]{branchname}[-]{commitShortHash}"
+  versionSchema: "{major}.{minor}.{patch}[-]{branch}[-]{commitShortHash}"
   precision: "minor"  
   release:
     match:
       - "^release/.*"
-    versionschema: "{major}.{minor}.{patch}"
+    versionSchema: "{major}.{minor}.{patch}"
 ----
 
 or read the full link:doc/Version.adoc[documentation].
