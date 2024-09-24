@@ -1,0 +1,23 @@
+---
+version: 0.0.0
+default:
+  versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
+  precision: minor
+  prereleaseTag: local
+  release:
+    match:
+      - ^v.*
+    versionSchema: '{major}.{minor}.{patch}'
+branches:
+  release:
+    match:
+      - ^release/.*
+    versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{commitShortHash}'
+    precision: patch
+    prereleaseTag: rc
+  development:
+    match:
+      - ^development.*
+    versionSchema: '{major}.{minor}.{patch}.{build}-{prereleaseTag}-{commitShortHash}'
+    precision: build
+    prereleaseTag: dev
