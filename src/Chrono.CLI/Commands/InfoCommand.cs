@@ -45,7 +45,7 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
         };
         layout["TopSpace"].Update(new Rule());
         layout["Figlet"].Update(new FigletText(FFont.Get, "Chrono").Centered().Justify(Justify.Center).Color(Color.Green));
-        layout["Version"].Update(Align.Center(new Markup($"[bold]Version:[/] {Assembly.GetEntryAssembly().GetName().Version}")));
+        layout["Version"].Update(Align.Center(new Markup($"[bold]Version:[/] {settings.AppVersion}")));
         layout["Description"]
             .Update(Align.Center(new Text("Easy Git versioning for the rest of us \n your project | your version | your rules")));
         layout["Left"].Update(Align.Left(new Markup("[blue3_1]https://github.com/yorschor/Chrono[/]"), VerticalAlignment.Bottom));
@@ -56,9 +56,7 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
         return 0;
     }
 
-    public sealed class Settings : InfoSettings
-    {
-    }
+    public sealed class Settings : InfoSettings;
 }
 
 #endregion

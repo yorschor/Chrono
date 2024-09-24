@@ -124,6 +124,7 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
+            // TODO CHrono.DotnetTasks expects the depencies in a publish folder. that doesnt exist in a debug build though. Should fix this eventually 
             var p = Solution.GetProject(TargetProjectName)?.Directory;
             var net472 = p / "bin" / Configuration / "net472" / "publish" / "LibGit2Sharp.dll.config";
             var net6 = p / "bin" / Configuration / "net6.0" / "publish" / "Chrono.DotnetTasks.deps.json";

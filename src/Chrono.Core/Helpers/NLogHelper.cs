@@ -4,47 +4,51 @@ using NLog.Targets;
 
 namespace Chrono.Core.Helpers
 {
-	public static class NLogHelper
-	{
-		private static ConsoleTarget _logConsoleTarget;
-		private static ConsoleTarget _shortConsoleTarget;
-		
-		public static void ConfigureNLog()
-		{
-			var config = new LoggingConfiguration();
 
-			_logConsoleTarget = new ConsoleTarget("logconsole")
-			{
-				Layout = "${longdate}|${level}| -> ${message} ${exception:format=tostring}"
-			};
-			_shortConsoleTarget = new ConsoleTarget("shortConsole")
-			{
-				Layout = "${level} -> ${message}"
-			};
-			
-			config.AddTarget(_logConsoleTarget);
-			config.AddTarget(_shortConsoleTarget);
+    public enum ChronoLogLevel
+    {
+        Debug,
+        Trace
+    }
+    public static class NLogHelper
+    {
+        private static ConsoleTarget _logConsoleTarget = new("logconsole")
+        {
+            Layout = "${longdate} | ${level} | -> ${message} ${exception:format=tostring}"
+        };
 
-			config.AddRule(LogLevel.Debug, LogLevel.Fatal, _logConsoleTarget);
+        private static ConsoleTarget _shortConsoleTarget = new("shortConsole")
+        {
+            Layout = "${level} -> ${message}"
+        };
 
-			LogManager.Configuration = config;
-		}
-		
-		public static void EnableShortConsoleTarget(bool enable = false)
-		{
-			var config = LogManager.Configuration;
-			config.LoggingRules.Clear();
+        public static void ConfigureNLog()
+        {
+            var config = new LoggingConfiguration();
 
-			if (enable)
-			{
-				config.AddRule(LogLevel.Trace, LogLevel.Fatal, _shortConsoleTarget);
-			}
-			else
-			{
-				config.AddRule(LogLevel.Trace, LogLevel.Fatal, _logConsoleTarget);
-			}
-			
-			LogManager.ReconfigExistingLoggers();
-		}
-	}
+            config.AddTarget(_logConsoleTarget);
+            config.AddTarget(_shortConsoleTarget);
+            LogManager.Configuration = config;
+            
+            SetLogLevel(false);
+        }
+
+        public static void SetLogLevel(bool enableTrace)
+        {
+            var config = LogManager.Configuration;
+            config.LoggingRules.Clear();
+
+            switch (enableTrace)
+            {
+                case true:
+                    config.AddRule(LogLevel.Trace, LogLevel.Fatal, _shortConsoleTarget);
+                    break;
+                case false:
+                    config.AddRule(LogLevel.Debug, LogLevel.Fatal, _logConsoleTarget);
+                    break;
+            }
+
+            LogManager.ReconfigExistingLoggers();
+        }
+    }
 }

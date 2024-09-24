@@ -14,9 +14,7 @@ namespace Chrono.Commands;
 
 #region BaseSettings
 
-public class CreateSettings : BaseCommandSettings
-{
-}
+public class CreateSettings : BaseCommandSettings;
 
 #endregion
 
@@ -27,7 +25,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
     public override int Execute(CommandContext context, Settings settings)
     {
         var versionInfo = settings.ValidateVersionInfo();
-        if (versionInfo is null) return 0;
+        if (versionInfo is null) return settings.GetReturnCode(1);
 
         // 1 Create new branch according to schema without checking out
         var newBranchNameResult = versionInfo.GetNewBranchName(true);
@@ -36,7 +34,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
         {
             newBranchNameResult.PrintErrors();
             AnsiConsole.MarkupLine(newBranchNameResult.Message);
-            return 0;
+            return 1;
         }
 
         var repo = settings.GetRepo().Data;
@@ -62,7 +60,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
                 author);
         }
 
-        return 1;
+        return 0;
     }
 
     public sealed class Settings : CreateSettings
@@ -81,7 +79,7 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
         try
         {
             var versionInfo = settings.ValidateVersionInfo();
-            if (versionInfo is null) return 0;
+            if (versionInfo is null) return settings.GetReturnCode(1);
 
             var newTagNameResult = versionInfo.GetNewTagName();
 
@@ -89,24 +87,22 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
             {
                 newTagNameResult.PrintErrors();
                 AnsiConsole.MarkupLine(newTagNameResult.Message);
-                return 0;
+                return 1;
             }
 
             var repo = settings.GetRepo().Data;
             var tag = repo.Tags.Add(newTagNameResult.Data, repo.Head.Tip);
             AnsiConsole.MarkupLine($"Tag {newTagNameResult.Data} created");
-            return 1;
+            return 0;
         }
         catch (Exception e)
         {
             settings.Logger.Error(e.ToString());
-            return 0;
+            return 1;
         }
     }
 
-    public sealed class Settings : CreateSettings
-    {
-    }
+    public sealed class Settings : CreateSettings;
 }
 
 public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
@@ -116,9 +112,9 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
         try
         {
             var versionInfo = settings.ValidateVersionInfo();
-            if (versionInfo is null) return 0;
+            if (versionInfo is null) return settings.GetReturnCode(1);
             var repoResult = settings.GetRepo();
-            if (!repoResult) return 0;
+            if (!repoResult) return 1;
 
             if (string.IsNullOrEmpty(settings.BranchKey))
             {
@@ -130,17 +126,17 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
             {
                 newBranchNameResult.PrintErrors();
                 AnsiConsole.MarkupLine(newBranchNameResult.Message);
-                return 0;
+                return 1;
             }
 
             AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
             repoResult.Data.Branches.Add(newBranchNameResult.Data, repoResult.Data.Head.Tip);
-            return 1;
+            return 0;
         }
         catch (Exception e)
         {
             settings.Logger.Error(e.ToString());
-            return 0;
+            return 1;
         }
     }
 

@@ -30,6 +30,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReferenceConfigs", "ReferenceConfigs", "{1D73FC45-5798-49AF-9B9F-3D9F06B4F126}"
 	ProjectSection(SolutionItems) = preProject
 		doc\examples\v1.yml = doc\examples\v1.yml
+		doc\examples\minimal.yml = doc\examples\minimal.yml
+		doc\examples\sensibleDefault.yml = doc\examples\sensibleDefault.yml
 	EndProjectSection
 EndProject
 Global

@@ -13,9 +13,7 @@ namespace Chrono.Commands;
 
 #region BaseSettings
 
-public class VersionSettings : BaseCommandSettings
-{
-}
+public class VersionSettings : BaseCommandSettings;
 
 #endregion
 
@@ -25,16 +23,12 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        if (settings.Trace)
-        {
-            NLogHelper.EnableShortConsoleTarget(true);
-        }
-
+        NLogHelper.SetLogLevel(settings.Trace);
         var versionInfoResult = VersionInfo.Get(settings.IgnoreDirty);
         if (!versionInfoResult)
         {
             versionInfoResult.PrintErrors();
-            return 0;
+            return 1;
         }
 
         var versionInfo = versionInfoResult.Data;
@@ -57,12 +51,12 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
         if (parseResult is IErrorResult)
         {
             parseResult.PrintErrors();
-            return 0;
+            return 1;
         }
 
         AnsiConsole.Console.WriteLine(parseResult.Data);
-        NLogHelper.EnableShortConsoleTarget();
-        return 1;
+        NLogHelper.SetLogLevel(false);
+        return 0;
     }
 
     public sealed class Settings : VersionSettings
@@ -75,25 +69,21 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        if (settings.Trace)
-        {
-            NLogHelper.EnableShortConsoleTarget(true);
-        }
-
+        NLogHelper.SetLogLevel(settings.Trace);
         var versionInfo = settings.ValidateVersionInfo();
-        if (versionInfo is null) return 0;
+        if (versionInfo is null) return settings.GetReturnCode(1);
         
         var setResult = versionInfo.SetVersion(settings.NewVersion);
         if (setResult is IErrorResult)
         {
-            NLogHelper.EnableShortConsoleTarget();
+            NLogHelper.SetLogLevel(false);
             AnsiConsole.MarkupLine($"[red]Error: {setResult.Message}[/]");
-            return 0;
+            return 1;
         }
 
-        NLogHelper.EnableShortConsoleTarget();
+        NLogHelper.SetLogLevel(false);
         AnsiConsole.MarkupLine($"[green]Successfully set version to {settings.NewVersion}[/]");
-        return 1;
+        return 0;
     }
 
     public sealed class Settings : VersionSettings
@@ -106,10 +96,7 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
 {
     public override int Execute(CommandContext context, Settings settings)
     {
-        if (settings.Trace)
-        {
-            NLogHelper.EnableShortConsoleTarget(true);
-        }
+        NLogHelper.SetLogLevel(settings.Trace);
 
         var versionComponent = settings.VersionComponent switch
         {
@@ -120,18 +107,18 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
             _ => VersionComponent.INVALID
         };
         var versionInfo = settings.ValidateVersionInfo();
-        if (versionInfo is null) return 0;
+        if (versionInfo is null) return settings.GetReturnCode(1);
         var res = versionInfo.BumpVersion(versionComponent);
         if (res is IErrorResult)
         {
-            NLogHelper.EnableShortConsoleTarget();
+            NLogHelper.SetLogLevel(false);
             AnsiConsole.MarkupLine($"[red]Error: {res.Message}[/]");
-            return 0;
+            return 1;
         }
 
-        NLogHelper.EnableShortConsoleTarget();
+        NLogHelper.SetLogLevel(false);
         AnsiConsole.MarkupLine($"[green]Successfully set version to {versionInfo.GetVersion().Data}[/]");
-        return 1;
+        return 0;
     }
 
     public sealed class Settings : VersionSettings

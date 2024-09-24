@@ -1,4 +1,5 @@
-﻿using Chrono.Commands;
+﻿using System.Reflection;
+using Chrono.Commands;
 using Chrono.Core;
 using Chrono.Core.Helpers;
 using Chrono.Helpers;
@@ -24,7 +25,7 @@ public static class Chrono
         NLogHelper.ConfigureNLog();
         config.SetApplicationName("chrono");
         config.UseAssemblyInformationalVersion();
-        
+
         config.AddCommand<InitCommand>("init")
             .WithDescription("Initializes the current directory with the required files for Chrono to work")
             .WithExample("init");
@@ -40,7 +41,7 @@ public static class Chrono
         config.AddCommand<BumpVersionCommand>("bump")
             .WithDescription("Increments the current version of the project")
             .WithExample("bump");
-        
+
         config.AddCommand<CreateReleaseBranchCommand>("release")
             .WithDescription("Creates a new release branch");
         config.AddCommand<CreateTagCommand>("tag")
@@ -59,7 +60,7 @@ public class BaseCommandSettings : CommandSettings
 
     [CommandOption("-d|--debug")] public bool Debug { get; init; } = false;
     [CommandOption("-t|--trace")] public bool Trace { get; init; } = false;
-    
+
     [CommandOption("-i|--ignore-dirty")] public bool IgnoreDirty { get; init; } = false;
 
     public Result<Repository> GetRepo(string startDir = "")
@@ -84,13 +85,14 @@ public class BaseCommandSettings : CommandSettings
     public bool ContinueIfDirty()
     {
         var repoIsDirty = GetRepo().Data.RetrieveStatus(new StatusOptions()).IsDirty;
-        if (!repoIsDirty) return true;
-        else if (IgnoreDirty) return true;
+        if (!repoIsDirty || IgnoreDirty) return true;
         if (AnsiConsole.Confirm("Working tree isn't clean. Do you want to continue?")) return true;
         AnsiConsole.MarkupLine("Aborting! No changes have bee made!");
         return false;
     }
-    
+
+    public int GetReturnCode(int originalCode) => IgnoreDirty ? 0 : originalCode;
+
     internal VersionInfo? ValidateVersionInfo()
     {
         var infoGetResult = VersionInfo.Get(IgnoreDirty);
@@ -105,4 +107,6 @@ public class BaseCommandSettings : CommandSettings
 
         return ContinueIfDirty() ? versionInfo : null;
     }
+
+    public string AppVersion => Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version";
 }
