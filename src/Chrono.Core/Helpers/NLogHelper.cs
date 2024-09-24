@@ -12,12 +12,12 @@ namespace Chrono.Core.Helpers
     }
     public static class NLogHelper
     {
-        private static ConsoleTarget _logConsoleTarget = new("logconsole")
+        private static ColoredConsoleTarget _logConsoleTarget = new("logconsole")
         {
-            Layout = "${longdate} | ${level} | -> ${message} ${exception:format=tostring}"
+            Layout = "${level} -> ${message} ${exception:format=tostring}"
         };
 
-        private static ConsoleTarget _shortConsoleTarget = new("shortConsole")
+        private static ColoredConsoleTarget _shortConsoleTarget = new("shortConsole")
         {
             Layout = "${level} -> ${message}"
         };

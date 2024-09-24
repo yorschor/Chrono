@@ -3,6 +3,7 @@ using Chrono.Core.Helpers;
 using Huxy;
 using NLog;
 using Nuke.Common.IO;
+using LibGit2Sharp;
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
@@ -34,16 +35,6 @@ public class VersionFile
     /// <returns>A <see cref="VersionFile"/> instance.</returns>
     public static VersionFile From(string path)
     {
-        // var yamlContent = File.ReadAllText(path);
-        //
-        // var deserializer = new DeserializerBuilder()
-        //     .WithNamingConvention(CamelCaseNamingConvention.Instance)
-        //     .Build();
-        //
-        // var versionFile = deserializer.Deserialize<VersionFile>(yamlContent);
-        //
-        //
-        // return versionFile;
         return FromAsync(path).GetAwaiter().GetResult();
     }
 
@@ -276,4 +267,13 @@ public class BranchConfig
     [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }
 }
 
+public class BranchConfigWithFallback(BranchConfig defaultConfig, BranchConfig specificConfig)
+{
+    public List<string> Match => specificConfig.Match ?? defaultConfig.Match;
+    public string VersionSchema => specificConfig.VersionSchema ?? defaultConfig.VersionSchema;
+    public string NewBranchSchema => specificConfig.NewBranchSchema ?? defaultConfig.NewBranchSchema;
+    public string NewTagSchema => specificConfig.NewTagSchema ?? defaultConfig.NewTagSchema;
+    public string Precision => specificConfig.Precision ?? defaultConfig.Precision;
+    public string PrereleaseTag => specificConfig.PrereleaseTag ?? defaultConfig.PrereleaseTag;
+}
 #endregion

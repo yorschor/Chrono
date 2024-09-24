@@ -171,7 +171,7 @@ public class VersionInfo
 
         if (!fileVersionMatch.Success)
         {
-            _logManager.Trace($"Info: Version present in version.yml was not correct -> '{File.Version}'");
+            _logManager.Trace($"Trace: Version present in version.yml was not correct -> '{File.Version}'");
         }
 
         if (setFromString)

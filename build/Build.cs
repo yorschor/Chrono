@@ -150,7 +150,7 @@ class Build : NukeBuild
         }
         else
         {
-            Logger.Warn($"File not found: {configFilePath}");
+            Console.WriteLine($"File not found: {configFilePath}");
         }
     }
 
@@ -160,7 +160,6 @@ class Build : NukeBuild
         .Executes(() =>
         {
             PackagesDirectory.DeleteDirectory();
-            // Version = string.IsNullOrEmpty(GitHubActions?.RefName) ? Version : GitHubActions.RefName.TrimStart('v');
             DotNetTasks.DotNetPack(s => s
                 .SetProject(SourceDirectory / ProjectName)
                 .SetVersion(Version)

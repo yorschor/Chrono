@@ -24,6 +24,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 {
     public override int Execute(CommandContext context, Settings settings)
     {
+        NLogHelper.SetLogLevel(settings.Trace);
         var versionInfo = settings.ValidateVersionInfo();
         if (versionInfo is null) return settings.GetReturnCode(1);
 
@@ -42,7 +43,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
         AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
         var branch = repo.Branches.Add(newBranchNameResult.Data, repo.Head.Tip);
 
-        // 2 Increment Version on existing branch arcording to schema
+        // 2 Increment Version on existing branch according to schema
         var oldversion = versionInfo.GetNumericVersion();
         versionInfo.BumpVersion(VersionInfo.VersionComponentFromString(versionInfo.CurrentBranchConfig.Precision));
         var newVersion = versionInfo.GetNumericVersion();
@@ -59,7 +60,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
             var commit = repo.Commit(settings.CommitMessage.Replace("{oldVersion}", oldversion.Data).Replace("{newVersion}", newVersion.Data), author,
                 author);
         }
-
+        NLogHelper.SetLogLevel(false);
         return 0;
     }
 
@@ -78,6 +79,7 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
     {
         try
         {
+            NLogHelper.SetLogLevel(settings.Trace);
             var versionInfo = settings.ValidateVersionInfo();
             if (versionInfo is null) return settings.GetReturnCode(1);
 
@@ -92,12 +94,14 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
 
             var repo = settings.GetRepo().Data;
             var tag = repo.Tags.Add(newTagNameResult.Data, repo.Head.Tip);
+            NLogHelper.SetLogLevel(false);
             AnsiConsole.MarkupLine($"Tag {newTagNameResult.Data} created");
             return 0;
         }
         catch (Exception e)
         {
             settings.Logger.Error(e.ToString());
+            NLogHelper.SetLogLevel(false);
             return 1;
         }
     }
@@ -111,6 +115,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
     {
         try
         {
+            NLogHelper.SetLogLevel(settings.Trace);
             var versionInfo = settings.ValidateVersionInfo();
             if (versionInfo is null) return settings.GetReturnCode(1);
             var repoResult = settings.GetRepo();
@@ -125,10 +130,11 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
             if (!newBranchNameResult)
             {
                 newBranchNameResult.PrintErrors();
+                NLogHelper.SetLogLevel(false);
                 AnsiConsole.MarkupLine(newBranchNameResult.Message);
                 return 1;
             }
-
+            NLogHelper.SetLogLevel(false);
             AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
             repoResult.Data.Branches.Add(newBranchNameResult.Data, repoResult.Data.Head.Tip);
             return 0;
@@ -136,6 +142,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
         catch (Exception e)
         {
             settings.Logger.Error(e.ToString());
+            NLogHelper.SetLogLevel(false);
             return 1;
         }
     }
