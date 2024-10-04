@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
@@ -36,7 +37,7 @@ public class VersionInfo
 
     #region Members
 
-    private readonly Logger _logManager = LogManager.GetCurrentClassLogger();
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     private readonly string _versionPath;
 
@@ -50,6 +51,10 @@ public class VersionInfo
     {
         _versionPath = path;
         File = VersionFile.From(_versionPath);
+        if (File is null)
+        {
+            throw new Exception("Error parsing version file. Aborting!");
+        }
         if (Version.TryParse(File.Version, out var version))
         {
             Major = version.Major;
@@ -60,7 +65,11 @@ public class VersionInfo
 
         _allowDirtyRepo = allowDirtyRepo;
 
-        LoadGitInfo();
+        var gitRes = LoadGitInfo();
+        if (!gitRes)
+        {
+            throw new Exception(gitRes.Message);
+        }
         var currentBranchResult = GetConfigForCurrentBranch();
         if (!currentBranchResult)
         {
@@ -94,7 +103,7 @@ public class VersionInfo
         }
         catch (Exception e)
         {
-            return Result.Error<VersionInfo>(e.ToString());
+            return Result.Error<VersionInfo>(e.Message);
         }
     }
 
@@ -109,9 +118,9 @@ public class VersionInfo
         {
             if (string.IsNullOrEmpty(schema))
             {
-                _logManager.Trace("No schema provided. Trying to resolve schema from branch config");
+                _logger.Trace("No schema provided. Trying to resolve schema from branch config");
                 schema = CurrentBranchConfig.VersionSchema;
-                _logManager.Trace($"Schema: {schema}");
+                _logger.Trace($"Schema: {schema}");
             }
 
             var schemaWithValues = ParseSchema(schema);
@@ -170,7 +179,7 @@ public class VersionInfo
 
         if (!fileVersionMatch.Success)
         {
-            _logManager.Trace($"Trace: Version present in version.yml was not correct -> '{File.Version}'");
+            _logger.Trace($"Trace: Version present in version.yml was not correct -> '{File.Version}'");
         }
 
         if (setFromString)
@@ -247,7 +256,7 @@ public class VersionInfo
     {
         if (MatchRefsToConfig(CombinedSearchArray, File.Default.Release))
         {
-            _logManager.Trace("Release branch matched!");
+            _logger.Trace("Release branch matched!");
             return Result.Ok(File.Default.Release);
         }
         
@@ -255,15 +264,15 @@ public class VersionInfo
         {
             if (MatchRefsToConfig(CombinedSearchArray, branch.Value))
             {
-                _logManager.Trace($"{branch.Key} branch matched!");
+                _logger.Trace($"{branch.Key} branch matched!");
                 return Result.Ok(branch.Value);
             }
         }
 
         if (File.Default != null)
         {
-            _logManager.Trace("No branch could be matched. Using default configuration!");
-            return Result.Ok((BranchConfig)File.Default);
+            _logger.Trace("No branch could be matched. Using default configuration!");
+            return Result.Ok<BranchConfig>(File.Default);
         }
 
         return Result.Error<BranchConfig>("Something went wrong while trying to get current branch");
@@ -374,7 +383,7 @@ public class VersionInfo
             if (string.IsNullOrEmpty(variableValue))
             {
                 variableValue = string.Empty;
-                _logManager.Trace($"Environment variable '{variableName}' not found. Using empty string instead.");
+                _logger.Trace($"Environment variable '{variableName}' not found. Using empty string instead.");
             }
 
             schema = schema.Replace(match.Value, variableValue);
@@ -396,18 +405,22 @@ public class VersionInfo
         return input;
     }
 
-    private void LoadGitInfo()
+    private Result LoadGitInfo()
     {
         var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
 
         if (string.IsNullOrEmpty(gitDirectory))
         {
-            _logManager.Warn("No git directory found!");
-            return;
+            return Result.Error<string>("No git directory found!");
         }
 
         Repo = new Repository(gitDirectory);
 
+        if (Repo.Info.IsBare || Repo.Info.IsHeadUnborn)
+        {
+            return Result.Error<string>("Git Repo appears empty! (Did you forget to initialize it?)");
+        }
+        
         var branchName = Repo.Head.FriendlyName;
         // Get the short commit hash (7 characters)
         var shortCommitHash = Repo.Head.Tip.Sha.Substring(0, 7);
@@ -417,10 +430,12 @@ public class VersionInfo
         CommitShortHash = Repo.RetrieveStatus(new StatusOptions()).IsDirty && !_allowDirtyRepo ? File.Default.DirtyRepo : shortCommitHash;
 
         TagNames = Repo.Tags.Where(tag => tag.Target.Sha == Repo.Head.Tip.Sha).Select(tag => tag.FriendlyName).ToArray();
+        return Result.Ok();
     }
 
     private bool MatchRefsToConfig(string[] refs, BranchConfig config)
     {
+        if (config == null) return false;
         return refs.Any(t => MatchBranchConfig(t, config));
     }
 
@@ -431,7 +446,7 @@ public class VersionInfo
             var match = Regex.Match(currentBranch, matchSchema);
             if (match.Success)
             {
-                _logManager.Trace($"Match found: Regex '{matchSchema}' for branch '{currentBranch}'");
+                _logger.Trace($"Match found: Regex '{matchSchema}' for branch '{currentBranch}'");
                 return true;
             }
         }

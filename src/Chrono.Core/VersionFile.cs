@@ -21,7 +21,7 @@ public class VersionFile
 
     [YamlMember(Alias = "default")] public DefaultConfig Default { get; set; }
 
-    [YamlMember(Alias = "branches")] public Dictionary<string, BranchConfig> Branches { get; set; }
+    [YamlMember(Alias = "branches")] public Dictionary<string, BranchConfig> Branches { get; set; } = new();
 
 
     /// <summary>
@@ -43,7 +43,16 @@ public class VersionFile
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 
-        var tempVersionFile = deserializer.Deserialize<VersionFile>(mainYamlContent);
+        VersionFile tempVersionFile;
+        try
+        {
+            tempVersionFile = deserializer.Deserialize<VersionFile>(mainYamlContent);
+        }
+        catch (Exception e)
+        {
+            Logger.Fatal($"Invalid YAML file! --- ParseError: {e}");
+            return null;
+        }
 
         if (!string.IsNullOrEmpty(tempVersionFile.Default?.InheritFrom))
         {
@@ -59,6 +68,10 @@ public class VersionFile
             }
         }
 
+        var finishedVersionFile = deserializer.Deserialize<VersionFile>(finalYamlContent);
+
+        finishedVersionFile.Branches ??= new Dictionary<string, BranchConfig>();
+        finishedVersionFile.Default ??= new DefaultConfig();
         return deserializer.Deserialize<VersionFile>(finalYamlContent);
     }
 
@@ -90,7 +103,7 @@ public class VersionFile
         // Deserialize the base and override YAML strings into dynamic objects
         var baseYamlObject = deserializer.Deserialize(new StringReader(baseYaml));
         var overrideYamlObject = deserializer.Deserialize(new StringReader(overrideYaml));
-        
+
         var mergedYamlObject = MergeYamlObjects(baseYamlObject, overrideYamlObject);
         var writer = new StringWriter();
         serializer.Serialize(writer, mergedYamlObject);
@@ -108,6 +121,7 @@ public class VersionFile
                     var baseValue = baseDict.ContainsKey(key) ? baseDict[key] : null;
                     baseDict[key] = MergeYamlObjects(baseValue, overrideDict[key]);
                 }
+
                 return baseDict;
             }
             case IList<object> when overrideObj is IList<object> overrideList:
@@ -152,7 +166,7 @@ public class VersionFile
     {
         if (string.IsNullOrWhiteSpace(startDirectory) || string.IsNullOrWhiteSpace(targetFileName) || string.IsNullOrWhiteSpace(stopDirectory))
         {
-            return Result.Error<string>("Directory paths and file name cannot be null or empty.");
+            return Result.Error<string>("Directory paths and file name cannot be null or empty!");
         }
 
         var files = Directory.EnumerateFiles(stopDirectory, targetFileName, SearchOption.AllDirectories);
@@ -166,7 +180,7 @@ public class VersionFile
         Logger.Trace($"Found {enumerable.Length} version file(s)");
         for (var i = 0; i < enumerable.Length; i++)
         {
-            Logger.Trace($"==> {i + 1} : {enumerable[i]}");
+            Logger.Trace($" \u2514 {i + 1} : {enumerable[i]}");
         }
 
         if (enumerable.Length == 1)
@@ -248,19 +262,19 @@ public class VersionFile
 
 public class DefaultConfig : BranchConfig
 {
-    [YamlMember(Alias = "inheritFrom")] public string InheritFrom { get; set; }
+    [YamlMember(Alias = "inheritFrom")] public string InheritFrom { get; set; } = "";
     [YamlMember(Alias = "dirtyRepo")] public string DirtyRepo { get; set; } = "dirty-repo";
-    [YamlMember(Alias = "release")] public BranchConfig Release { get; set; }
+    [YamlMember(Alias = "release")] public BranchConfig Release { get; set; } = null;
 }
 
 public class BranchConfig
 {
-    [YamlMember(Alias = "match")] public List<string> Match { get; set; }
-    [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
-    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; }
-    [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
-    [YamlMember(Alias = "precision")] public string Precision { get; set; }
-    [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }
+    [YamlMember(Alias = "match")] public List<string> Match { get; set; } = [];
+    [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; } = "";
+    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; } = "";
+    [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; } = "";
+    [YamlMember(Alias = "precision")] public string Precision { get; set; } = "";
+    [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; } = "";
 }
 
 public class BranchConfigWithFallback(BranchConfig defaultConfig, BranchConfig specificConfig)
@@ -272,4 +286,5 @@ public class BranchConfigWithFallback(BranchConfig defaultConfig, BranchConfig s
     public string Precision => specificConfig.Precision ?? defaultConfig.Precision;
     public string PrereleaseTag => specificConfig.PrereleaseTag ?? defaultConfig.PrereleaseTag;
 }
+
 #endregion
