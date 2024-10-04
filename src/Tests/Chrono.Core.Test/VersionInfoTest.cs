@@ -103,7 +103,7 @@ version: 'invalid_version'
             var result = versionInfo.SetVersion("invalid_version");
 
             Assert.False(result.Success);
-            if (result is IErrorResult)
+            if (!result)
             {
                 Assert.Equal("invalid_version is not a valid version!", result.Message);
             }

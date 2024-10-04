@@ -75,7 +75,7 @@ public class BaseCommandSettings : CommandSettings
         Logger.Trace($"Root: {rootPath}");
         if (string.IsNullOrEmpty(rootPath))
         {
-            return Result.Error<Repository>($"No Repo found from starting directory {startDir}");
+            return Result.Nope<Repository>($"No Repo found from starting directory {startDir}");
         }
 
         return Result.Ok(new Repository(rootPath));
@@ -95,7 +95,7 @@ public class BaseCommandSettings : CommandSettings
     internal VersionInfo? ValidateVersionInfo()
     {
         var infoGetResult = VersionInfo.Get(IgnoreDirty);
-        if (infoGetResult is IErrorResult)
+        if (!infoGetResult)
         {
             Logger.Error(infoGetResult.Message);
             return null;

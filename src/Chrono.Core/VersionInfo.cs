@@ -50,11 +50,12 @@ public class VersionInfo
     internal VersionInfo(string path, bool allowDirtyRepo = false)
     {
         _versionPath = path;
-        File = VersionFile.From(_versionPath);
-        if (File is null)
+        var fileResult = VersionFile.From(_versionPath);
+        if (!fileResult.Success)
         {
-            throw new Exception("Error parsing version file. Aborting!");
+            throw new Exception(fileResult.Message);
         }
+        File = fileResult.Data;
         if (Version.TryParse(File.Version, out var version))
         {
             Major = version.Major;
@@ -87,14 +88,14 @@ public class VersionInfo
         var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
         if (string.IsNullOrEmpty(gitDirectory))
         {
-            return Result.Error<VersionInfo>("Chrono GitVersioning: No git directory found!");
+            return Result.Nope<VersionInfo>("Chrono GitVersioning: No git directory found!");
         }
 
         var versionFileFoundResult = VersionFile.Find(Directory.GetCurrentDirectory(), gitDirectory.Substring(0, gitDirectory.Length - 4));
 
         if (!versionFileFoundResult)
         {
-            return Result.Error<VersionInfo>(versionFileFoundResult);
+            return Result.Nope<VersionInfo>(versionFileFoundResult);
         }
 
         try
@@ -103,7 +104,7 @@ public class VersionInfo
         }
         catch (Exception e)
         {
-            return Result.Error<VersionInfo>(e.Message);
+            return Result.Nope<VersionInfo>(e.Message);
         }
     }
 
@@ -131,7 +132,7 @@ public class VersionInfo
         catch (Exception e)
         {
             _parsedVersion = "";
-            return Result.Error<string>(e.ToString());
+            return Result.Nope<string>(e.ToString());
         }
     }
 
@@ -153,7 +154,7 @@ public class VersionInfo
         }
 
         _parsedVersion = "";
-        return Result.Error<string>("Could not parse numeric version");
+        return Result.Nope<string>("Could not parse numeric version");
     }
 
     /// <summary>
@@ -170,7 +171,7 @@ public class VersionInfo
         {
             if (!newVersionMatch.Success)
             {
-                return Result.Error<string>($"{newVersion} is not a valid version!");
+                return Result.Nope($"{newVersion} is not a valid version!");
             }
         }
 
@@ -192,7 +193,7 @@ public class VersionInfo
 
         if (Major == -1 || Minor == -1)
         {
-            return Result.Error<string>("Some went wrong while parsing major and minor values");
+            return Result.Nope("Some went wrong while parsing major and minor values");
         }
 
         if (Patch == -1)
@@ -209,7 +210,7 @@ public class VersionInfo
         }
 
         var saveResult = File.Save(_versionPath);
-        return saveResult is IErrorResult ? saveResult : Result.Ok();
+        return !saveResult ? saveResult : Result.Ok();
     }
 
     public Result<string> GetNewBranchName(bool releaseBranch = false)
@@ -217,7 +218,7 @@ public class VersionInfo
         var newBranchSchema = releaseBranch ? File.Default.Release.NewBranchSchema : CurrentBranchConfig.NewBranchSchema;
         if (string.IsNullOrEmpty(newBranchSchema))
         {
-            return Result.Error<string>("No branch schema configured. Aborting!");
+            return Result.Nope<string>("No branch schema configured. Aborting!");
         }
 
         try
@@ -226,7 +227,7 @@ public class VersionInfo
         }
         catch (Exception e)
         {
-            return Result.Error<string>(e.ToString());
+            return Result.Nope<string>(e.ToString());
         }
     }
 
@@ -235,7 +236,7 @@ public class VersionInfo
         var newBranchSchema = releaseBranch ? File.Default.Release.NewTagSchema : CurrentBranchConfig.NewTagSchema;
         if (string.IsNullOrEmpty(newBranchSchema))
         {
-            return Result.Error<string>("No tag schema configured. Aborting!");
+            return Result.Nope<string>("No tag schema configured. Aborting!");
         }
 
         try
@@ -244,7 +245,7 @@ public class VersionInfo
         }
         catch (Exception e)
         {
-            return Result.Error<string>(e.ToString());
+            return Result.Nope<string>(e.ToString());
         }
     }
 
@@ -275,7 +276,7 @@ public class VersionInfo
             return Result.Ok<BranchConfig>(File.Default);
         }
 
-        return Result.Error<BranchConfig>("Something went wrong while trying to get current branch");
+        return Result.Nope<BranchConfig>("Something went wrong while trying to get current branch");
     }
 
     /// <summary>
@@ -286,9 +287,9 @@ public class VersionInfo
     public Result BumpVersion(VersionComponent component)
     {
         var parseResult = GetVersion();
-        if (parseResult is IErrorResult)
+        if (!parseResult)
         {
-            return Result.Error<string>(parseResult);
+            return Result.Nope(parseResult);
         }
 
         var minorUsed = Minor != -1;
@@ -317,13 +318,13 @@ public class VersionInfo
                 break;
             case VersionComponent.INVALID:
             default:
-                return Result.Error<string>("Invalid version component");
+                return Result.Nope("Invalid version component");
         }
 
         var setResult = SetVersion();
-        if (setResult is IErrorResult)
+        if (!setResult)
         {
-            return Result.Error<string>(setResult);
+            return Result.Nope(setResult);
         }
 
         return Result.Ok();
@@ -336,13 +337,13 @@ public class VersionInfo
             var newBranchName = branchConfig.NewBranchSchema;
             if (string.IsNullOrEmpty(newBranchName))
             {
-                return Result.Error<string>($"No new branch schema configured for branch config ''{key}''");
+                return Result.Nope<string>($"No new branch schema configured for branch config ''{key}''");
             }
 
             return Result.Ok(ParseSchema(newBranchName));
         }
 
-        return Result.Error<string>($"No config for branch {key} found");
+        return Result.Nope<string>($"No config for branch {key} found");
     }
 
     public static VersionComponent VersionComponentFromString(string value)
@@ -411,14 +412,14 @@ public class VersionInfo
 
         if (string.IsNullOrEmpty(gitDirectory))
         {
-            return Result.Error<string>("No git directory found!");
+            return Result.Nope("No git directory found!");
         }
 
         Repo = new Repository(gitDirectory);
 
         if (Repo.Info.IsBare || Repo.Info.IsHeadUnborn)
         {
-            return Result.Error<string>("Git Repo appears empty! (Did you forget to initialize it?)");
+            return Result.Nope("Git Repo appears empty! (Did you forget to initialize it?)");
         }
         
         var branchName = Repo.Head.FriendlyName;

@@ -47,7 +47,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
         }
 
         var parseResult = settings.Numeric ? versionInfo.GetNumericVersion() : versionInfo.GetVersion();
-        if (parseResult is IErrorResult)
+        if (!parseResult)
         {
             parseResult.PrintErrors();
             return 1;
@@ -73,7 +73,7 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
         if (versionInfo is null) return settings.GetReturnCode(1);
         
         var setResult = versionInfo.SetVersion(settings.NewVersion);
-        if (setResult is IErrorResult)
+        if (!setResult)
         {
             NLogHelper.SetLogLevel(false);
             AnsiConsole.MarkupLine($"[red]Error: {setResult.Message}[/]");
@@ -108,7 +108,7 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
         var versionInfo = settings.ValidateVersionInfo();
         if (versionInfo is null) return settings.GetReturnCode(1);
         var res = versionInfo.BumpVersion(versionComponent);
-        if (res is IErrorResult)
+        if (!res)
         {
             NLogHelper.SetLogLevel(false);
             AnsiConsole.MarkupLine($"[red]Error: {res.Message}[/]");

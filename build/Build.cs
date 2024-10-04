@@ -49,7 +49,7 @@ class Build : NukeBuild
         try
         {
             var infoGetResult = VersionInfo.Get();
-            if (infoGetResult is IErrorResult)
+            if (!infoGetResult)
             {
                 Log.Error(infoGetResult.Message);
                 return false;
@@ -75,7 +75,7 @@ class Build : NukeBuild
             var res = versionInfo.BumpVersion(VersionComponent.Build);
             if (!res)
             {
-                res.Errors.ForEach(e => Log.Error(e.ToString() ?? string.Empty));
+                Log.Error(res.Exception.ToString());
             }
             Log.Information("Chrono -> Bumped build version " + versionInfo.GetNumericVersion().Data);
             return true;

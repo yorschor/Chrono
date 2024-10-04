@@ -1,19 +1,21 @@
 using Huxy;
 using NLog;
+using Nuke.Common.Utilities;
 
 namespace Chrono.Core.Helpers;
 
-public static class ErrorResultExtension
+public static class ResultExtension
 {
-    public static void PrintErrors(this Result errorResult)
+    public static void PrintErrors(this IResult errorResult)
     {
-        if (errorResult.Errors.Count == 0)
+        var logger = LogManager.GetCurrentClassLogger();
+        if (!string.IsNullOrEmpty(errorResult.Message))
         {
-            LogManager.GetCurrentClassLogger().Error(errorResult.Message);
-        }
-        foreach (var error in errorResult.Errors)
-        {
-            LogManager.GetCurrentClassLogger().Error($"{error.Code}: {error.Details}");
+            logger.Error(errorResult.Message);
+            if (errorResult.Exception != null && logger.IsTraceEnabled)
+            {
+                logger.Error(errorResult.Exception.ToString());
+            }
         }
     }
 }

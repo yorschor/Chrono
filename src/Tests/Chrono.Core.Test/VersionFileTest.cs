@@ -44,10 +44,10 @@ branches:
         var versionFile = VersionFile.From(_sampleYamlPath);
 
         // Assert
-        Assert.NotNull(versionFile);
-        Assert.Equal("1.0.0", versionFile.Version);
-        Assert.NotNull(versionFile.Default);
-        Assert.NotNull(versionFile.Branches);
+        Assert.True(versionFile);
+        Assert.Equal("1.0.0", versionFile.Data.Version);
+        Assert.NotNull(versionFile.Data.Default);
+        Assert.NotNull(versionFile.Data.Branches);
     }
 
     [Fact]
@@ -57,10 +57,10 @@ branches:
         var versionFile = await VersionFile.FromAsync(_sampleYamlPath);
 
         // Assert
-        Assert.NotNull(versionFile);
-        Assert.Equal("1.0.0", versionFile.Version);
-        Assert.NotNull(versionFile.Default);
-        Assert.NotNull(versionFile.Branches);
+        Assert.True(versionFile);
+        Assert.Equal("1.0.0", versionFile.Data.Version);
+        Assert.NotNull(versionFile.Data.Default);
+        Assert.NotNull(versionFile.Data.Branches);
     }
 
     [Fact]
@@ -90,12 +90,12 @@ branches:
         // Arrange
         var versionFile = VersionFile.From(_sampleYamlPath);
         var savePath = "saved_version.yml";
-
+        Assert.True(versionFile);
         // Act
-        var result = versionFile.Save(savePath);
+        var result = versionFile.Data.Save(savePath);
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(result);
         Assert.True(File.Exists(savePath));
         File.Delete(savePath); // Cleanup
     }

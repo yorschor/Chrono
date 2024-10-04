@@ -29,12 +29,12 @@ public class VersionFile
     /// </summary>
     /// <param name="path">The path to the YAML file.</param>
     /// <returns>A <see cref="VersionFile"/> instance.</returns>
-    public static VersionFile From(string path)
+    public static Result<VersionFile> From(string path)
     {
         return FromAsync(path).GetAwaiter().GetResult();
     }
 
-    public static async Task<VersionFile> FromAsync(string path)
+    public static async Task<Result<VersionFile>> FromAsync(string path)
     {
         var mainYamlContent = File.ReadAllText(path);
         var finalYamlContent = mainYamlContent;
@@ -50,8 +50,7 @@ public class VersionFile
         }
         catch (Exception e)
         {
-            Logger.Fatal($"Invalid YAML file! --- ParseError: {e}");
-            return null;
+            return Result.Nope<VersionFile>($"Invalid YAML file! --- ParseError: {e}");
         }
 
         if (!string.IsNullOrEmpty(tempVersionFile.Default?.InheritFrom))
@@ -62,9 +61,9 @@ public class VersionFile
                 var inheritedYamlContent = inheritedYamlContentResult.Data;
                 finalYamlContent = MergeYamlContent(inheritedYamlContent, mainYamlContent);
             }
-            else if (inheritedYamlContentResult is IErrorResult)
+            else if (!inheritedYamlContentResult)
             {
-                Logger.Error(inheritedYamlContentResult);
+                return Result.Nope<VersionFile>(inheritedYamlContentResult);
             }
         }
 
@@ -72,7 +71,7 @@ public class VersionFile
 
         finishedVersionFile.Branches ??= new Dictionary<string, BranchConfig>();
         finishedVersionFile.Default ??= new DefaultConfig();
-        return deserializer.Deserialize<VersionFile>(finalYamlContent);
+        return Result.Ok(deserializer.Deserialize<VersionFile>(finalYamlContent));
     }
 
 
@@ -80,7 +79,7 @@ public class VersionFile
     {
         if (string.IsNullOrEmpty(uri))
         {
-            return Result.Error<string>("URI is not set.");
+            return Result.Nope<string>("URI is not set.");
         }
 
         try
@@ -91,7 +90,7 @@ public class VersionFile
         }
         catch (Exception ex)
         {
-            return Result.Error<string>($"Failed to fetch the YAML file: {ex.Message}");
+            return Result.Nope<string>($"Failed to fetch the YAML file: {ex.Message}");
         }
     }
 
@@ -151,7 +150,7 @@ public class VersionFile
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return Result.Nope(ex.Message);
         }
     }
 
@@ -166,7 +165,7 @@ public class VersionFile
     {
         if (string.IsNullOrWhiteSpace(startDirectory) || string.IsNullOrWhiteSpace(targetFileName) || string.IsNullOrWhiteSpace(stopDirectory))
         {
-            return Result.Error<string>("Directory paths and file name cannot be null or empty!");
+            return Result.Nope<string>("Directory paths and file name cannot be null or empty!");
         }
 
         var files = Directory.EnumerateFiles(stopDirectory, targetFileName, SearchOption.AllDirectories);
@@ -174,7 +173,7 @@ public class VersionFile
 
         if (!enumerable.Any())
         {
-            return Result.Error<string>("No version.yml present");
+            return Result.Nope<string>("No version.yml present");
         }
 
         Logger.Trace($"Found {enumerable.Length} version file(s)");
@@ -190,7 +189,7 @@ public class VersionFile
                 return Result.Ok(enumerable[0]);
             }
 
-            return Result.Error<string>("The file is in a subdirectory of the start directory.");
+            return Result.Nope<string>("The file is in a subdirectory of the start directory.");
         }
 
 
@@ -213,7 +212,7 @@ public class VersionFile
 
         return nearestFile != null
             ? Result.Ok(nearestFile)
-            : Result.Error<string>("Something went wrong while searching for version.yml");
+            : Result.Nope<string>("Something went wrong while searching for version.yml");
     }
 
     #region Helpers
