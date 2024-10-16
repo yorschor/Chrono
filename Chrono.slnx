@@ -1,0 +1,27 @@
+﻿<Solution>
+  <Folder Name="/SolutionItems/">
+    <Project Path="build\_build.csproj">
+      <Configuration Solution="Debug|Any CPU" Project="Debug|Any CPU|NoBuild" />
+      <Configuration Solution="Release|Any CPU" Project="Release|Any CPU|NoBuild" />
+    </Project>
+    <File Path="README.adoc" />
+    <File Path="src\Directory.Packages.props" />
+    <File Path="version.yml" />
+  </Folder>
+  <Folder Name="/SolutionItems/Docu/">
+    <File Path="doc\Version.adoc" />
+    <File Path="doc\DotnetVersioning.adoc" />
+  </Folder>
+  <Folder Name="/SolutionItems/Docu/ReferenceConfigs/">
+    <File Path="doc\examples\v1.yml" />
+    <File Path="doc\examples\minimal.yml" />
+    <File Path="doc\examples\sensibleDefault.yml" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="src\Tests\Chrono.CLI.Test\Chrono.CLI.Test.csproj" Type="Classic C#" />
+    <Project Path="src\Tests\Chrono.Core.Test\Chrono.Core.Test.csproj" Type="Classic C#" />
+  </Folder>
+  <Project Path="src\Chrono.CLI\Chrono.CLI.csproj" Type="Classic C#" />
+  <Project Path="src\Chrono.Core\Chrono.Core.csproj" Type="Classic C#" />
+  <Project Path="src\Chrono.DotnetTasks\Chrono.DotnetTasks.csproj" Type="Classic C#" />
+</Solution>
