@@ -1,4 +1,4 @@
-﻿using Chrono.Core;
+using Chrono.Core;
 using Chrono.Core.Helpers;
 using Huxy;
 using Spectre.Console;
@@ -42,7 +42,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             tree.AddNode($"CommitShortHash: {versionInfo.CommitShortHash}");
             tree.AddNode($"BranchName: {versionInfo.BranchName}");
             tree.AddNode("Tags").AddNodes(versionInfo.TagNames);
-            tree.AddNode("SearchArray").AddNodes(versionInfo.CombinedSearchArray);
+            // tree.AddNode("SearchArray").AddNodes(versionInfo.CombinedSearchArray);
             AnsiConsole.Write(tree);
         }
 
@@ -96,18 +96,10 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
     public override int Execute(CommandContext context, Settings settings)
     {
         NLogHelper.SetLogLevel(settings.Trace);
-
-        var versionComponent = settings.VersionComponent switch
-        {
-            "major" => VersionComponent.Major,
-            "minor" => VersionComponent.Minor,
-            "patch" => VersionComponent.Patch,
-            "build" => VersionComponent.Build,
-            _ => VersionComponent.INVALID
-        };
+        
         var versionInfo = settings.ValidateVersionInfo();
         if (versionInfo is null) return settings.GetReturnCode(1);
-        var res = versionInfo.BumpVersion(versionComponent);
+        var res = versionInfo.BumpVersion(settings.VersionComponent);
         if (!res)
         {
             NLogHelper.SetLogLevel(false);
@@ -123,7 +115,7 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
     public sealed class Settings : VersionSettings
     {
         [CommandArgument(0, "<Version Component>")]
-        public string VersionComponent { get; set; }
+        public VersionComponent VersionComponent { get; set; }
     }
 }
 

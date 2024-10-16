@@ -11,7 +11,7 @@ namespace Chrono.Core.Test
                                                  versionSchema: '{major}.{minor}.{patch}'
                                                  newBranchSchema: '{branch}schema'
                                                  newTagSchema: 'specificTagSchema[-]{branch}'
-                                                 precision: 'high'
+                                                 precision: 'minor'
                                                  prereleaseTag: 'beta'
                                                  release:
                                                    match:
@@ -19,7 +19,7 @@ namespace Chrono.Core.Test
                                                    versionSchema: '{major}.{minor}.{patch}'
                                                    newBranchSchema: 'releaseSchema[-]{branch}'
                                                    newTagSchema: 'tagSchema'
-                                                   precision: 'high'
+                                                   precision: 'major'
                                                    prereleaseTag: 'beta'
                                                branches:
                                                  main:
@@ -28,14 +28,16 @@ namespace Chrono.Core.Test
                                                    versionSchema: '{major}.{minor}.{patch}'
                                                    newBranchSchema: 'specificBranchSchema[-]{branch}'
                                                    newTagSchema: 'tagSchema'
-                                                   precision: 'high'
+                                                   precision: 'major'
                                                    prereleaseTag: 'beta'
 
                                                """;
 
-        private const string InvalidYamlContent = @"
-version: 'invalid_version'
-";
+        private const string InvalidYamlContent = """
+
+                                                  version: 'invalid_version'
+
+                                                  """;
 
         private static VersionInfo CreateVersionInfoInstance(string yamlContent, bool allowDirtyRepo = true)
         {

@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using Huxy;
 using NLog;
 using Nuke.Common.IO;
@@ -50,7 +50,7 @@ public class VersionFile
         }
         catch (Exception e)
         {
-            return Result.Nope<VersionFile>($"Invalid YAML file! --- ParseError: {e}");
+            return Result.Fail<VersionFile>($"Invalid YAML file! --- ParseError: {e}");
         }
 
         if (!string.IsNullOrEmpty(tempVersionFile.Default?.InheritFrom))
@@ -63,7 +63,7 @@ public class VersionFile
             }
             else if (!inheritedYamlContentResult)
             {
-                return Result.Nope<VersionFile>(inheritedYamlContentResult);
+                return Result.Fail<VersionFile>(inheritedYamlContentResult);
             }
         }
 
@@ -79,7 +79,7 @@ public class VersionFile
     {
         if (string.IsNullOrEmpty(uri))
         {
-            return Result.Nope<string>("URI is not set.");
+            return Result.Fail<string>("URI is not set.");
         }
 
         try
@@ -90,7 +90,7 @@ public class VersionFile
         }
         catch (Exception ex)
         {
-            return Result.Nope<string>($"Failed to fetch the YAML file: {ex.Message}");
+            return Result.Fail<string>($"Failed to fetch the YAML file: {ex.Message}");
         }
     }
 
@@ -150,7 +150,7 @@ public class VersionFile
         }
         catch (Exception ex)
         {
-            return Result.Nope(ex.Message);
+            return Result.Fail(ex.Message);
         }
     }
 
@@ -165,7 +165,7 @@ public class VersionFile
     {
         if (string.IsNullOrWhiteSpace(startDirectory) || string.IsNullOrWhiteSpace(targetFileName) || string.IsNullOrWhiteSpace(stopDirectory))
         {
-            return Result.Nope<string>("Directory paths and file name cannot be null or empty!");
+            return Result.Fail<string>("Directory paths and file name cannot be null or empty!");
         }
 
         var files = Directory.EnumerateFiles(stopDirectory, targetFileName, SearchOption.AllDirectories);
@@ -173,7 +173,7 @@ public class VersionFile
 
         if (!enumerable.Any())
         {
-            return Result.Nope<string>("No version.yml present");
+            return Result.Fail<string>("No version.yml present");
         }
 
         Logger.Trace($"Found {enumerable.Length} version file(s)");
@@ -189,7 +189,7 @@ public class VersionFile
                 return Result.Ok(enumerable[0]);
             }
 
-            return Result.Nope<string>("The file is in a subdirectory of the start directory.");
+            return Result.Fail<string>("The file is in a subdirectory of the start directory.");
         }
 
 
@@ -212,7 +212,7 @@ public class VersionFile
 
         return nearestFile != null
             ? Result.Ok(nearestFile)
-            : Result.Nope<string>("Something went wrong while searching for version.yml");
+            : Result.Fail<string>("Something went wrong while searching for version.yml");
     }
 
     #region Helpers
@@ -272,7 +272,7 @@ public class BranchConfig
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; } = "";
     [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; } = "";
     [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; } = "";
-    [YamlMember(Alias = "precision")] public string Precision { get; set; } = "";
+    [YamlMember(Alias = "precision")] public VersionComponent? Precision { get; set; } = VersionComponent.Minor;
     [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; } = "";
 }
 
@@ -282,7 +282,7 @@ public class BranchConfigWithFallback(BranchConfig defaultConfig, BranchConfig s
     public string VersionSchema => specificConfig.VersionSchema ?? defaultConfig.VersionSchema;
     public string NewBranchSchema => specificConfig.NewBranchSchema ?? defaultConfig.NewBranchSchema;
     public string NewTagSchema => specificConfig.NewTagSchema ?? defaultConfig.NewTagSchema;
-    public string Precision => specificConfig.Precision ?? defaultConfig.Precision;
+    public VersionComponent Precision => specificConfig.Precision ?? defaultConfig.Precision ?? VersionComponent.Minor;
     public string PrereleaseTag => specificConfig.PrereleaseTag ?? defaultConfig.PrereleaseTag;
 }
 

@@ -43,7 +43,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 
         // 2 Increment Version on existing branch according to schema
         var oldversion = versionInfo.GetNumericVersion();
-        versionInfo.BumpVersion(VersionInfo.VersionComponentFromString(versionInfo.CurrentBranchConfig.Precision));
+        versionInfo.BumpVersion(versionInfo.CurrentBranchConfig.Precision);
         var newVersion = versionInfo.GetNumericVersion();
 
         // 3 Commit changes of new version if -c | --commit is set

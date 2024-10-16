@@ -154,7 +154,7 @@ branches:
             VersionSchema = "defaultVersionSchema",
             NewBranchSchema = "defaultNewBranchSchema",
             NewTagSchema = "defaultNewTagSchema",
-            Precision = "defaultPrecision",
+            Precision = VersionComponent.Minor,
             PrereleaseTag = "defaultPrereleaseTag"
         };
 

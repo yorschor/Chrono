@@ -75,7 +75,7 @@ public class BaseCommandSettings : CommandSettings
         Logger.Trace($"Root: {rootPath}");
         if (string.IsNullOrEmpty(rootPath))
         {
-            return Result.Nope<Repository>($"No Repo found from starting directory {startDir}");
+            return Result.Fail<Repository>($"No Repo found from starting directory {startDir}");
         }
 
         return Result.Ok(new Repository(rootPath));
