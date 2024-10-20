@@ -5,5 +5,5 @@ This project contains unit tests for the Chrono.Cli project.
 
 Tests are written using the https://xunit.net/[xUnit] framework.
 
-Note that only the version output is tested. Commands that may return informaional
+Note that only the version output is tested. Commands that may return informational
 text are ignored with an empty expected output.

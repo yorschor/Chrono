@@ -2,7 +2,7 @@
 
 public class BuildProps
 {
-    public static string Get(string version = "0.8.0")
+    public static string Get(string version = "1.0.0")
     {
         return $"""
                 <?xml version="1.0" encoding="utf-8"?>

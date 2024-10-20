@@ -1,9 +1,7 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Chrono.Core;
-using Chrono.Core.Helpers;
 using Huxy;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
@@ -51,7 +49,7 @@ class Build : NukeBuild
         try
         {
             var infoGetResult = VersionInfo.Get();
-            if (infoGetResult is IErrorResult)
+            if (!infoGetResult)
             {
                 Log.Error(infoGetResult.Message);
                 return false;
@@ -77,7 +75,7 @@ class Build : NukeBuild
             var res = versionInfo.BumpVersion(VersionComponent.Build);
             if (!res)
             {
-                res.Errors.ForEach(e => Log.Error(e.ToString() ?? string.Empty));
+                Log.Error(res.Exception.ToString());
             }
             Log.Information("Chrono -> Bumped build version " + versionInfo.GetNumericVersion().Data);
             return true;

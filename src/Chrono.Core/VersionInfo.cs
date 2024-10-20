@@ -1,5 +1,5 @@
-﻿using System.Text.RegularExpressions;
-using Chrono.Core.Helpers;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
@@ -12,36 +12,38 @@ public enum VersionComponent
     Major,
     Minor,
     Patch,
-    Build,
-    INVALID
+    Build
 }
 
 public class VersionInfo
 {
     #region Properties
 
+    #region VersionInfo
+
     public int Major { get; private set; }
     public int Minor { get; private set; }
     public int Patch { get; private set; }
     public int Build { get; private set; }
-    public string BranchName { get; internal set; }
-    public string[] TagNames { get; internal set; }
-    public string[] CombinedSearchArray => TagNames.Append(BranchName).ToArray();
-    public string PrereleaseTag => CurrentBranchConfig.PrereleaseTag;
-    public string CommitShortHash { get; private set; }
+
+    #endregion
+
+    #region GitInfo
+
+    #endregion
+
     public VersionFile File { get; }
 
-    public Repository Repo { get; private set; }
+    public GitInfo GitInfo { get; private set; } = new();
+    public BranchConfigWithFallback CurrentBranchConfig { get; private set; }
+    public string PrereleaseTag => CurrentBranchConfig.PrereleaseTag;
 
     #endregion
 
     #region Members
 
-    private readonly Logger _logManager = LogManager.GetCurrentClassLogger();
-
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private readonly string _versionPath;
-
-    public BranchConfigWithFallback CurrentBranchConfig { get; private set; }
     private string _parsedVersion = "";
     private bool _allowDirtyRepo;
 
@@ -50,7 +52,15 @@ public class VersionInfo
     internal VersionInfo(string path, bool allowDirtyRepo = false)
     {
         _versionPath = path;
-        File = VersionFile.From(_versionPath);
+        _allowDirtyRepo = allowDirtyRepo;
+
+        var fileResult = VersionFile.From(_versionPath);
+        if (!fileResult.Success)
+        {
+            throw new Exception(fileResult.Message);
+        }
+
+        File = fileResult.Data;
         if (Version.TryParse(File.Version, out var version))
         {
             Major = version.Major;
@@ -59,19 +69,24 @@ public class VersionInfo
             Build = version.Revision;
         }
 
-        _allowDirtyRepo = allowDirtyRepo;
 
-        LoadGitInfo();
+        var gitRes = GitInfo.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
+        if (!gitRes)
+        {
+            throw new Exception(gitRes.Message);
+        }
+
         var currentBranchResult = GetConfigForCurrentBranch();
         if (!currentBranchResult)
         {
             throw new Exception(currentBranchResult.Message);
         }
+
         CurrentBranchConfig = new BranchConfigWithFallback(File.Default, currentBranchResult.Data);
     }
 
     /// <summary>
-    /// A catch-all Method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
+    /// A catch-all method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
     /// </summary>
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
     public static Result<VersionInfo> Get(bool allowDirtyRepo = false)
@@ -79,14 +94,15 @@ public class VersionInfo
         var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
         if (string.IsNullOrEmpty(gitDirectory))
         {
-            return Result.Error<VersionInfo>("Chrono GitVersioning: No git directory found!");
+            return Result.Fail<VersionInfo>("Chrono GitVersioning: No git directory found!");
         }
 
-        var versionFileFoundResult = VersionFile.Find(Directory.GetCurrentDirectory(), gitDirectory.Substring(0, gitDirectory.Length - 4));
+        var versionFileFoundResult = VersionFile.Find(Directory.GetCurrentDirectory(),
+            gitDirectory.Substring(0, gitDirectory.Length - 4));
 
         if (!versionFileFoundResult)
         {
-            return Result.Error<VersionInfo>(versionFileFoundResult);
+            return Result.Fail<VersionInfo>(versionFileFoundResult);
         }
 
         try
@@ -95,9 +111,11 @@ public class VersionInfo
         }
         catch (Exception e)
         {
-            return Result.Error<VersionInfo>(e.ToString());
+            return Result.Fail<VersionInfo>(e);
         }
     }
+
+    #region VersionMethods
 
     /// <summary>
     /// Retrieves the current branch config and returns the parsed version for the current branch.
@@ -110,20 +128,20 @@ public class VersionInfo
         {
             if (string.IsNullOrEmpty(schema))
             {
-                _logManager.Trace("No schema provided. Trying to resolve schema from branch config");
+                _logger.Trace("No custom schema provided. Using schema from branch config");
                 schema = CurrentBranchConfig.VersionSchema;
-                _logManager.Trace($"Schema: {schema}");
+                _logger.Trace($"Schema: {schema}");
             }
 
             var schemaWithValues = ParseSchema(schema);
-            var validated = ValidateVersionString(schemaWithValues);
+            var validated = schemaWithValues.Replace('/', '-');
             _parsedVersion = validated;
             return Result.Ok(validated);
         }
         catch (Exception e)
         {
             _parsedVersion = "";
-            return Result.Error<string>(e.ToString());
+            return Result.Fail<string>(e.ToString());
         }
     }
 
@@ -145,7 +163,7 @@ public class VersionInfo
         }
 
         _parsedVersion = "";
-        return Result.Error<string>("Could not parse numeric version");
+        return Result.Fail<string>("Could not parse numeric version");
     }
 
     /// <summary>
@@ -162,7 +180,7 @@ public class VersionInfo
         {
             if (!newVersionMatch.Success)
             {
-                return Result.Error<string>($"{newVersion} is not a valid version!");
+                return Result.Fail($"{newVersion} is not a valid version!");
             }
         }
 
@@ -171,7 +189,7 @@ public class VersionInfo
 
         if (!fileVersionMatch.Success)
         {
-            _logManager.Trace($"Trace: Version present in version.yml was not correct -> '{File.Version}'");
+            _logger.Trace($"Trace: Version present in version.yml was not correct -> '{File.Version}'");
         }
 
         if (setFromString)
@@ -184,7 +202,7 @@ public class VersionInfo
 
         if (Major == -1 || Minor == -1)
         {
-            return Result.Error<string>("Some went wrong while parsing major and minor values");
+            return Result.Fail("Some went wrong while parsing major and minor values");
         }
 
         if (Patch == -1)
@@ -201,73 +219,7 @@ public class VersionInfo
         }
 
         var saveResult = File.Save(_versionPath);
-        return saveResult is IErrorResult ? saveResult : Result.Ok();
-    }
-
-    public Result<string> GetNewBranchName(bool releaseBranch = false)
-    {
-        var newBranchSchema = releaseBranch ? File.Default.Release.NewBranchSchema : CurrentBranchConfig.NewBranchSchema;
-        if (string.IsNullOrEmpty(newBranchSchema))
-        {
-            return Result.Error<string>("No branch schema configured. Aborting!");
-        }
-
-        try
-        {
-            return Result.Ok(ParseSchema(newBranchSchema));
-        }
-        catch (Exception e)
-        {
-            return Result.Error<string>(e.ToString());
-        }
-    }
-
-    public Result<string> GetNewTagName(bool releaseBranch = false)
-    {
-        var newBranchSchema = releaseBranch ? File.Default.Release.NewTagSchema : CurrentBranchConfig.NewTagSchema;
-        if (string.IsNullOrEmpty(newBranchSchema))
-        {
-            return Result.Error<string>("No tag schema configured. Aborting!");
-        }
-
-        try
-        {
-            return Result.Ok(ParseSchema(newBranchSchema));
-        }
-        catch (Exception e)
-        {
-            return Result.Error<string>(e.ToString());
-        }
-    }
-
-    /// <summary>
-    /// Gets the current branch config as a result.
-    /// </summary>
-    /// <returns>A result containing the branch configuration.</returns>
-    public Result<BranchConfig> GetConfigForCurrentBranch()
-    {
-        if (MatchRefsToConfig(CombinedSearchArray, File.Default.Release))
-        {
-            _logManager.Trace("Release branch matched!");
-            return Result.Ok(File.Default.Release);
-        }
-        
-        foreach (var branch in File.Branches)
-        {
-            if (MatchRefsToConfig(CombinedSearchArray, branch.Value))
-            {
-                _logManager.Trace($"{branch.Key} branch matched!");
-                return Result.Ok(branch.Value);
-            }
-        }
-
-        if (File.Default != null)
-        {
-            _logManager.Trace("No branch could be matched. Using default configuration!");
-            return Result.Ok((BranchConfig)File.Default);
-        }
-
-        return Result.Error<BranchConfig>("Something went wrong while trying to get current branch");
+        return !saveResult ? saveResult : Result.Ok();
     }
 
     /// <summary>
@@ -278,9 +230,9 @@ public class VersionInfo
     public Result BumpVersion(VersionComponent component)
     {
         var parseResult = GetVersion();
-        if (parseResult is IErrorResult)
+        if (!parseResult)
         {
-            return Result.Error<string>(parseResult);
+            return Result.Fail(parseResult);
         }
 
         var minorUsed = Minor != -1;
@@ -307,18 +259,40 @@ public class VersionInfo
             case VersionComponent.Build:
                 Build++;
                 break;
-            case VersionComponent.INVALID:
             default:
-                return Result.Error<string>("Invalid version component");
+                return Result.Fail("Invalid version component");
         }
 
         var setResult = SetVersion();
-        if (setResult is IErrorResult)
+        if (!setResult)
         {
-            return Result.Error<string>(setResult);
+            return Result.Fail(setResult);
         }
 
         return Result.Ok();
+    }
+
+    #endregion
+
+    #region SchemaMethods
+
+    public Result<string> GetNewBranchName(bool releaseBranch = false)
+    {
+        var newBranchSchema =
+            releaseBranch ? File.Default.Release.NewBranchSchema : CurrentBranchConfig.NewBranchSchema;
+        if (string.IsNullOrEmpty(newBranchSchema))
+        {
+            return Result.Fail<string>("No branch schema configured. Aborting!");
+        }
+
+        try
+        {
+            return Result.Ok(ParseSchema(newBranchSchema));
+        }
+        catch (Exception e)
+        {
+            return Result.Fail<string>(e.ToString());
+        }
     }
 
     public Result<string> GetNewBranchNameFromKey(string key)
@@ -328,28 +302,68 @@ public class VersionInfo
             var newBranchName = branchConfig.NewBranchSchema;
             if (string.IsNullOrEmpty(newBranchName))
             {
-                return Result.Error<string>($"No new branch schema configured for branch config ''{key}''");
+                return Result.Fail<string>($"No new branch schema configured for branch config ''{key}''");
             }
 
             return Result.Ok(ParseSchema(newBranchName));
         }
 
-        return Result.Error<string>($"No config for branch {key} found");
+        return Result.Fail<string>($"No config for branch {key} found");
     }
 
-    public static VersionComponent VersionComponentFromString(string value)
+    public Result<string> GetNewTagName(bool releaseBranch = false)
     {
-        return value switch
+        var newBranchSchema = releaseBranch ? File.Default.Release.NewTagSchema : CurrentBranchConfig.NewTagSchema;
+        if (string.IsNullOrEmpty(newBranchSchema))
         {
-            "major" => VersionComponent.Major,
-            "minor" => VersionComponent.Minor,
-            "patch" => VersionComponent.Patch,
-            "build" => VersionComponent.Build,
-            _ => VersionComponent.INVALID
-        };
+            return Result.Fail<string>("No tag schema configured. Aborting!");
+        }
+
+        try
+        {
+            return Result.Ok(ParseSchema(newBranchSchema));
+        }
+        catch (Exception e)
+        {
+            return Result.Fail<string>(e.ToString());
+        }
     }
+
+    /// <summary>
+    /// Gets the current branch config as a result.
+    /// </summary>
+    /// <returns>A result containing the branch configuration.</returns>
+    public Result<BranchConfig> GetConfigForCurrentBranch()
+    {
+        if (MatchRefsToConfig(File.Default.Release))
+        {
+            _logger.Trace("Release branch matched!");
+            return Result.Ok(File.Default.Release);
+        }
+
+        foreach (var branch in File.Branches)
+        {
+            if (MatchRefsToConfig(branch.Value))
+            {
+                _logger.Trace($"{branch.Key} branch matched!");
+                return Result.Ok(branch.Value);
+            }
+        }
+
+        if (File.Default != null)
+        {
+            _logger.Trace("No branch could be matched. Using default configuration!");
+            return Result.Ok<BranchConfig>(File.Default);
+        }
+
+        return Result.Fail<BranchConfig>("Something went wrong while trying to get current branch");
+    }
+
+    #endregion
 
     #region Internal
+
+    #region ParsingMethods
 
     private string ParseSchema(string schema)
     {
@@ -358,9 +372,9 @@ public class VersionInfo
             .Replace("{minor}", Minor.ToString())
             .Replace("{patch}", Patch.ToString())
             .Replace("{build}", Build.ToString())
-            .Replace("{branch}", BranchName)
+            .Replace("{branch}", GitInfo.BranchName)
             .Replace("{prereleaseTag}", PrereleaseTag)
-            .Replace("{commitShortHash}", CommitShortHash);
+            .Replace("{commitShortHash}", GitInfo.CommitShortHash);
         schemaWithValues = ResolveEnvironmentVariables(schemaWithValues);
         return ResolveDelimiterBlock(schemaWithValues);
     }
@@ -375,18 +389,13 @@ public class VersionInfo
             if (string.IsNullOrEmpty(variableValue))
             {
                 variableValue = string.Empty;
-                _logManager.Trace($"Environment variable '{variableName}' not found. Using empty string instead.");
+                _logger.Trace($"Environment variable '{variableName}' not found. Using empty string instead.");
             }
 
             schema = schema.Replace(match.Value, variableValue);
         }
 
         return schema;
-    }
-
-    private static string ValidateVersionString(string version)
-    {
-        return version.Replace('/', '-');
     }
 
     private static string ResolveDelimiterBlock(string input)
@@ -397,48 +406,33 @@ public class VersionInfo
         return input;
     }
 
-    private void LoadGitInfo()
+    #endregion
+
+    #region GitMethods
+
+    private bool MatchRefsToConfig(BranchConfig config)
     {
-        var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
+        var gitRef = !string.IsNullOrEmpty(GitInfo.TagName)
+            ? GitInfo.TagName
+            : GitInfo.BranchName;
 
-        if (string.IsNullOrEmpty(gitDirectory))
-        {
-            _logManager.Warn("No git directory found!");
-            return;
-        }
-
-        Repo = new Repository(gitDirectory);
-
-        var branchName = Repo.Head.FriendlyName;
-        // Get the short commit hash (7 characters)
-        var shortCommitHash = Repo.Head.Tip.Sha.Substring(0, 7);
-
-        BranchName = branchName;
-        // CommitShortHash = shortCommitHash;
-        CommitShortHash = Repo.RetrieveStatus(new StatusOptions()).IsDirty && !_allowDirtyRepo ? File.Default.DirtyRepo : shortCommitHash;
-
-        TagNames = Repo.Tags.Where(tag => tag.Target.Sha == Repo.Head.Tip.Sha).Select(tag => tag.FriendlyName).ToArray();
-    }
-
-    private bool MatchRefsToConfig(string[] refs, BranchConfig config)
-    {
-        return refs.Any(t => MatchBranchConfig(t, config));
-    }
-
-    private bool MatchBranchConfig(string currentBranch, BranchConfig config)
-    {
+        if (config is null || !config.Match.Any()) return false;
         foreach (var matchSchema in config.Match)
         {
-            var match = Regex.Match(currentBranch, matchSchema);
-            if (match.Success)
-            {
-                _logManager.Trace($"Match found: Regex '{matchSchema}' for branch '{currentBranch}'");
-                return true;
-            }
+            var isTagSchema = matchSchema.StartsWith("tag::");
+            var regexSchema = isTagSchema ? matchSchema.Substring(5) : matchSchema;
+
+            var match = Regex.Match(gitRef, regexSchema);
+            if (!match.Success) continue;
+
+            _logger.Trace($"Match found: Regex '{regexSchema}' for branch '{gitRef}' | Branch is tag: '{isTagSchema}'");
+            return true;
         }
 
         return false;
     }
+
+    #endregion
 
     #endregion
 }

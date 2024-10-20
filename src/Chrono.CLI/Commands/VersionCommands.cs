@@ -1,7 +1,7 @@
-﻿using Chrono.Core;
+using Chrono.Core;
 using Chrono.Core.Helpers;
+using Chrono.Helpers;
 using Huxy;
-using Nuke.Common.Utilities.Collections;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -27,7 +27,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
         var versionInfoResult = VersionInfo.Get(settings.IgnoreDirty);
         if (!versionInfoResult)
         {
-            versionInfoResult.PrintErrors();
+            versionInfoResult.PrintFailures();
             return 1;
         }
 
@@ -40,17 +40,17 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             tree.AddNode($"Patch: {versionInfo.Patch}");
             tree.AddNode($"Build: {versionInfo.Build}");
             tree.AddNode($"PrereleaseTag: {versionInfo.PrereleaseTag}");
-            tree.AddNode($"CommitShortHash: {versionInfo.CommitShortHash}");
-            tree.AddNode($"BranchName: {versionInfo.BranchName}");
-            tree.AddNode("Tags").AddNodes(versionInfo.TagNames);
-            tree.AddNode("SearchArray").AddNodes(versionInfo.CombinedSearchArray);
+            tree.AddNode($"CommitShortHash: {versionInfo.GitInfo.CommitShortHash}");
+            tree.AddNode($"BranchName: {versionInfo.GitInfo.BranchName}");
+            tree.AddNode("Tags").AddNodes(versionInfo.GitInfo.TagNames);
+            // tree.AddNode("SearchArray").AddNodes(versionInfo.CombinedSearchArray);
             AnsiConsole.Write(tree);
         }
 
         var parseResult = settings.Numeric ? versionInfo.GetNumericVersion() : versionInfo.GetVersion();
-        if (parseResult is IErrorResult)
+        if (!parseResult)
         {
-            parseResult.PrintErrors();
+            parseResult.PrintFailures();
             return 1;
         }
 
@@ -72,9 +72,9 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
         NLogHelper.SetLogLevel(settings.Trace);
         var versionInfo = settings.ValidateVersionInfo();
         if (versionInfo is null) return settings.GetReturnCode(1);
-        
+
         var setResult = versionInfo.SetVersion(settings.NewVersion);
-        if (setResult is IErrorResult)
+        if (!setResult)
         {
             NLogHelper.SetLogLevel(false);
             AnsiConsole.MarkupLine($"[red]Error: {setResult.Message}[/]");
@@ -98,18 +98,10 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
     {
         NLogHelper.SetLogLevel(settings.Trace);
 
-        var versionComponent = settings.VersionComponent switch
-        {
-            "major" => VersionComponent.Major,
-            "minor" => VersionComponent.Minor,
-            "patch" => VersionComponent.Patch,
-            "build" => VersionComponent.Build,
-            _ => VersionComponent.INVALID
-        };
         var versionInfo = settings.ValidateVersionInfo();
         if (versionInfo is null) return settings.GetReturnCode(1);
-        var res = versionInfo.BumpVersion(versionComponent);
-        if (res is IErrorResult)
+        var res = versionInfo.BumpVersion(settings.VersionComponent);
+        if (!res)
         {
             NLogHelper.SetLogLevel(false);
             AnsiConsole.MarkupLine($"[red]Error: {res.Message}[/]");
@@ -124,7 +116,7 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
     public sealed class Settings : VersionSettings
     {
         [CommandArgument(0, "<Version Component>")]
-        public string VersionComponent { get; set; }
+        public VersionComponent VersionComponent { get; set; }
     }
 }
 

@@ -11,8 +11,8 @@ a|
 a! image::https://img.shields.io/badge/c%23-%23239120 .svg?&logo=csharp&logoColor=white[C#]
 a! image:https://img.shields.io/nuget/v/Chrono.Cli[NuGet Version]
 
-a! Current Version:
-include::version.yml[lines="3"]
+a! **Current Version:**
+include::version.yml[lines="2"]
 
 !===
 Chrono is a git versioning tool with a focus on being customizable and easy to configure.
@@ -24,7 +24,7 @@ a|image::icon.png[]
 
 === Road to 1.0 
 
-* Build intermediate 0.9 version -> no public release though
+* Build intermediate 0.9 version
 * Ensure config examples are up to date
 * Adjust documentation
 * Debug builds for dotnet tasks should work

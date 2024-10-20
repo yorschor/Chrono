@@ -20,7 +20,10 @@ public class CoreTestHelper : IDisposable
             Commands.Stage(repo, "version.yml");
             repo.Commit("Initial commit", new Signature("Tester", "tester@example.com", DateTime.Now),
                 new Signature("Tester", "tester@example.com", DateTime.Now));
-            repo.Branches.Rename("master", "trunk");
+            if (repo.Head.FriendlyName == "master")
+            {
+                repo.Branches.Rename("master", "trunk");
+            }
         }
     }
 
@@ -30,7 +33,7 @@ public class CoreTestHelper : IDisposable
     }
 
     #endregion
-    
+
     #region Internals
 
     private static string GetDefaultVersionFileContent() => """

@@ -6,5 +6,5 @@ default:
   prereleaseTag: dev
   release:
     match:
-      - ^release/.*
+      - tag: ^release/.*
     versionSchema: '{major}.{minor}.{patch}'

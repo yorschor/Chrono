@@ -1,11 +1,7 @@
-﻿using System.Net.Http;
-using Chrono.Core.Helpers;
+using System.Net.Http;
 using Huxy;
 using NLog;
 using Nuke.Common.IO;
-using LibGit2Sharp;
-using YamlDotNet.Core;
-using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -25,7 +21,7 @@ public class VersionFile
 
     [YamlMember(Alias = "default")] public DefaultConfig Default { get; set; }
 
-    [YamlMember(Alias = "branches")] public Dictionary<string, BranchConfig> Branches { get; set; }
+    [YamlMember(Alias = "branches")] public Dictionary<string, BranchConfig> Branches { get; set; } = new();
 
 
     /// <summary>
@@ -33,12 +29,12 @@ public class VersionFile
     /// </summary>
     /// <param name="path">The path to the YAML file.</param>
     /// <returns>A <see cref="VersionFile"/> instance.</returns>
-    public static VersionFile From(string path)
+    public static Result<VersionFile> From(string path)
     {
         return FromAsync(path).GetAwaiter().GetResult();
     }
 
-    public static async Task<VersionFile> FromAsync(string path)
+    public static async Task<Result<VersionFile>> FromAsync(string path)
     {
         var mainYamlContent = File.ReadAllText(path);
         var finalYamlContent = mainYamlContent;
@@ -47,7 +43,15 @@ public class VersionFile
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 
-        var tempVersionFile = deserializer.Deserialize<VersionFile>(mainYamlContent);
+        VersionFile tempVersionFile;
+        try
+        {
+            tempVersionFile = deserializer.Deserialize<VersionFile>(mainYamlContent);
+        }
+        catch (Exception e)
+        {
+            return Result.Fail<VersionFile>($"Invalid YAML file! --- ParseError: {e}");
+        }
 
         if (!string.IsNullOrEmpty(tempVersionFile.Default?.InheritFrom))
         {
@@ -57,13 +61,17 @@ public class VersionFile
                 var inheritedYamlContent = inheritedYamlContentResult.Data;
                 finalYamlContent = MergeYamlContent(inheritedYamlContent, mainYamlContent);
             }
-            else if (inheritedYamlContentResult is IErrorResult)
+            else if (!inheritedYamlContentResult)
             {
-                Logger.Error(inheritedYamlContentResult);
+                return Result.Fail<VersionFile>(inheritedYamlContentResult);
             }
         }
 
-        return deserializer.Deserialize<VersionFile>(finalYamlContent);
+        var finishedVersionFile = deserializer.Deserialize<VersionFile>(finalYamlContent);
+
+        finishedVersionFile.Branches ??= new Dictionary<string, BranchConfig>();
+        finishedVersionFile.Default ??= new DefaultConfig();
+        return Result.Ok(deserializer.Deserialize<VersionFile>(finalYamlContent));
     }
 
 
@@ -71,7 +79,7 @@ public class VersionFile
     {
         if (string.IsNullOrEmpty(uri))
         {
-            return Result.Error<string>("URI is not set.");
+            return Result.Fail<string>("URI is not set.");
         }
 
         try
@@ -82,7 +90,7 @@ public class VersionFile
         }
         catch (Exception ex)
         {
-            return Result.Error<string>($"Failed to fetch the YAML file: {ex.Message}");
+            return Result.Fail<string>($"Failed to fetch the YAML file: {ex.Message}");
         }
     }
 
@@ -94,7 +102,7 @@ public class VersionFile
         // Deserialize the base and override YAML strings into dynamic objects
         var baseYamlObject = deserializer.Deserialize(new StringReader(baseYaml));
         var overrideYamlObject = deserializer.Deserialize(new StringReader(overrideYaml));
-        
+
         var mergedYamlObject = MergeYamlObjects(baseYamlObject, overrideYamlObject);
         var writer = new StringWriter();
         serializer.Serialize(writer, mergedYamlObject);
@@ -112,6 +120,7 @@ public class VersionFile
                     var baseValue = baseDict.ContainsKey(key) ? baseDict[key] : null;
                     baseDict[key] = MergeYamlObjects(baseValue, overrideDict[key]);
                 }
+
                 return baseDict;
             }
             case IList<object> when overrideObj is IList<object> overrideList:
@@ -141,7 +150,7 @@ public class VersionFile
         }
         catch (Exception ex)
         {
-            return Result.Error(ex.Message);
+            return Result.Fail(ex.Message);
         }
     }
 
@@ -156,7 +165,7 @@ public class VersionFile
     {
         if (string.IsNullOrWhiteSpace(startDirectory) || string.IsNullOrWhiteSpace(targetFileName) || string.IsNullOrWhiteSpace(stopDirectory))
         {
-            return Result.Error<string>("Directory paths and file name cannot be null or empty.");
+            return Result.Fail<string>("Directory paths and file name cannot be null or empty!");
         }
 
         var files = Directory.EnumerateFiles(stopDirectory, targetFileName, SearchOption.AllDirectories);
@@ -164,13 +173,13 @@ public class VersionFile
 
         if (!enumerable.Any())
         {
-            return Result.Error<string>("No version.yml present");
+            return Result.Fail<string>("No version.yml present");
         }
 
         Logger.Trace($"Found {enumerable.Length} version file(s)");
         for (var i = 0; i < enumerable.Length; i++)
         {
-            Logger.Trace($"==> {i + 1} : {enumerable[i]}");
+            Logger.Trace($" \u2514 {i + 1} : {enumerable[i]}");
         }
 
         if (enumerable.Length == 1)
@@ -180,7 +189,7 @@ public class VersionFile
                 return Result.Ok(enumerable[0]);
             }
 
-            return Result.Error<string>("The file is in a subdirectory of the start directory.");
+            return Result.Fail<string>("The file is in a subdirectory of the start directory.");
         }
 
 
@@ -203,7 +212,7 @@ public class VersionFile
 
         return nearestFile != null
             ? Result.Ok(nearestFile)
-            : Result.Error<string>("Something went wrong while searching for version.yml");
+            : Result.Fail<string>("Something went wrong while searching for version.yml");
     }
 
     #region Helpers
@@ -252,19 +261,19 @@ public class VersionFile
 
 public class DefaultConfig : BranchConfig
 {
-    [YamlMember(Alias = "inheritFrom")] public string InheritFrom { get; set; }
+    [YamlMember(Alias = "inheritFrom")] public string InheritFrom { get; set; } = "";
     [YamlMember(Alias = "dirtyRepo")] public string DirtyRepo { get; set; } = "dirty-repo";
-    [YamlMember(Alias = "release")] public BranchConfig Release { get; set; }
+    [YamlMember(Alias = "release")] public BranchConfig Release { get; set; } = null;
 }
 
 public class BranchConfig
 {
-    [YamlMember(Alias = "match")] public List<string> Match { get; set; }
-    [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
-    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; }
-    [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
-    [YamlMember(Alias = "precision")] public string Precision { get; set; }
-    [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }
+    [YamlMember(Alias = "match")] public List<string> Match { get; set; } = [];
+    [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; } = "";
+    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; } = "";
+    [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; } = "";
+    [YamlMember(Alias = "precision")] public VersionComponent? Precision { get; set; } = VersionComponent.Minor;
+    [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; } = "";
 }
 
 public class BranchConfigWithFallback(BranchConfig defaultConfig, BranchConfig specificConfig)
@@ -273,7 +282,8 @@ public class BranchConfigWithFallback(BranchConfig defaultConfig, BranchConfig s
     public string VersionSchema => specificConfig.VersionSchema ?? defaultConfig.VersionSchema;
     public string NewBranchSchema => specificConfig.NewBranchSchema ?? defaultConfig.NewBranchSchema;
     public string NewTagSchema => specificConfig.NewTagSchema ?? defaultConfig.NewTagSchema;
-    public string Precision => specificConfig.Precision ?? defaultConfig.Precision;
+    public VersionComponent Precision => specificConfig.Precision ?? defaultConfig.Precision ?? VersionComponent.Minor;
     public string PrereleaseTag => specificConfig.PrereleaseTag ?? defaultConfig.PrereleaseTag;
 }
+
 #endregion

@@ -1,8 +1,7 @@
 ﻿using Chrono.Core;
 using Chrono.Core.Helpers;
-using Huxy;
+using Chrono.Helpers;
 using LibGit2Sharp;
-using Nuke.Common.Utilities.Collections;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -33,8 +32,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 
         if (!newBranchNameResult)
         {
-            newBranchNameResult.PrintErrors();
-            AnsiConsole.MarkupLine(newBranchNameResult.Message);
+            newBranchNameResult.PrintFailures();
             return 1;
         }
 
@@ -45,7 +43,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 
         // 2 Increment Version on existing branch according to schema
         var oldversion = versionInfo.GetNumericVersion();
-        versionInfo.BumpVersion(VersionInfo.VersionComponentFromString(versionInfo.CurrentBranchConfig.Precision));
+        versionInfo.BumpVersion(versionInfo.CurrentBranchConfig.Precision);
         var newVersion = versionInfo.GetNumericVersion();
 
         // 3 Commit changes of new version if -c | --commit is set
@@ -87,7 +85,7 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
 
             if (!newTagNameResult)
             {
-                newTagNameResult.PrintErrors();
+                newTagNameResult.PrintFailures();
                 AnsiConsole.MarkupLine(newTagNameResult.Message);
                 return 1;
             }
@@ -129,7 +127,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
             var newBranchNameResult = versionInfo.GetNewBranchNameFromKey(settings.BranchKey);
             if (!newBranchNameResult)
             {
-                newBranchNameResult.PrintErrors();
+                newBranchNameResult.PrintFailures();
                 NLogHelper.SetLogLevel(false);
                 AnsiConsole.MarkupLine(newBranchNameResult.Message);
                 return 1;

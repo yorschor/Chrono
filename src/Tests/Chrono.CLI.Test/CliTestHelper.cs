@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Chrono.Core.Test;
 using LibGit2Sharp;
 using Spectre.Console;

@@ -1,5 +1,4 @@
-﻿using Chrono.Core.Helpers;
-using Chrono.Helpers;
+﻿using Chrono.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -81,7 +80,7 @@ public class InitCommand : Command<InitCommand.Settings>
         if (packagesExist)
         {
             AnsiConsole.MarkupLine("[red]packages.config found! This will interfere with Chrono![/] Proceed with care.");
-            if (!directoryBuildPropsExist) {fileWritePrompt.Select("Directory.Build.props");}
+            if (!directoryBuildPropsExist && files.Contains("Directory.Build.props")) {fileWritePrompt.Select("Directory.Build.props");}
         }
         if (!directoryBuildPropsExist) {fileWritePrompt.Select("Directory.Build.props");}
         if (!versionFileExist) {fileWritePrompt.Select("version.yml");}

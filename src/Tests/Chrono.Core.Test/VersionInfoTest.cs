@@ -1,6 +1,4 @@
-using Chrono.Core.Helpers;
 using Huxy;
-using LibGit2Sharp;
 
 namespace Chrono.Core.Test
 {
@@ -13,7 +11,7 @@ namespace Chrono.Core.Test
                                                  versionSchema: '{major}.{minor}.{patch}'
                                                  newBranchSchema: '{branch}schema'
                                                  newTagSchema: 'specificTagSchema[-]{branch}'
-                                                 precision: 'high'
+                                                 precision: 'minor'
                                                  prereleaseTag: 'beta'
                                                  release:
                                                    match:
@@ -21,7 +19,7 @@ namespace Chrono.Core.Test
                                                    versionSchema: '{major}.{minor}.{patch}'
                                                    newBranchSchema: 'releaseSchema[-]{branch}'
                                                    newTagSchema: 'tagSchema'
-                                                   precision: 'high'
+                                                   precision: 'major'
                                                    prereleaseTag: 'beta'
                                                branches:
                                                  main:
@@ -30,14 +28,16 @@ namespace Chrono.Core.Test
                                                    versionSchema: '{major}.{minor}.{patch}'
                                                    newBranchSchema: 'specificBranchSchema[-]{branch}'
                                                    newTagSchema: 'tagSchema'
-                                                   precision: 'high'
+                                                   precision: 'major'
                                                    prereleaseTag: 'beta'
 
                                                """;
 
-        private const string InvalidYamlContent = @"
-version: 'invalid_version'
-";
+        private const string InvalidYamlContent = """
+
+                                                  version: 'invalid_version'
+
+                                                  """;
 
         private static VersionInfo CreateVersionInfoInstance(string yamlContent, bool allowDirtyRepo = true)
         {
@@ -105,7 +105,7 @@ version: 'invalid_version'
             var result = versionInfo.SetVersion("invalid_version");
 
             Assert.False(result.Success);
-            if (result is IErrorResult)
+            if (!result)
             {
                 Assert.Equal("invalid_version is not a valid version!", result.Message);
             }
@@ -144,7 +144,7 @@ version: 'invalid_version'
         public void GetNewBranchName_ValidBranch_ReturnsNewBranchName()
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
-            versionInfo.BranchName = "aBranchWithAName";
+            versionInfo.GitInfo.BranchName = "aBranchWithAName";
             var result = versionInfo.GetNewBranchName();
 
             Assert.True(result.Success);
@@ -157,7 +157,7 @@ version: 'invalid_version'
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
             // Set to some branch
-            versionInfo.BranchName = "relaese/Test";
+            versionInfo.GitInfo.BranchName = "relaese/Test";
             var result = versionInfo.GetNewBranchNameFromKey("main");
 
             Assert.True(result.Success);
@@ -176,7 +176,7 @@ version: 'invalid_version'
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
 
-            Assert.Equal($"specificTagSchema-{versionInfo.BranchName}", result.Data);
+            Assert.Equal($"specificTagSchema-{versionInfo.GitInfo.BranchName}", result.Data);
         }
     }
 }

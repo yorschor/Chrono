@@ -2,7 +2,6 @@
 using Chrono.Commands;
 using Chrono.Core;
 using Chrono.Core.Helpers;
-using Chrono.Helpers;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
@@ -76,7 +75,7 @@ public class BaseCommandSettings : CommandSettings
         Logger.Trace($"Root: {rootPath}");
         if (string.IsNullOrEmpty(rootPath))
         {
-            return Result.Error<Repository>($"No Repo found from starting directory {startDir}");
+            return Result.Fail<Repository>($"No Repo found from starting directory {startDir}");
         }
 
         return Result.Ok(new Repository(rootPath));
@@ -96,7 +95,7 @@ public class BaseCommandSettings : CommandSettings
     internal VersionInfo? ValidateVersionInfo()
     {
         var infoGetResult = VersionInfo.Get(IgnoreDirty);
-        if (infoGetResult is IErrorResult)
+        if (!infoGetResult)
         {
             Logger.Error(infoGetResult.Message);
             return null;
