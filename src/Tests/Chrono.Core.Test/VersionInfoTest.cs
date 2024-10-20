@@ -144,7 +144,7 @@ namespace Chrono.Core.Test
         public void GetNewBranchName_ValidBranch_ReturnsNewBranchName()
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
-            versionInfo.BranchName = "aBranchWithAName";
+            versionInfo.GitInfo.BranchName = "aBranchWithAName";
             var result = versionInfo.GetNewBranchName();
 
             Assert.True(result.Success);
@@ -157,7 +157,7 @@ namespace Chrono.Core.Test
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
             // Set to some branch
-            versionInfo.BranchName = "relaese/Test";
+            versionInfo.GitInfo.BranchName = "relaese/Test";
             var result = versionInfo.GetNewBranchNameFromKey("main");
 
             Assert.True(result.Success);
@@ -176,7 +176,7 @@ namespace Chrono.Core.Test
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
 
-            Assert.Equal($"specificTagSchema-{versionInfo.BranchName}", result.Data);
+            Assert.Equal($"specificTagSchema-{versionInfo.GitInfo.BranchName}", result.Data);
         }
     }
 }
