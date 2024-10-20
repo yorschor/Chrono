@@ -7,29 +7,30 @@ public class VersionFileTests
 {
     private readonly string _sampleYamlPath = "sample_version.yml";
 
-    private readonly string _sampleYamlContent = @"
-version: '1.0.0'
-default:
-  inheritFrom: 'https://example.com/inherit.yml'
-  versionSchema: 'v{major}.{minor}.{patch}'
-  newBranchSchema: 'branch-{branch}'
-  newTagSchema: 'tag-{tag}'
-  precision: 'patch'
-  prereleaseTag: 'alpha'
-  release:
-    match:
-      - 'main'
-      - 'release'
-branches:
-  develop:
-    match:
-      - 'dev'
-    versionSchema: 'v{major}.{minor}.{patch}-dev'
-    newBranchSchema: 'branch-dev-{branch}'
-    newTagSchema: 'tag-dev-{tag}'
-    precision: 'minor'
-    prereleaseTag: 'beta'
-";
+    private readonly string _sampleYamlContent = """
+
+                                                 version: '1.0.0'
+                                                 default:
+                                                   versionSchema: 'v{major}.{minor}.{patch}'
+                                                   newBranchSchema: 'branch-{branch}'
+                                                   newTagSchema: 'tag-{tag}'
+                                                   precision: 'patch'
+                                                   prereleaseTag: 'alpha'
+                                                   release:
+                                                     match:
+                                                       - 'main'
+                                                       - 'release'
+                                                 branches:
+                                                   develop:
+                                                     match:
+                                                       - 'dev'
+                                                     versionSchema: 'v{major}.{minor}.{patch}-dev'
+                                                     newBranchSchema: 'branch-dev-{branch}'
+                                                     newTagSchema: 'tag-dev-{tag}'
+                                                     precision: 'minor'
+                                                     prereleaseTag: 'beta'
+
+                                                 """;
 
     public VersionFileTests()
     {
