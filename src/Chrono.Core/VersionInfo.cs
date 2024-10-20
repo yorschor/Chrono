@@ -115,7 +115,7 @@ public class VersionInfo
         }
         catch (Exception e)
         {
-            return Result.Fail<VersionInfo>(e.Message);
+            return Result.Fail<VersionInfo>(e);
         }
     }
 
@@ -456,6 +456,7 @@ public class VersionInfo
 
     private bool MatchGitRefToBranchConfig(string gitRef, BranchConfig config)
     {
+        if (config is null || !config.Match.Any()) return false;
         foreach (var matchSchema in config.Match)
         {
             var isTagSchema = matchSchema.StartsWith("tag::");
