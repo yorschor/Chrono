@@ -35,6 +35,8 @@ public class VersionInfo
     public bool IsInDetachedHead { get; internal set; }
     public string CommitShortHash { get; private set; }
 
+    public string LastReflogToTarget { get; private set; }
+
     #endregion
 
     public VersionFile File { get; }
@@ -443,15 +445,18 @@ public class VersionInfo
         TagNames = Repo.Tags.Where(tag => tag.Target.Sha == Repo.Head.Tip.Sha).Select(tag => tag.FriendlyName)
             .ToArray();
         IsInDetachedHead = Repo.Info.IsHeadDetached;
-
+        LastReflogToTarget = Repo.Refs.Log(Repo.Head.Reference).First().To.ToString();
+        _logger.Trace($"Last reflog to target: {LastReflogToTarget}");
         return Result.Ok();
     }
 
     private bool MatchRefsToConfig(BranchConfig config)
     {
-        return IsInDetachedHead
-            ? TagNames.Any(t => MatchGitRefToBranchConfig(t, config))
-            : MatchGitRefToBranchConfig(BranchName, config);
+        var tr = TagNames.Any(t => t.Equals(LastReflogToTarget));
+        if (IsInDetachedHead)
+            return TagNames.Any(t => MatchGitRefToBranchConfig(t, config));
+        else
+            return MatchGitRefToBranchConfig(BranchName, config);
     }
 
     private bool MatchGitRefToBranchConfig(string gitRef, BranchConfig config)
