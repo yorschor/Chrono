@@ -1,5 +1,6 @@
 ﻿using Chrono.Core;
 using Chrono.Core.Helpers;
+using Chrono.Helpers;
 using LibGit2Sharp;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -31,8 +32,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 
         if (!newBranchNameResult)
         {
-            newBranchNameResult.PrintErrors();
-            AnsiConsole.MarkupLine(newBranchNameResult.Message);
+            newBranchNameResult.PrintFailures();
             return 1;
         }
 
@@ -85,7 +85,7 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
 
             if (!newTagNameResult)
             {
-                newTagNameResult.PrintErrors();
+                newTagNameResult.PrintFailures();
                 AnsiConsole.MarkupLine(newTagNameResult.Message);
                 return 1;
             }
@@ -127,7 +127,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
             var newBranchNameResult = versionInfo.GetNewBranchNameFromKey(settings.BranchKey);
             if (!newBranchNameResult)
             {
-                newBranchNameResult.PrintErrors();
+                newBranchNameResult.PrintFailures();
                 NLogHelper.SetLogLevel(false);
                 AnsiConsole.MarkupLine(newBranchNameResult.Message);
                 return 1;

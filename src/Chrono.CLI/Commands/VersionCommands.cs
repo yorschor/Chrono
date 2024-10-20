@@ -1,5 +1,6 @@
 using Chrono.Core;
 using Chrono.Core.Helpers;
+using Chrono.Helpers;
 using Huxy;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -26,7 +27,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
         var versionInfoResult = VersionInfo.Get(settings.IgnoreDirty);
         if (!versionInfoResult)
         {
-            versionInfoResult.PrintErrors();
+            versionInfoResult.PrintFailures();
             return 1;
         }
 
@@ -49,7 +50,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
         var parseResult = settings.Numeric ? versionInfo.GetNumericVersion() : versionInfo.GetVersion();
         if (!parseResult)
         {
-            parseResult.PrintErrors();
+            parseResult.PrintFailures();
             return 1;
         }
 
@@ -71,7 +72,7 @@ public class SetVersionCommand : Command<SetVersionCommand.Settings>
         NLogHelper.SetLogLevel(settings.Trace);
         var versionInfo = settings.ValidateVersionInfo();
         if (versionInfo is null) return settings.GetReturnCode(1);
-        
+
         var setResult = versionInfo.SetVersion(settings.NewVersion);
         if (!setResult)
         {
@@ -96,7 +97,7 @@ public class BumpVersionCommand : Command<BumpVersionCommand.Settings>
     public override int Execute(CommandContext context, Settings settings)
     {
         NLogHelper.SetLogLevel(settings.Trace);
-        
+
         var versionInfo = settings.ValidateVersionInfo();
         if (versionInfo is null) return settings.GetReturnCode(1);
         var res = versionInfo.BumpVersion(settings.VersionComponent);
