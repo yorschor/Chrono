@@ -30,12 +30,10 @@ public class VersionInfo
 
     #region GitInfo
 
-  
-
     #endregion
 
     public VersionFile File { get; }
-  
+
     public GitInfo GitInfo { get; private set; } = new();
     public BranchConfigWithFallback CurrentBranchConfig { get; private set; }
     public string PrereleaseTag => CurrentBranchConfig.PrereleaseTag;
@@ -130,7 +128,7 @@ public class VersionInfo
         {
             if (string.IsNullOrEmpty(schema))
             {
-                _logger.Trace("No schema provided. Trying to resolve schema from branch config");
+                _logger.Trace("No custom schema provided. Using schema from branch config");
                 schema = CurrentBranchConfig.VersionSchema;
                 _logger.Trace($"Schema: {schema}");
             }
@@ -412,18 +410,12 @@ public class VersionInfo
 
     #region GitMethods
 
-   
     private bool MatchRefsToConfig(BranchConfig config)
     {
-        var tr = GitInfo.TagNames.Any(t => t.Equals(GitInfo.LastReflogToTarget));
-        if (GitInfo.IsInDetachedHead)
-            return GitInfo.TagNames.Any(t => MatchGitRefToBranchConfig(t, config));
-        else
-            return MatchGitRefToBranchConfig(GitInfo.BranchName, config);
-    }
+        var gitRef = !string.IsNullOrEmpty(GitInfo.TagName)
+            ? GitInfo.TagName
+            : GitInfo.BranchName;
 
-    private bool MatchGitRefToBranchConfig(string gitRef, BranchConfig config)
-    {
         if (config is null || !config.Match.Any()) return false;
         foreach (var matchSchema in config.Match)
         {
@@ -431,12 +423,10 @@ public class VersionInfo
             var regexSchema = isTagSchema ? matchSchema.Substring(5) : matchSchema;
 
             var match = Regex.Match(gitRef, regexSchema);
-            if (match.Success)
-            {
-                _logger.Trace(
-                    $"Match found: Regex '{regexSchema}' for branch '{gitRef}' | Branch is tag: '{isTagSchema}'");
-                return true;
-            }
+            if (!match.Success) continue;
+
+            _logger.Trace($"Match found: Regex '{regexSchema}' for branch '{gitRef}' | Branch is tag: '{isTagSchema}'");
+            return true;
         }
 
         return false;
