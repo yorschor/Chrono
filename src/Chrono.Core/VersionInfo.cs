@@ -346,19 +346,7 @@ public class VersionInfo
 
         return Result.Fail<string>($"No config for branch {key} found");
     }
-
-    // public static VersionComponent VersionComponentFromString(string value)
-    // {
-    //     return value switch
-    //     {
-    //         "major" => VersionComponent.Major,
-    //         "minor" => VersionComponent.Minor,
-    //         "patch" => VersionComponent.Patch,
-    //         "build" => VersionComponent.Build,
-    //         _ => VersionComponent.INVALID
-    //     };
-    // }
-
+    
     #region Internal
 
     private string ParseSchema(string schema)
