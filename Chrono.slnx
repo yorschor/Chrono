@@ -11,6 +11,7 @@
   <Folder Name="/SolutionItems/Docu/">
     <File Path="doc\Version.adoc" />
     <File Path="doc\DotnetVersioning.adoc" />
+    <File Path="doc\dsyitf.adoc" />
   </Folder>
   <Folder Name="/SolutionItems/Docu/ReferenceConfigs/">
     <File Path="doc\examples\v1.yml" />
