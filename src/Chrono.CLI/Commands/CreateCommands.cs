@@ -36,6 +36,15 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
             return 1;
         }
 
+        VersionComponent precision;
+        var versionComponentResult = versionInfo.GetReleaseConfigIfExists();
+        precision = versionInfo.CurrentBranchConfig.Precision;
+        if (versionComponentResult)
+        {
+            precision = versionComponentResult.Data.Precision ?? precision;
+        }
+
+        
         var repo = settings.GetRepo().Data;
         settings.Logger.Trace($"Creating new branch {newBranchNameResult.Data}");
         AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
@@ -43,7 +52,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 
         // 2 Increment Version on existing branch according to schema
         var oldversion = versionInfo.GetNumericVersion();
-        versionInfo.BumpVersion(versionInfo.CurrentBranchConfig.Precision);
+        versionInfo.BumpVersion(precision);
         var newVersion = versionInfo.GetNumericVersion();
 
         // 3 Commit changes of new version if -c | --commit is set
