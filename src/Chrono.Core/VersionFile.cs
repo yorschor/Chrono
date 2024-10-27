@@ -1,7 +1,9 @@
 using System.Net.Http;
+using System.Text;
 using Huxy;
 using NLog;
 using Nuke.Common.IO;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -43,15 +45,13 @@ public class VersionFile
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 
-        VersionFile tempVersionFile;
-        try
+        var parseResult = TryParseYaml(mainYamlContent);
+        if (!parseResult)
         {
-            tempVersionFile = deserializer.Deserialize<VersionFile>(mainYamlContent);
+            return parseResult;
         }
-        catch (Exception e)
-        {
-            return Result.Fail<VersionFile>($"Invalid YAML file! --- ParseError: {e}");
-        }
+       
+        var tempVersionFile = parseResult.Data;
 
         if (!string.IsNullOrEmpty(tempVersionFile.Default?.InheritFrom))
         {
@@ -59,6 +59,11 @@ public class VersionFile
             if (inheritedYamlContentResult.Success)
             {
                 var inheritedYamlContent = inheritedYamlContentResult.Data;
+                parseResult = TryParseYaml(inheritedYamlContent, "remote version file");
+                if (!parseResult)
+                {
+                    return parseResult;
+                }
                 finalYamlContent = MergeYamlContent(inheritedYamlContent, mainYamlContent);
             }
             else if (!inheritedYamlContentResult)
@@ -67,7 +72,13 @@ public class VersionFile
             }
         }
 
-        var finishedVersionFile = deserializer.Deserialize<VersionFile>(finalYamlContent);
+        parseResult = TryParseYaml(finalYamlContent, "merged version file");
+        if (!parseResult)
+        {
+            return parseResult;
+        }
+
+        var finishedVersionFile = parseResult.Data;
 
         finishedVersionFile.Branches ??= new Dictionary<string, BranchConfig>();
         finishedVersionFile.Default ??= new DefaultConfig();
@@ -90,7 +101,7 @@ public class VersionFile
         }
         catch (Exception ex)
         {
-            return Result.Fail<string>($"Failed to fetch the YAML file: {ex.Message}");
+            return Result.Fail<string>($"Failed to fetch version file from {uri} to inherit from: {ex.Message}");
         }
     }
 
@@ -254,6 +265,26 @@ public class VersionFile
         return relative.ToString().Split(Path.DirectorySeparatorChar).Length - 1;
     }
 
+    private static Result<VersionFile> TryParseYaml(string yamlContent, string fileName = "local version file")
+    {
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+        VersionFile versionFile;
+        try
+        {
+            return Result.Ok(deserializer.Deserialize<VersionFile>(yamlContent));
+        }
+        catch (YamlException e)
+        {
+            return Result.Fail<VersionFile>(YamlParsingException.FromYamlException(e, yamlContent, fileName));
+        }
+        catch (Exception e)
+        {
+            return Result.Fail<VersionFile>($"Invalid YAML file! --- ParseError: {e.Message}", e);
+        }
+    }
+
     #endregion
 }
 
@@ -270,7 +301,10 @@ public class BranchConfig
 {
     [YamlMember(Alias = "match")] public List<string> Match { get; set; } = [];
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; } = "";
-    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; } = "";
+
+    [YamlMember(Alias = "newBranchSchema")]
+    public string NewBranchSchema { get; set; } = "";
+
     [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; } = "";
     [YamlMember(Alias = "precision")] public VersionComponent? Precision { get; set; } = VersionComponent.Minor;
     [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; } = "";

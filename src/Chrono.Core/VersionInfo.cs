@@ -57,6 +57,10 @@ public class VersionInfo
         var fileResult = VersionFile.From(_versionPath);
         if (!fileResult.Success)
         {
+            if (fileResult.Exception is not null)
+            {
+                throw fileResult.Exception;
+            }
             throw new Exception(fileResult.Message);
         }
 
