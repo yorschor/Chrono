@@ -5,16 +5,18 @@ namespace Chrono.Core;
 public class YamlParsingException : Exception
 {
     public string FileName { get; }
-    public int ErrorLine { get; }
-    public int ErrorColumn { get; }
+    public int FileLineLength { get; }
+    public Mark Start { get; }
+    public Mark End { get; }
     public string[] SurroundingLines { get; }
 
-    private YamlParsingException(string fileName,string message, int errorLine, int errorColumn, string[] surroundingLines, Exception innerException)
+    private YamlParsingException(string fileName, int fileLineLength, string message, Mark start, Mark end, string[] surroundingLines, Exception innerException)
         : base(message, innerException)
     {
         FileName = fileName;
-        ErrorLine = errorLine;
-        ErrorColumn = errorColumn;
+        FileLineLength = fileLineLength;
+        Start = start;
+        End = end;
         SurroundingLines = surroundingLines;
     }
 
@@ -27,7 +29,7 @@ public class YamlParsingException : Exception
         var surroundingLines = GetSurroundingLines(fileAsLines, errorLine - 1);
         var message = $"YAML parsing error for {fileName} at line {errorLine}, column {errorColumn}: {e.Message}";
 
-        return new YamlParsingException(fileName, message, errorLine, errorColumn, surroundingLines, e);
+        return new YamlParsingException(fileName, fileAsLines.Length, message, e.Start, e.End, surroundingLines, e);
     }
 
     private static string[] GetSurroundingLines(string[] lines, int errorIndex)
@@ -37,15 +39,21 @@ public class YamlParsingException : Exception
         // Line before the error
         if (errorIndex - 1 >= 0)
             surroundingLines.Add(lines[errorIndex - 1]);
+        else
+            surroundingLines.Add("");
 
         // Error line
         if (errorIndex >= 0 && errorIndex < lines.Length)
             surroundingLines.Add(lines[errorIndex]);
-
+        else
+            surroundingLines.Add("Something went wrong here");
+        
         // Line after the error
         if (errorIndex + 1 < lines.Length)
             surroundingLines.Add(lines[errorIndex + 1]);
-
+        else
+            surroundingLines.Add("");
+        
         return surroundingLines.ToArray();
     }
 }
