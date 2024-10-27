@@ -1,4 +1,4 @@
-version: 0.10.0.15
+version: 0.11.0.0
 default:
   inheritFrom: ''
   dirtyRepo: dirty-repo
@@ -20,7 +20,7 @@ branches:
   release:
     match:
     - ^release/.*
-    versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{build}-{commitShortHash}'
+    versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}[.]{build}[-]{commitShortHash}'
     newBranchSchema: ''
     newTagSchema: ''
     precision: Patch
