@@ -14,6 +14,73 @@ NOTE: Only one version file can be inherited from.
 
 At any point you can replace a value with a variable using the **\{VariableName}** syntax.
 
+== Matching
+
+In order for a branch config besides the default one to be considered a match statement must be valid for a branch or tag. 
+
+The match statement is a list of regex expressions. If a branch matches any of the expressions, the branch config will be considered a match and the accompanying branch config will be used.
+
+NOTE: You can use as many match statements as you want. They will be evaluated from top to bottom
+
+.Example:
+
+[source,yaml]
+----
+version: "1.0.0"
+default:
+  versionSchema: "{major}.{minor}.{patch}.{build}"
+  precision: minor
+  prereleaseTag: local
+  release:
+    match:
+    # Matches branches like release/v1.0.0, release/1.0.1, release/v1, etc.
+      - "^release/.*"
+    versionSchema: "{major}.{minor}.{patch}"
+----
+
+=== Matching a tag
+
+If you want to match a tag instead of a branch, the "**\tag::**" prefix must be used. 
+
+.Example:
+
+[source,yaml]
+----
+version: "1.0.0"
+default:
+  versionSchema: "{major}.{minor}.{patch}.{build}"
+  precision: minor
+  prereleaseTag: local
+  release:
+    match:
+    # Matches tags like v1.0.0, v1, etc.
+      - "tag::^v.*"
+    versionSchema: "{major}.{minor}.{patch}"
+----
+
+IMPORTANT: The tag statements are evaluated only if the git repo is in a detached head state.
+
+
+Using a combination of both branch and tag matching is possible if needed. Beware that once matched a branch config doesn't differentiates if it's a branch or a tag. So in order to only match a tag you need to use the "**\tag::**" prefix without a normal branch match.
+
+.Example:
+
+[source,yaml]
+----
+version: "1.0.0"
+default:
+  versionSchema: "{major}.{minor}.{patch}.{build}"
+  precision: minor
+  prereleaseTag: local
+  release:
+    match:
+    # Matches tags like v1.0.0, v1, etc. as well as branches like release/v1.0.0, release/1.0.1, release/v1, etc.
+      - "tag::^v.*"
+      -  "^release/.*"
+    versionSchema: "{major}.{minor}.{patch}"
+
+----
+
 == Variables
 
 Variables are handled as simple string replacements. If a variable not defined/set, it will be replaced with an empty string. A trace will be logged if a variable is not set but besides that nothing happens.
@@ -75,7 +142,7 @@ By using delimiter blocks, you ensure that your version strings remain properly 
 ----
 version: "1.0.0"
 default:
-  versionSchema: "{major}.{minor}.{patch}[-]{branchname}[-]{commitShortHash}"
+  versionSchema: "{major}.{minor}.{patch}[-]{branch}[-]{commitShortHash}"
   precision: "minor"  
   release:
     match:
@@ -97,11 +164,11 @@ default:
 ----
 # [Required] Current version in the format major.minor.patch.build (patch and build are optional)
 version: "1.0.0" 
-# [Required] default config for every branch thats not specifically defined below
+# [Required] default config for every branch that´s not specifically defined below
 default:
 
   # [Required] Regex schema for the default version. 
-  versionSchema: "{major}.{minor}.{patch}-{branchname}-{prereleaseTag}-{commitShortHash}"
+  versionSchema: "{major}.{minor}.{patch}-{branch}-{prereleaseTag}-{commitShortHash}"
   
   # default precision of how to increase a version (if not set defaults to minor)
   precision: "minor" 
@@ -113,12 +180,12 @@ default:
   # If not set explicitly  defaults to "dirty-repo"
   dirtyRepo: "dirty-repo"
 
-  # [Required] specific branch config for relase branches or tags
+  # [Recommended] specific branch config for release branches or tags
   release:
     # [Required] List of regex branch matchers for release builds
     match:
-      - "^v.*" # Example for a release tag
-      - "^release/.*" # Example fora release branch
+      - "tag::^v.*" # Example for a release tag
+      - "^release/.*" # Example for a release branch
     # [Required] version schema for release branches/tags
     versionSchema: "{major}.{minor}[-]{patch}"
     newBranchSchema: "release/v{major}.{minor}.{patch}"
