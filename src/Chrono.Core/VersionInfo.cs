@@ -42,13 +42,13 @@ public class VersionInfo
 
     #region Members
 
+    public BranchConfig currentBranchConfigOriginal;
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private readonly string _versionPath;
     private string _parsedVersion = "";
     private bool _allowDirtyRepo;
 
     #endregion
-
     internal VersionInfo(string path, bool allowDirtyRepo = false)
     {
         _versionPath = path;
@@ -95,6 +95,7 @@ public class VersionInfo
         }
 
         CurrentBranchConfig = new BranchConfigWithFallback(File.Default, currentBranchResult.Data);
+        currentBranchConfigOriginal = currentBranchResult.Data;
     }
 
     /// <summary>
@@ -230,7 +231,7 @@ public class VersionInfo
             File.Version = $"{Major}.{Minor}.{Patch}.{Build}";
         }
 
-        var saveResult = File.Save(_versionPath);
+        var saveResult = File.UpdateVersionInFile(_versionPath);
         return !saveResult ? saveResult : Result.Ok();
     }
 
@@ -340,7 +341,21 @@ public class VersionInfo
             return Result.Fail<string>(e.ToString());
         }
     }
+    
+    public Result<BranchConfig> GetReleaseConfigIfExists()
+    {
 
+        BranchConfig releaseConfig;
+        try
+        {
+           return Result.Ok(File.Default.Release);
+        }
+        catch (Exception e)
+        {
+            return Result.Fail<BranchConfig>($"Something went wrong while trying to get release config. Does a release config exist?", e);
+        }
+        
+    }
     /// <summary>
     /// Gets the current branch config as a result.
     /// </summary>

@@ -1,9 +1,11 @@
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using Huxy;
 using NLog;
 using Nuke.Common.IO;
 using YamlDotNet.Core;
+using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -50,7 +52,7 @@ public class VersionFile
         {
             return parseResult;
         }
-       
+
         var tempVersionFile = parseResult.Data;
 
         if (!string.IsNullOrEmpty(tempVersionFile.Default?.InheritFrom))
@@ -64,6 +66,7 @@ public class VersionFile
                 {
                     return parseResult;
                 }
+
                 finalYamlContent = MergeYamlContent(inheritedYamlContent, mainYamlContent);
             }
             else if (!inheritedYamlContentResult)
@@ -142,10 +145,43 @@ public class VersionFile
     }
 
     /// <summary>
+    /// Updates the version key safely in the YAML file and saves it.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public Result UpdateVersionInFile(string path)
+    {
+        try
+        {
+            var text = File.ReadAllText(path);
+
+            if (!RegexPatterns.VersionYamlTagRegex.IsMatch(text))
+                return Result.Fail(
+                    "Version key not found in YAML file. If you see this... Something major broke. Please file a new issue at github.com/yorschor/chrono");
+            
+            var newText = RegexPatterns.VersionYamlTagRegex.Replace(text, m =>
+            {
+                var quote = m.Groups[1].Value;
+                return $"version: {quote}{Version}{quote}";
+            });
+
+            File.WriteAllText(path, newText);
+            return Result.Ok();
+
+        }
+        catch (Exception e)
+        {
+            return Result.Fail(e);
+        }
+    }
+
+
+    /// <summary>
     /// Saves the current instance to the specified path.
     /// </summary>
     /// <param name="path">The path where the file will be saved.</param>
     /// <returns>A <see cref="Result"/> indicating success or failure.</returns>
+    [Obsolete("Use UpdateVersionInFile instead")]
     public Result Save(string path)
     {
         try
