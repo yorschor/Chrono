@@ -1,5 +1,5 @@
 ﻿<Solution>
-  <Folder Name="/SolutionItems/">
+  <Folder Name="/Solution Items/">
     <Project Path="build\_build.csproj">
       <Configuration Solution="Debug|Any CPU" Project="Debug|Any CPU|NoBuild" />
       <Configuration Solution="Release|Any CPU" Project="Release|Any CPU|NoBuild" />
