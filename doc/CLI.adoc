@@ -1,0 +1,23 @@
+= Chrono CLI
+
+== Introduction
+
+The Chrono CLI is a command line tool that provides a set of commands to interact with the version.yml file.
+
+It's main purpose is to provide a simple way to interact with the version.yml file and to make it easier to use Chrono in your projects.
+
+== Commands
+
+[source, text]
+----
+└── Chrono/
+    ├── init
+    ├── help
+    ├── get [-n | numeric] [-f | nofail {true}]
+    ├── set <Version> [-c | commit]
+    ├── bump <Version component>
+    ├── tag
+    ├── release
+    └── branch
+----
+Gets the current version of the project.

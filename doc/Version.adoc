@@ -211,18 +211,3 @@ branches:
     newBranchSchema: "feature/{major}.{minor}.{patch}"
     newTagSchema: "v{major}.{minor}.{patch}"
 ----
-
-
-
-[source, text]
-----
-└── Chrono/
-├── init
-├── help
-├── get [-n | numeric] [-f | nofail {true}]
-├── set <Version> [-c | commit]
-├── bump <Version component>
-├── tag
-├── release
-└── branch
-----

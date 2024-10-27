@@ -35,24 +35,14 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
             newBranchNameResult.PrintFailures();
             return 1;
         }
-
-        VersionComponent precision;
-        var versionComponentResult = versionInfo.GetReleaseConfigIfExists();
-        precision = versionInfo.CurrentBranchConfig.Precision;
-        if (versionComponentResult)
-        {
-            precision = versionComponentResult.Data.Precision ?? precision;
-        }
-
-        
+       
         var repo = settings.GetRepo().Data;
-        settings.Logger.Trace($"Creating new branch {newBranchNameResult.Data}");
-        AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
+        settings.MarkupAndTrace($"Creating new branch {newBranchNameResult.Data}");
         var branch = repo.Branches.Add(newBranchNameResult.Data, repo.Head.Tip);
 
         // 2 Increment Version on existing branch according to schema
         var oldversion = versionInfo.GetNumericVersion();
-        versionInfo.BumpVersion(precision);
+        versionInfo.BumpVersion(versionInfo.CurrentBranchConfig.Precision);
         var newVersion = versionInfo.GetNumericVersion();
 
         // 3 Commit changes of new version if -c | --commit is set
@@ -142,7 +132,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
                 return 1;
             }
             NLogHelper.SetLogLevel(false);
-            AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
+            settings.MarkupAndTrace($"Creating new branch {newBranchNameResult.Data}");
             repoResult.Data.Branches.Add(newBranchNameResult.Data, repoResult.Data.Head.Tip);
             return 0;
         }

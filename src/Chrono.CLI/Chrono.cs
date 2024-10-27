@@ -110,4 +110,10 @@ public class BaseCommandSettings : CommandSettings
     }
 
     public string AppVersion => Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version";
+    
+    public void MarkupAndTrace(string message)
+    {
+        AnsiConsole.MarkupLine(message);
+        Logger.Trace(message);
+    }
 }

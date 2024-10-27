@@ -12,9 +12,9 @@
     <File Path="doc\Version.adoc" />
     <File Path="doc\DotnetVersioning.adoc" />
     <File Path="doc\dsyitf.adoc" />
+    <File Path="doc\CLI.adoc" />
   </Folder>
   <Folder Name="/SolutionItems/Docu/ReferenceConfigs/">
-    <File Path="doc\examples\v1.yml" />
     <File Path="doc\examples\minimal.yml" />
     <File Path="doc\examples\sensibleDefault.yml" />
   </Folder>
