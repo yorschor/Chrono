@@ -9,7 +9,7 @@ public class YamlParsingException : Exception
     public int ErrorColumn { get; }
     public string[] SurroundingLines { get; }
 
-    private YamlParsingException(String fileName,string message, int errorLine, int errorColumn, string[] surroundingLines, Exception innerException)
+    private YamlParsingException(string fileName,string message, int errorLine, int errorColumn, string[] surroundingLines, Exception innerException)
         : base(message, innerException)
     {
         FileName = fileName;

@@ -77,12 +77,20 @@ public class VersionInfo
         var gitRes = GitInfo.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
         if (!gitRes)
         {
+            if (gitRes.Exception is not null)
+            {
+                throw gitRes.Exception;
+            }
             throw new Exception(gitRes.Message);
         }
 
         var currentBranchResult = GetConfigForCurrentBranch();
         if (!currentBranchResult)
         {
+            if (currentBranchResult.Exception is not null)
+            {
+                throw currentBranchResult.Exception;
+            }
             throw new Exception(currentBranchResult.Message);
         }
 
