@@ -32,7 +32,7 @@ public class YamlParsingException : Exception
         return new YamlParsingException(fileName, fileAsLines.Length, message, e.Start, e.End, surroundingLines, e);
     }
 
-    private static string[] GetSurroundingLines(string[] lines, int errorIndex)
+    private static string[] GetSurroundingLines(string[] lines, long errorIndex)
     {
         var surroundingLines = new List<string>();
 

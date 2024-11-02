@@ -49,11 +49,11 @@ public static class ResultExtension
         }
 
         var errorLine = e.SurroundingLines[1];
-        errorLine = errorLine.Insert(e.End.Column - 1, "[/]");
-        errorLine = errorLine.Insert(e.Start.Column - 1, "[RED]");
+        errorLine = errorLine.Insert((int)e.End.Column - 1, "[/]");
+        errorLine = errorLine.Insert((int)e.Start.Column - 1, "[RED]");
         var lineNumberString = $"{e.Start.Line} ";
         AnsiConsole.MarkupLine($"[grey70]{lineNumberString}[/]{errorLine}");
-        AnsiConsole.MarkupLine(new string(' ', e.Start.Column + lineNumberString.Length - 1) + "[RED]^[/]");
+        AnsiConsole.MarkupLine(new string(' ', (int)e.Start.Column + lineNumberString.Length - 1) + "[RED]^[/]");
 
 
         if (e.Start.Line + 1 <= e.FileLineLength)
