@@ -158,7 +158,7 @@ public class VersionFile
             if (!RegexPatterns.VersionYamlTagRegex.IsMatch(text))
                 return Result.Fail(
                     "Version key not found in YAML file. If you see this... Something major broke. Please file a new issue at github.com/yorschor/chrono");
-            
+
             var newText = RegexPatterns.VersionYamlTagRegex.Replace(text, m =>
             {
                 var quote = m.Groups[1].Value;
@@ -167,7 +167,6 @@ public class VersionFile
 
             File.WriteAllText(path, newText);
             return Result.Ok();
-
         }
         catch (Exception e)
         {
@@ -306,7 +305,6 @@ public class VersionFile
         var deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
-        VersionFile versionFile;
         try
         {
             return Result.Ok(deserializer.Deserialize<VersionFile>(yamlContent));
@@ -337,10 +335,7 @@ public class BranchConfig
 {
     [YamlMember(Alias = "match")] public List<string> Match { get; set; } = [];
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; } = "";
-
-    [YamlMember(Alias = "newBranchSchema")]
-    public string NewBranchSchema { get; set; } = "";
-
+    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; } = "";
     [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; } = "";
     [YamlMember(Alias = "precision")] public VersionComponent? Precision { get; set; } = VersionComponent.Minor;
     [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; } = "";

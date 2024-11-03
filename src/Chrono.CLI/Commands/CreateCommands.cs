@@ -28,7 +28,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
         if (versionInfo is null) return settings.GetReturnCode(1);
 
         // 1 Create new branch according to schema without checking out
-        var newBranchNameResult = versionInfo.GetNewBranchName(true);
+        var newBranchNameResult = versionInfo.GetNewBranchNameFromKey(settings.BranchKey);
 
         if (!newBranchNameResult)
         {
@@ -63,6 +63,8 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 
     public sealed class Settings : CreateSettings
     {
+        [CommandArgument(0, "[BranchKey]")] public string BranchKey { get; set; } = "release";
+        
         [CommandOption("-c|--commit")] public bool Commit { get; init; } = false;
         
         [CommandArgument(1, "[Commit Message {oldVersion} {newVersion}]")]
@@ -80,19 +82,18 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
             var versionInfo = settings.ValidateVersionInfo();
             if (versionInfo is null) return settings.GetReturnCode(1);
 
-            var newTagNameResult = versionInfo.GetNewTagName();
+            var newTagNameResult = versionInfo.CurrentBranchConfig.NewTagSchema;
 
-            if (!newTagNameResult)
+            if (string.IsNullOrEmpty(newTagNameResult))
             {
-                newTagNameResult.PrintFailures();
-                AnsiConsole.MarkupLine(newTagNameResult.Message);
+                AnsiConsole.MarkupLine("No tag schema configured. Aborting!");
                 return 1;
             }
 
             var repo = settings.GetRepo().Data;
-            var tag = repo.Tags.Add(newTagNameResult.Data, repo.Head.Tip);
+            var tag = repo.Tags.Add(newTagNameResult, repo.Head.Tip);
             NLogHelper.SetLogLevel(false);
-            AnsiConsole.MarkupLine($"Tag {newTagNameResult.Data} created");
+            AnsiConsole.MarkupLine($"Tag {newTagNameResult} created");
             return 0;
         }
         catch (Exception e)
@@ -146,7 +147,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
 
     public sealed class Settings : CreateSettings
     {
-        [CommandArgument(0, "[BranchKey]")] public string BranchKey { get; set; }
+        [CommandArgument(0, "<BranchKey>")] public string BranchKey { get; set; }
     }
 }
 
