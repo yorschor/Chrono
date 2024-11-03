@@ -26,7 +26,7 @@ public static class InitTemplates
                 """;
     }
 
-    public static string GetVersionFile(VersionFileVariants variant, string version = "0.0.1")
+    public static string GetVersionFile(VersionFileVariants variant, string version = "0.0.1.0")
     {
       return variant switch
       {
@@ -64,7 +64,7 @@ public static class InitTemplates
                  prereleaseTag: local
                  release:
                    match:
-                     - ^v.*
+                     - tag::^v.*
                    versionSchema: '{major}.{minor}.{patch}'
                branches:
                  release:

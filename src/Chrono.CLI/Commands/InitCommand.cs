@@ -34,7 +34,7 @@ public class InitCommand : Command<InitCommand.Settings>
                 .AddChoices("Directory.Build.props", "version.yml"));
 
         var variant = VersionFileVariants.LocalMinimal;
-        var initialVersion = "0.0.1";
+        var initialVersion = "0.0.1.0";
         if (files.Contains("version.yml"))
         {
             var variantString = AnsiConsole.Prompt(
