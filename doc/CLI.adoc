@@ -6,7 +6,7 @@ The Chrono CLI is a command line tool that provides a set of commands to interac
 
 It's main purpose is to provide a simple way to interact with the version.yml file and to make it easier to use Chrono in your projects.
 
-== Commands
+== Overview
 
 [source, text]
 ----
@@ -20,4 +20,60 @@ It's main purpose is to provide a simple way to interact with the version.yml fi
     ├── release
     └── branch
 ----
+
+
+== Commands
+
+All commands except the "Init" command require a valid version.yml file to exist in the current of a parent directory as well as a initialized git repo be present.
+
+== Common Options 
+
+All commands support the following options:
+
+=== -d|--debug  
+
+Enables debug logging.
+
+=== -t|--trace
+
+Enables trace logging. Also prints exceptions if any occur.
+
+=== -i|--ignore-dirty
+
+Ignores dirty repositories. If a repository is dirty the short hash will be replaced by the dirty-repo placeholder.
+
+=== Get
+
 Gets the current version of the project.
+
+
+== The Set command
+
+Sets the current version of the project. It does so by simply replacing the version key in the version.yml.yml file.
+
+== the "Bump" command
+
+Bumps the version of the project.
+
+The version component can be one of the following:
+
+* major
+* minor
+* patch
+* build
+
+NOTE: The build component is only available if the version.yml file contains a build key.
+
+
+
+== The "Tag" command
+
+The tag command creates a new tag in the git repo according to *current* branch config present. 
+
+== The "Branch" command
+
+The branch command creates a new branch in the git repo according to *current* branch config present. 
+
+== The "Release" command
+
+The release command creates a new branch in the git repo according to *target* branch config specified.

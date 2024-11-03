@@ -6,7 +6,7 @@ default:
   prereleaseTag: local
   release:
     match:
-      - ^v.*
+      - tag::^v.*
     versionSchema: '{major}.{minor}.{patch}'
 branches:
   release:
