@@ -81,7 +81,7 @@ public class VersionInfo
         }
         
         SearchBranches = new Dictionary<string, BranchConfig>(File.Branches);
-        SearchBranches.Add("release", File.Default.Release);
+        SearchBranches.Add("Default_Release_Config", File.Default.Release);
 
         var currentBranchResult = GetConfigForCurrentBranch();
         if (!currentBranchResult)
