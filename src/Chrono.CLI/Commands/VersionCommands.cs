@@ -43,7 +43,6 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             tree.AddNode($"CommitShortHash: {versionInfo.GitInfo.CommitShortHash}");
             tree.AddNode($"BranchName: {versionInfo.GitInfo.BranchName}");
             tree.AddNode("Tags").AddNodes(versionInfo.GitInfo.TagNames);
-            // tree.AddNode("SearchArray").AddNodes(versionInfo.CombinedSearchArray);
             AnsiConsole.Write(tree);
         }
 

@@ -125,7 +125,7 @@ Note the extra hyphen. To avoid this, you can use a delimiter block:
 
 [source,yaml]
 ----
-versionSchema: '{major}.{minor}.{patch}[-]{prereleaseTag}-{commitShortHash}'
+versionSchema: '{major}.{minor}.{patch}[-]{prereleaseTag}[-]{commitShortHash}'
 ----
 
 With this, if `prereleaseTag` is not set, the version will render as:
@@ -134,6 +134,14 @@ major.minor.patch-commitShortHash
 ----
 
 By using delimiter blocks, you ensure that your version strings remain properly formatted, even when certain variables are empty.
+
+Rules: 
+
+* If duplicate delimiter blocks are present, the last one is used
+* Duplicate delimiter blocks are removed
+* Delimiter blocks at the end of the schema are removed
+
+See the unit tests for more examples. link:../src/tests/Chrono.Core.Test/VersionInfoTest.cs[ResolveDelimiterBLockTest]
 
 == Examples  
 

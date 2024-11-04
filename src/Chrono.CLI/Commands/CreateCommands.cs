@@ -82,18 +82,18 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
             var versionInfo = settings.ValidateVersionInfo();
             if (versionInfo is null) return settings.GetReturnCode(1);
 
-            var newTagNameResult = versionInfo.CurrentBranchConfig.NewTagSchema;
+            var newTagNameResult = versionInfo.ResolveSchema(versionInfo.CurrentBranchConfig.NewTagSchema);
 
-            if (string.IsNullOrEmpty(newTagNameResult))
+            if (!newTagNameResult)
             {
                 AnsiConsole.MarkupLine("No tag schema configured. Aborting!");
                 return 1;
             }
 
             var repo = settings.GetRepo().Data;
-            var tag = repo.Tags.Add(newTagNameResult, repo.Head.Tip);
+            var tag = repo.Tags.Add(newTagNameResult.Data, repo.Head.Tip);
             NLogHelper.SetLogLevel(false);
-            AnsiConsole.MarkupLine($"Tag {newTagNameResult} created");
+            AnsiConsole.MarkupLine($"Tag {newTagNameResult.Data} created");
             return 0;
         }
         catch (Exception e)

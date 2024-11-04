@@ -24,12 +24,19 @@ a|image::icon.png[]
 
 === Road to 1.0 
 
-* Build intermediate 0.9 version
-* Ensure config examples are up to date
-* Adjust documentation
-* Debug builds for dotnet tasks should work
-* Create self-contained builds for various platforms
-* Enhance logging and error handling/reporting
+* [x] Ensure config examples are up to date
+* [ ] Extensive testing
+** [ ] get
+** [x] set
+** [x] bump
+** [ ] tag
+** [ ] release
+** [ ] branch
+
+* [-] Adjust documentation
+* [-] Enhance logging and error handling/reporting
+* [Won´t do] Debug builds for dotnet tasks should work
+* [ ] Create self-contained builds for various platforms
 
 === Commands
 
