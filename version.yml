@@ -1,4 +1,4 @@
-version: 0.11.0.17
+version: 0.11.0.20
 default:
     dirtyRepo: dirty-repo
     versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'

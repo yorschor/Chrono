@@ -25,14 +25,7 @@ a|image::icon.png[]
 === Road to 1.0 
 
 * [x] Ensure config examples are up to date
-* [ ] Extensive testing
-** [ ] get
-** [x] set
-** [x] bump
-** [ ] tag
-** [ ] release
-** [ ] branch
-
+* [x] Extensive testing
 * [-] Adjust documentation
 * [-] Enhance logging and error handling/reporting
 * [Won´t do] Debug builds for dotnet tasks should work
