@@ -333,12 +333,12 @@ public class DefaultConfig : BranchConfig
 
 public class BranchConfig
 {
-    [YamlMember(Alias = "match")] public List<string> Match { get; set; } = [];
-    [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; } = "";
-    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; } = "";
-    [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; } = "";
-    [YamlMember(Alias = "precision")] public VersionComponent? Precision { get; set; } = VersionComponent.Minor;
-    [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; } = "";
+    [YamlMember(Alias = "match")] public List<string> Match { get; set; }
+    [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
+    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; }
+    [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
+    [YamlMember(Alias = "precision")] public VersionComponent? Precision { get; set; }
+    [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; } 
 }
 
 public class BranchConfigWithFallback(BranchConfig defaultConfig, BranchConfig specificConfig)
