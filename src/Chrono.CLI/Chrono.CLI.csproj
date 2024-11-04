@@ -14,7 +14,7 @@
         <Authors>Ekkehard C. Damisch</Authors>
         <Copyright>Ekkehard C. Damisch</Copyright>
         <PackageProjectUrl>https://github.com/yorschor/Chrono</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/yorschor/Chrono?tab=MIT-1-ov-file</PackageLicenseUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>git version dotnet msbuild</PackageTags>
         <RootNamespace>Chrono</RootNamespace>
         <PackageIcon>icon.png</PackageIcon>
