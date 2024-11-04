@@ -1,4 +1,4 @@
-version: 1.0.0
+version: 1.0.0.2
 default:
     dirtyRepo: dirty-repo
     versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
@@ -10,10 +10,10 @@ default:
         versionSchema: '{major}.{minor}.{patch}'
         newBranchSchema: release/v{major}.{minor}
 branches:      
-    branchRelease:
+    release:
         match:
             - ^release/.*
-        versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}[.]{build}}'
+        versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}[.]{build}'
         newTagSchema: v{major}.{minor}.{patch}
         precision: Patch
         prereleaseTag: rc
