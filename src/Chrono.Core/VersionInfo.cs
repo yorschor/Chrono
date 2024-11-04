@@ -387,7 +387,7 @@ public class VersionInfo
         return schema;
     }
 
-    private static string ResolveDelimiterBlock(string input)
+    internal static string ResolveDelimiterBlock(string input)
     {
         input = RegexPatterns.DuplicateBlocksRegex.Replace(input, "");
         input = RegexPatterns.EndBlockRegex.Replace(input, "");

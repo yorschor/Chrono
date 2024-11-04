@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Huxy;
 
 namespace Chrono.Core.Test
@@ -176,6 +177,17 @@ namespace Chrono.Core.Test
             Assert.False(string.IsNullOrEmpty(result.Data));
 
             Assert.Equal($"specificTagSchema-{versionInfo.GitInfo.BranchName}", result.Data);
+        }
+
+        [Theory]
+        [InlineData("a-b", "a[-]b")]
+        [InlineData("a-b-c", "a[-]b[-][-]c")]
+        [InlineData("a-b-c", "a[-]b[.][-]c[-]")]
+        [InlineData("a-b.c", "a[-]b[-][.]c[-]")]
+        [InlineData("a-b", "a[-]b[.][-][-]")]
+        public void ResolveDelimiterBLockTest(string expected, string input)
+        {
+            Assert.Equal(expected, VersionInfo.ResolveDelimiterBlock(input));
         }
     }
 }
