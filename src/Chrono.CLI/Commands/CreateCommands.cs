@@ -63,7 +63,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 
     public sealed class Settings : CreateSettings
     {
-        [CommandArgument(0, "[BranchKey]")] public string BranchKey { get; set; } = "release";
+        [CommandArgument(0, "[BranchKey]")] public string BranchKey { get; set; } = "Default_Release_Config";
         
         [CommandOption("-c|--commit")] public bool Commit { get; init; } = false;
         
@@ -118,13 +118,8 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
             if (versionInfo is null) return settings.GetReturnCode(1);
             var repoResult = settings.GetRepo();
             if (!repoResult) return 1;
-
-            if (string.IsNullOrEmpty(settings.BranchKey))
-            {
-                settings.BranchKey = repoResult.Data.Head.FriendlyName;
-            }
-
-            var newBranchNameResult = versionInfo.GetNewBranchNameFromKey(settings.BranchKey);
+            
+            var newBranchNameResult = versionInfo.ResolveSchema(versionInfo.CurrentBranchConfig.NewBranchSchema);
             if (!newBranchNameResult)
             {
                 newBranchNameResult.PrintFailures();
@@ -145,10 +140,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
         }
     }
 
-    public sealed class Settings : CreateSettings
-    {
-        [CommandArgument(0, "<BranchKey>")] public string BranchKey { get; set; }
-    }
+    public sealed class Settings : CreateSettings;
 }
 
 #endregion
