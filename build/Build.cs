@@ -20,6 +20,7 @@ using Serilog;
     "tagPush",
     GitHubActionsImage.UbuntuLatest,
     OnPushTags = ["v*"],
+    FetchDepth = 0,
     ImportSecrets = [nameof(NuGetApiKey)],
     InvokedTargets = [nameof(PushNugetPackage)])]
 class Build : NukeBuild
