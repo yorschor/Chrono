@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Huxy;
 
 namespace Chrono.Core.Test
@@ -133,11 +134,10 @@ namespace Chrono.Core.Test
         public void TestGetConfigForCurrentBranch_ValidBranch_ReturnsConfig()
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
-            var result = versionInfo.GetConfigForCurrentBranch();
+            var result = versionInfo.CurrentBranchConfig;
 
-            Assert.True(result.Success);
-            Assert.NotNull(result.Data);
-            Assert.Equal("{major}.{minor}.{patch}", result.Data.VersionSchema);
+            Assert.True(result is not null);
+            Assert.Equal("{major}.{minor}.{patch}", result.VersionSchema);
         }
 
         [Fact]
@@ -145,10 +145,10 @@ namespace Chrono.Core.Test
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
             versionInfo.GitInfo.BranchName = "aBranchWithAName";
-            var result = versionInfo.GetNewBranchName();
-
-            Assert.True(result.Success);
-            Assert.NotNull(result.Data);
+            var result = versionInfo.ResolveSchema (versionInfo.CurrentBranchConfig.NewBranchSchema);
+            
+            Assert.True(result);
+            Assert.False(string.IsNullOrEmpty(result.Data));
             Assert.Equal("aBranchWithANameschema", result.Data);
         }
 
@@ -171,12 +171,23 @@ namespace Chrono.Core.Test
         {
             //default branch config is used
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
-            var result = versionInfo.GetNewTagName();
+            var result = versionInfo.ResolveSchema(versionInfo.CurrentBranchConfig.NewTagSchema);
 
-            Assert.True(result.Success);
-            Assert.NotNull(result.Data);
+            Assert.True(result);
+            Assert.False(string.IsNullOrEmpty(result.Data));
 
             Assert.Equal($"specificTagSchema-{versionInfo.GitInfo.BranchName}", result.Data);
+        }
+
+        [Theory]
+        [InlineData("a-b", "a[-]b")]
+        [InlineData("a-b-c", "a[-]b[-][-]c")]
+        [InlineData("a-b-c", "a[-]b[.][-]c[-]")]
+        [InlineData("a-b.c", "a[-]b[-][.]c[-]")]
+        [InlineData("a-b", "a[-]b[.][-][-]")]
+        public void ResolveDelimiterBLockTest(string expected, string input)
+        {
+            Assert.Equal(expected, VersionInfo.ResolveDelimiterBlock(input));
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿<Solution>
-  <Folder Name="/SolutionItems/">
+  <Folder Name="/Solution Items/">
     <Project Path="build\_build.csproj">
       <Configuration Solution="Debug|Any CPU" Project="Debug|Any CPU|NoBuild" />
       <Configuration Solution="Release|Any CPU" Project="Release|Any CPU|NoBuild" />
@@ -11,9 +11,10 @@
   <Folder Name="/SolutionItems/Docu/">
     <File Path="doc\Version.adoc" />
     <File Path="doc\DotnetVersioning.adoc" />
+    <File Path="doc\dsyitf.adoc" />
+    <File Path="doc\CLI.adoc" />
   </Folder>
   <Folder Name="/SolutionItems/Docu/ReferenceConfigs/">
-    <File Path="doc\examples\v1.yml" />
     <File Path="doc\examples\minimal.yml" />
     <File Path="doc\examples\sensibleDefault.yml" />
   </Folder>

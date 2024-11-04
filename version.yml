@@ -1,29 +1,19 @@
-version: 0.10.0.0
+version: 0.11.0.20
 default:
-  inheritFrom: ''
-  dirtyRepo: dirty-repo
-  release:
-    match:
-    - tag::^feature/v.*
-    - ^v.*
-    versionSchema: '{major}.{minor}.{patch}'
+    dirtyRepo: dirty-repo
+    versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
     newBranchSchema: release/v{major}.{minor}.{patch}
-    newTagSchema: v{major}.{minor}.{patch}
-    precision: Major
-    prereleaseTag: ''
-  match:
-  - ''
-  versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
-  newBranchSchema: ''
-  newTagSchema: ''
-  precision: Minor
-  prereleaseTag: local
-branches:
-  release:
-    match:
-    - ^release/.*
-    versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{build}-{commitShortHash}'
-    newBranchSchema: ''
-    newTagSchema: ''
-    precision: Patch
-    prereleaseTag: rc
+    prereleaseTag: local
+    precision: Minor
+    release:
+        match:
+            - tag::^v.*
+        versionSchema: '{major}.{minor}.{patch}'
+branches:      
+    branchRelease:
+        match:
+            - ^release/.*
+        versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}[.]{build}}'
+        newTagSchema: v{major}.{minor}.{patch}
+        precision: Patch
+        prereleaseTag: rc

@@ -84,22 +84,7 @@ public class VersionFileTests
         Assert.True(result.Success);
         Assert.Equal(response, result.Data);
     }
-
-    [Fact]
-    public void Save_ValidPath_SavesFileSuccessfully()
-    {
-        // Arrange
-        var versionFile = VersionFile.From(_sampleYamlPath);
-        var savePath = "saved_version.yml";
-        Assert.True(versionFile);
-        // Act
-        var result = versionFile.Data.Save(savePath);
-
-        // Assert
-        Assert.True(result);
-        Assert.True(File.Exists(savePath));
-        File.Delete(savePath); // Cleanup
-    }
+    
 
     [Fact]
     public void Find_ValidDirectories_ReturnsFilePath()

@@ -10,6 +10,9 @@ public static class RegexPatterns
     public static Regex BlockContentRegex { get; } = new(@"\{([^\}]*)\}|\[([^\]]*)\]", RegexOptions.Compiled);
     public static Regex ValidVersionRegex { get; } = new(@"^(\d+)\.(\d+)(?:\.(\d+))?(?:\.(\d+))?$", RegexOptions.Compiled);
     public static Regex NumericVersionOnlyRegex { get; } = new(@"^\d+\.\d+(?:\.\d+)?(?:\.\d+)?", RegexOptions.Compiled);
+    public static Regex VersionYamlTagRegex { get; } = new(@"version:\s*([""']?)([^""'\n]+)\1", RegexOptions.Compiled);
+
     public static Regex ValidSemVersionRegex { get; } = new(
-        @"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$", RegexOptions.Compiled);
+        @"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$",
+        RegexOptions.Compiled);
 }

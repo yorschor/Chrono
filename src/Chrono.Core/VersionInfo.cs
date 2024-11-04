@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Huxy;
 using LibGit2Sharp;
@@ -36,27 +35,28 @@ public class VersionInfo
 
     public GitInfo GitInfo { get; private set; } = new();
     public BranchConfigWithFallback CurrentBranchConfig { get; private set; }
-    public string PrereleaseTag => CurrentBranchConfig.PrereleaseTag;
 
     #endregion
 
     #region Members
 
+    private Dictionary<string, BranchConfig> SearchBranches { get; set; }
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private readonly string _versionPath;
     private string _parsedVersion = "";
-    private bool _allowDirtyRepo;
 
     #endregion
-
     internal VersionInfo(string path, bool allowDirtyRepo = false)
     {
         _versionPath = path;
-        _allowDirtyRepo = allowDirtyRepo;
 
         var fileResult = VersionFile.From(_versionPath);
         if (!fileResult.Success)
         {
+            if (fileResult.Exception is not null)
+            {
+                throw fileResult.Exception;
+            }
             throw new Exception(fileResult.Message);
         }
 
@@ -73,15 +73,25 @@ public class VersionInfo
         var gitRes = GitInfo.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
         if (!gitRes)
         {
+            if (gitRes.Exception is not null)
+            {
+                throw gitRes.Exception;
+            }
             throw new Exception(gitRes.Message);
         }
+        
+        SearchBranches = new Dictionary<string, BranchConfig>(File.Branches);
+        SearchBranches.Add("Default_Release_Config", File.Default.Release);
 
         var currentBranchResult = GetConfigForCurrentBranch();
         if (!currentBranchResult)
         {
+            if (currentBranchResult.Exception is not null)
+            {
+                throw currentBranchResult.Exception;
+            }
             throw new Exception(currentBranchResult.Message);
         }
-
         CurrentBranchConfig = new BranchConfigWithFallback(File.Default, currentBranchResult.Data);
     }
 
@@ -218,7 +228,7 @@ public class VersionInfo
             File.Version = $"{Major}.{Minor}.{Patch}.{Build}";
         }
 
-        var saveResult = File.Save(_versionPath);
+        var saveResult = File.UpdateVersionInFile(_versionPath);
         return !saveResult ? saveResult : Result.Ok();
     }
 
@@ -276,28 +286,20 @@ public class VersionInfo
 
     #region SchemaMethods
 
-    public Result<string> GetNewBranchName(bool releaseBranch = false)
+    public Result<string> ResolveSchema(string schema)
     {
-        var newBranchSchema =
-            releaseBranch ? File.Default.Release.NewBranchSchema : CurrentBranchConfig.NewBranchSchema;
-        if (string.IsNullOrEmpty(newBranchSchema))
-        {
-            return Result.Fail<string>("No branch schema configured. Aborting!");
-        }
-
         try
         {
-            return Result.Ok(ParseSchema(newBranchSchema));
+            return Result.Ok(ParseSchema(schema));
         }
         catch (Exception e)
         {
-            return Result.Fail<string>(e.ToString());
+            return Result.Fail<string>($"Failed to resolve schema: {e.Message}", e);
         }
     }
-
     public Result<string> GetNewBranchNameFromKey(string key)
     {
-        if (File.Branches.TryGetValue(key, out var branchConfig))
+        if (SearchBranches.TryGetValue(key, out var branchConfig))
         {
             var newBranchName = branchConfig.NewBranchSchema;
             if (string.IsNullOrEmpty(newBranchName))
@@ -311,37 +313,28 @@ public class VersionInfo
         return Result.Fail<string>($"No config for branch {key} found");
     }
 
-    public Result<string> GetNewTagName(bool releaseBranch = false)
+    public Result<string> GetNewTagNameFromKey(string key)
     {
-        var newBranchSchema = releaseBranch ? File.Default.Release.NewTagSchema : CurrentBranchConfig.NewTagSchema;
-        if (string.IsNullOrEmpty(newBranchSchema))
+        if (SearchBranches.TryGetValue(key, out var branchConfig))
         {
-            return Result.Fail<string>("No tag schema configured. Aborting!");
+            var newTagName = branchConfig.NewTagSchema;
+            if (string.IsNullOrEmpty(newTagName))
+            {
+                return Result.Fail<string>($"No new tag schema configured for branch config ''{key}''");
+            }
+
+            return Result.Ok(ParseSchema(newTagName));
         }
 
-        try
-        {
-            return Result.Ok(ParseSchema(newBranchSchema));
-        }
-        catch (Exception e)
-        {
-            return Result.Fail<string>(e.ToString());
-        }
+        return Result.Fail<string>($"No config for branch {key} found");
     }
+    #endregion
 
-    /// <summary>
-    /// Gets the current branch config as a result.
-    /// </summary>
-    /// <returns>A result containing the branch configuration.</returns>
-    public Result<BranchConfig> GetConfigForCurrentBranch()
+    #region Internal
+
+    private Result<BranchConfig> GetConfigForCurrentBranch()
     {
-        if (MatchRefsToConfig(File.Default.Release))
-        {
-            _logger.Trace("Release branch matched!");
-            return Result.Ok(File.Default.Release);
-        }
-
-        foreach (var branch in File.Branches)
+        foreach (var branch in SearchBranches)
         {
             if (MatchRefsToConfig(branch.Value))
             {
@@ -349,20 +342,16 @@ public class VersionInfo
                 return Result.Ok(branch.Value);
             }
         }
-
+    
         if (File.Default != null)
         {
             _logger.Trace("No branch could be matched. Using default configuration!");
             return Result.Ok<BranchConfig>(File.Default);
         }
-
-        return Result.Fail<BranchConfig>("Something went wrong while trying to get current branch");
+    
+        return Result.Fail<BranchConfig>("Something went wrong while trying to get current branch config. (No branch matches | No valid default config found)");
     }
-
-    #endregion
-
-    #region Internal
-
+    
     #region ParsingMethods
 
     private string ParseSchema(string schema)
@@ -373,7 +362,7 @@ public class VersionInfo
             .Replace("{patch}", Patch.ToString())
             .Replace("{build}", Build.ToString())
             .Replace("{branch}", GitInfo.BranchName)
-            .Replace("{prereleaseTag}", PrereleaseTag)
+            .Replace("{prereleaseTag}", CurrentBranchConfig.PrereleaseTag)
             .Replace("{commitShortHash}", GitInfo.CommitShortHash);
         schemaWithValues = ResolveEnvironmentVariables(schemaWithValues);
         return ResolveDelimiterBlock(schemaWithValues);
@@ -398,7 +387,7 @@ public class VersionInfo
         return schema;
     }
 
-    private static string ResolveDelimiterBlock(string input)
+    internal static string ResolveDelimiterBlock(string input)
     {
         input = RegexPatterns.DuplicateBlocksRegex.Replace(input, "");
         input = RegexPatterns.EndBlockRegex.Replace(input, "");

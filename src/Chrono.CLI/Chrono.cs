@@ -2,11 +2,13 @@
 using Chrono.Commands;
 using Chrono.Core;
 using Chrono.Core.Helpers;
+using Chrono.Helpers;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using YamlDotNet.Core;
 
 namespace Chrono;
 
@@ -97,7 +99,7 @@ public class BaseCommandSettings : CommandSettings
         var infoGetResult = VersionInfo.Get(IgnoreDirty);
         if (!infoGetResult)
         {
-            Logger.Error(infoGetResult.Message);
+            infoGetResult.PrintFailures();
             return null;
         }
 
@@ -108,4 +110,10 @@ public class BaseCommandSettings : CommandSettings
     }
 
     public string AppVersion => Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version";
+    
+    public void MarkupAndTrace(string message)
+    {
+        AnsiConsole.MarkupLine(message);
+        Logger.Trace(message);
+    }
 }

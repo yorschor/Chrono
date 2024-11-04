@@ -28,17 +28,16 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
         if (versionInfo is null) return settings.GetReturnCode(1);
 
         // 1 Create new branch according to schema without checking out
-        var newBranchNameResult = versionInfo.GetNewBranchName(true);
+        var newBranchNameResult = versionInfo.GetNewBranchNameFromKey(settings.BranchKey);
 
         if (!newBranchNameResult)
         {
             newBranchNameResult.PrintFailures();
             return 1;
         }
-
+       
         var repo = settings.GetRepo().Data;
-        settings.Logger.Trace($"Creating new branch {newBranchNameResult.Data}");
-        AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
+        settings.MarkupAndTrace($"Creating new branch {newBranchNameResult.Data}");
         var branch = repo.Branches.Add(newBranchNameResult.Data, repo.Head.Tip);
 
         // 2 Increment Version on existing branch according to schema
@@ -64,6 +63,8 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 
     public sealed class Settings : CreateSettings
     {
+        [CommandArgument(0, "[BranchKey]")] public string BranchKey { get; set; } = "Default_Release_Config";
+        
         [CommandOption("-c|--commit")] public bool Commit { get; init; } = false;
         
         [CommandArgument(1, "[Commit Message {oldVersion} {newVersion}]")]
@@ -81,12 +82,11 @@ public class CreateTagCommand : Command<CreateTagCommand.Settings>
             var versionInfo = settings.ValidateVersionInfo();
             if (versionInfo is null) return settings.GetReturnCode(1);
 
-            var newTagNameResult = versionInfo.GetNewTagName();
+            var newTagNameResult = versionInfo.ResolveSchema(versionInfo.CurrentBranchConfig.NewTagSchema);
 
             if (!newTagNameResult)
             {
-                newTagNameResult.PrintFailures();
-                AnsiConsole.MarkupLine(newTagNameResult.Message);
+                AnsiConsole.MarkupLine("No tag schema configured. Aborting!");
                 return 1;
             }
 
@@ -118,13 +118,8 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
             if (versionInfo is null) return settings.GetReturnCode(1);
             var repoResult = settings.GetRepo();
             if (!repoResult) return 1;
-
-            if (string.IsNullOrEmpty(settings.BranchKey))
-            {
-                settings.BranchKey = repoResult.Data.Head.FriendlyName;
-            }
-
-            var newBranchNameResult = versionInfo.GetNewBranchNameFromKey(settings.BranchKey);
+            
+            var newBranchNameResult = versionInfo.ResolveSchema(versionInfo.CurrentBranchConfig.NewBranchSchema);
             if (!newBranchNameResult)
             {
                 newBranchNameResult.PrintFailures();
@@ -133,7 +128,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
                 return 1;
             }
             NLogHelper.SetLogLevel(false);
-            AnsiConsole.MarkupLine($"Creating new branch {newBranchNameResult.Data}");
+            settings.MarkupAndTrace($"Creating new branch {newBranchNameResult.Data}");
             repoResult.Data.Branches.Add(newBranchNameResult.Data, repoResult.Data.Head.Tip);
             return 0;
         }
@@ -145,10 +140,7 @@ public class CreateBranchCommand : Command<CreateBranchCommand.Settings>
         }
     }
 
-    public sealed class Settings : CreateSettings
-    {
-        [CommandArgument(0, "[BranchKey]")] public string BranchKey { get; set; }
-    }
+    public sealed class Settings : CreateSettings;
 }
 
 #endregion
