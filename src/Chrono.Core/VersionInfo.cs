@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Chrono.Core.Helpers;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
@@ -46,6 +47,7 @@ public class VersionInfo
     private string _parsedVersion = "";
 
     #endregion
+
     internal VersionInfo(string path, bool allowDirtyRepo = false)
     {
         _versionPath = path;
@@ -57,6 +59,7 @@ public class VersionInfo
             {
                 throw fileResult.Exception;
             }
+
             throw new Exception(fileResult.Message);
         }
 
@@ -77,9 +80,10 @@ public class VersionInfo
             {
                 throw gitRes.Exception;
             }
+
             throw new Exception(gitRes.Message);
         }
-        
+
         SearchBranches = new Dictionary<string, BranchConfig>(File.Branches);
         SearchBranches.Add("Default_Release_Config", File.Default.Release);
 
@@ -90,8 +94,10 @@ public class VersionInfo
             {
                 throw currentBranchResult.Exception;
             }
+
             throw new Exception(currentBranchResult.Message);
         }
+
         CurrentBranchConfig = new BranchConfigWithFallback(File.Default, currentBranchResult.Data);
     }
 
@@ -107,7 +113,7 @@ public class VersionInfo
             return Result.Fail<VersionInfo>("Chrono GitVersioning: No git directory found!");
         }
 
-        var versionFileFoundResult = VersionFile.Find(Directory.GetCurrentDirectory(),
+        var versionFileFoundResult = DirectoryHelper.Find(Directory.GetCurrentDirectory(),
             gitDirectory.Substring(0, gitDirectory.Length - 4));
 
         if (!versionFileFoundResult)
@@ -297,6 +303,7 @@ public class VersionInfo
             return Result.Fail<string>($"Failed to resolve schema: {e.Message}", e);
         }
     }
+
     public Result<string> GetNewBranchNameFromKey(string key)
     {
         if (SearchBranches.TryGetValue(key, out var branchConfig))
@@ -328,6 +335,7 @@ public class VersionInfo
 
         return Result.Fail<string>($"No config for branch {key} found");
     }
+
     #endregion
 
     #region Internal
@@ -342,16 +350,17 @@ public class VersionInfo
                 return Result.Ok(branch.Value);
             }
         }
-    
+
         if (File.Default != null)
         {
             _logger.Trace("No branch could be matched. Using default configuration!");
             return Result.Ok<BranchConfig>(File.Default);
         }
-    
-        return Result.Fail<BranchConfig>("Something went wrong while trying to get current branch config. (No branch matches | No valid default config found)");
+
+        return Result.Fail<BranchConfig>(
+            "Something went wrong while trying to get current branch config. (No branch matches | No valid default config found)");
     }
-    
+
     #region ParsingMethods
 
     private string ParseSchema(string schema)
