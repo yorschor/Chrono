@@ -1,11 +1,9 @@
 using System.Net.Http;
-using System.Text;
-using System.Text.RegularExpressions;
+using Chrono.Core.Helpers;
 using Huxy;
 using NLog;
 using Nuke.Common.IO;
 using YamlDotNet.Core;
-using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -67,7 +65,7 @@ public class VersionFile
                     return parseResult;
                 }
 
-                finalYamlContent = MergeYamlContent(inheritedYamlContent, mainYamlContent);
+                finalYamlContent = YamlHelper.MergeYamlContent(inheritedYamlContent, mainYamlContent);
             }
             else if (!inheritedYamlContentResult)
             {
@@ -105,42 +103,6 @@ public class VersionFile
         catch (Exception ex)
         {
             return Result.Fail<string>($"Failed to fetch version file from {uri} to inherit from: {ex.Message}");
-        }
-    }
-
-    internal static string MergeYamlContent(string baseYaml, string overrideYaml)
-    {
-        var deserializer = new DeserializerBuilder().Build();
-        var serializer = new SerializerBuilder().Build();
-
-        // Deserialize the base and override YAML strings into dynamic objects
-        var baseYamlObject = deserializer.Deserialize(new StringReader(baseYaml));
-        var overrideYamlObject = deserializer.Deserialize(new StringReader(overrideYaml));
-
-        var mergedYamlObject = MergeYamlObjects(baseYamlObject, overrideYamlObject);
-        var writer = new StringWriter();
-        serializer.Serialize(writer, mergedYamlObject);
-        return writer.ToString();
-    }
-
-    private static object MergeYamlObjects(object baseObj, object overrideObj)
-    {
-        switch (baseObj)
-        {
-            case IDictionary<object, object> baseDict when overrideObj is IDictionary<object, object> overrideDict:
-            {
-                foreach (var key in overrideDict.Keys)
-                {
-                    var baseValue = baseDict.ContainsKey(key) ? baseDict[key] : null;
-                    baseDict[key] = MergeYamlObjects(baseValue, overrideDict[key]);
-                }
-
-                return baseDict;
-            }
-            case IList<object> when overrideObj is IList<object> overrideList:
-                return overrideList;
-            default:
-                return overrideObj ?? baseObj;
         }
     }
 
@@ -335,10 +297,13 @@ public class BranchConfig
 {
     [YamlMember(Alias = "match")] public List<string> Match { get; set; }
     [YamlMember(Alias = "versionSchema")] public string VersionSchema { get; set; }
-    [YamlMember(Alias = "newBranchSchema")] public string NewBranchSchema { get; set; }
+
+    [YamlMember(Alias = "newBranchSchema")]
+    public string NewBranchSchema { get; set; }
+
     [YamlMember(Alias = "newTagSchema")] public string NewTagSchema { get; set; }
     [YamlMember(Alias = "precision")] public VersionComponent? Precision { get; set; }
-    [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; } 
+    [YamlMember(Alias = "prereleaseTag")] public string PrereleaseTag { get; set; }
 }
 
 public class BranchConfigWithFallback(BranchConfig defaultConfig, BranchConfig specificConfig)
