@@ -138,31 +138,6 @@ public class VersionFile
 
 
     /// <summary>
-    /// Saves the current instance to the specified path.
-    /// </summary>
-    /// <param name="path">The path where the file will be saved.</param>
-    /// <returns>A <see cref="Result"/> indicating success or failure.</returns>
-    [Obsolete("Use UpdateVersionInFile instead")]
-    public Result Save(string path)
-    {
-        try
-        {
-            var serializer = new SerializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
-
-            var yamlContent = serializer.Serialize(this);
-            File.WriteAllText(path, yamlContent);
-
-            return Result.Ok();
-        }
-        catch (Exception ex)
-        {
-            return Result.Fail(ex.Message);
-        }
-    }
-
-    /// <summary>
     /// Finds the specified target file within the directory hierarchy.
     /// </summary>
     /// <param name="startDirectory">The starting directory for the search.</param>
