@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using Huxy;
-
 namespace Chrono.Core.Test
 {
     public class VersionInfoTest
@@ -145,8 +142,8 @@ namespace Chrono.Core.Test
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
             versionInfo.GitInfo.BranchName = "aBranchWithAName";
-            var result = versionInfo.ResolveSchema (versionInfo.CurrentBranchConfig.NewBranchSchema);
-            
+            var result = versionInfo.ResolveSchema(versionInfo.CurrentBranchConfig.NewBranchSchema);
+
             Assert.True(result);
             Assert.False(string.IsNullOrEmpty(result.Data));
             Assert.Equal("aBranchWithANameschema", result.Data);

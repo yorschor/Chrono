@@ -37,30 +37,27 @@ public class CoreTestHelper : IDisposable
     #region Internals
 
     private static string GetDefaultVersionFileContent() => """
-                                                            ---
-                                                            version:
-                                                              1.0.0
+                                                            version: 1.0.0
                                                             default:
-                                                              versionSchema: '{major}.{minor}.{patch}[-]{branch}[.]{commitShortHash}'
-                                                              precision: minor
-                                                              newTagSchema: 'v{major}.{minor}.{patch}'
-                                                              prereleaseTag: local
-                                                              release:
-                                                                match:
-                                                                  - ^v.*
-                                                                newBranchSchema: 'release/v{major}.{minor}.{patch}'
-                                                                versionSchema: '{major}.{minor}.{patch}'
-                                                                precision: minor
-                                                                prereleaseTag:
+                                                                dirtyRepo: dirty-repo
+                                                                versionSchema: '{major}.{minor}.{patch}[-]{branch}[.]{commitShortHash}'
+                                                                prereleaseTag: local
+                                                                precision: Minor
+                                                                release:
+                                                                    match:
+                                                                        - tag::^v.*
+                                                                    newTagSchema: 'v{major}.{minor}.{patch}'
+                                                                    versionSchema: '{major}.{minor}.{patch}'
+                                                                    newBranchSchema: release/v{major}.{minor}
                                                             branches:
-                                                              release:
-                                                                match:
-                                                                  - ^release/v.*
-                                                                newBranchSchema: 'release/v{major}.{minor}.{patch}'
-                                                                versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{commitShortHash}'
-                                                                precision: patch
-                                                                newTagSchema: 'v{major}.{minor}.{patch}'
-                                                                prereleaseTag: rc
+                                                                branchRelease:
+                                                                    match:
+                                                                        - ^release/.*
+                                                                    versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}-{commitShortHash}'
+                                                                    newBranchSchema: 'release/v{major}.{minor}.{patch}'
+                                                                    newTagSchema: v{major}.{minor}.{patch}
+                                                                    precision: Patch
+                                                                    prereleaseTag: rc
                                                             """;
 
     private static string CreateTempDirectory()
