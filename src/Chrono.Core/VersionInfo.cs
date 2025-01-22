@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Chrono.Core.GitInfo;
 using Chrono.Core.Helpers;
 using Huxy;
 using LibGit2Sharp;
@@ -34,7 +35,7 @@ public class VersionInfo
 
     public VersionFile File { get; }
 
-    public GitInfo GitInfo { get; private set; } = new();
+    public IGitInfoProvider GitInfoProvider { get; internal set; }
     public BranchConfigWithFallback CurrentBranchConfig { get; private set; }
 
     #endregion
@@ -72,8 +73,8 @@ public class VersionInfo
             Build = version.Revision;
         }
 
-
-        var gitRes = GitInfo.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
+        GitInfoProvider = GitInfo.GitInfo.Get();
+        var gitRes = GitInfoProvider.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
         if (!gitRes)
         {
             if (gitRes.Exception is not null)
@@ -370,9 +371,9 @@ public class VersionInfo
             .Replace("{minor}", Minor.ToString())
             .Replace("{patch}", Patch.ToString())
             .Replace("{build}", Build.ToString())
-            .Replace("{branch}", GitInfo.BranchName)
+            .Replace("{branch}", GitInfoProvider.BranchName)
             .Replace("{prereleaseTag}", CurrentBranchConfig.PrereleaseTag)
-            .Replace("{commitShortHash}", GitInfo.CommitShortHash);
+            .Replace("{commitShortHash}", GitInfoProvider.CommitShortHash);
         schemaWithValues = ResolveEnvironmentVariables(schemaWithValues);
         return ResolveDelimiterBlock(schemaWithValues);
     }
@@ -410,9 +411,9 @@ public class VersionInfo
 
     private bool MatchRefsToConfig(BranchConfig config)
     {
-        var gitRef = !string.IsNullOrEmpty(GitInfo.TagName)
-            ? GitInfo.TagName
-            : GitInfo.BranchName;
+        var gitRef = !string.IsNullOrEmpty(GitInfoProvider.TagName)
+            ? GitInfoProvider.TagName
+            : GitInfoProvider.BranchName;
 
         if (config is null || !config.Match.Any()) return false;
         foreach (var matchSchema in config.Match)

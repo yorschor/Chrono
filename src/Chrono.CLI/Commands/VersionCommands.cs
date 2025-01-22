@@ -40,9 +40,9 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
             tree.AddNode($"Patch: {versionInfo.Patch}");
             tree.AddNode($"Build: {versionInfo.Build}");
             tree.AddNode($"PrereleaseTag: {versionInfo.CurrentBranchConfig.PrereleaseTag}");
-            tree.AddNode($"CommitShortHash: {versionInfo.GitInfo.CommitShortHash}");
-            tree.AddNode($"BranchName: {versionInfo.GitInfo.BranchName}");
-            tree.AddNode("Tags").AddNodes(versionInfo.GitInfo.TagNames);
+            tree.AddNode($"CommitShortHash: {versionInfo.GitInfoProvider.CommitShortHash}");
+            tree.AddNode($"BranchName: {versionInfo.GitInfoProvider.BranchName}");
+            // tree.AddNode("Tags").AddNodes(versionInfo.GitInfoProvider.TagNames);
             AnsiConsole.Write(tree);
         }
 
