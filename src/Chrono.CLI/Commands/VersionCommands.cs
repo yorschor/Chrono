@@ -24,7 +24,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
     public override int Execute(CommandContext context, Settings settings)
     {
         NLogHelper.SetLogLevel(settings.Trace);
-        var versionInfoResult = VersionInfo.Get(settings.IgnoreDirty);
+        var versionInfoResult = VersionInfo.Get(settings.IgnoreDirty, settings.UseEnvVars);
         if (!versionInfoResult)
         {
             versionInfoResult.PrintFailures();
@@ -61,6 +61,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
     public sealed class Settings : VersionSettings
     {
         [CommandOption("-n|--numeric")] public bool Numeric { get; init; } = false;
+        [CommandOption("-e|--useEnvVars")] public bool UseEnvVars { get; init; } = false;
     }
 }
 

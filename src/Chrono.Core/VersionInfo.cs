@@ -49,7 +49,7 @@ public class VersionInfo
 
     #endregion
 
-    internal VersionInfo(string path, bool allowDirtyRepo = false)
+    internal VersionInfo(string path, bool allowDirtyRepo = false, bool useEnvVars = false)
     {
         _versionPath = path;
 
@@ -73,7 +73,8 @@ public class VersionInfo
             Build = version.Revision;
         }
 
-        GitInfoProvider = GitInfo.GitInfo.Get();
+        GitInfoProvider = useEnvVars ? GitInfo.GitInfo.Get() : new GitRepoProvider();
+        
         var gitRes = GitInfoProvider.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
         if (!gitRes)
         {
@@ -106,7 +107,7 @@ public class VersionInfo
     /// A catch-all method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
     /// </summary>
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
-    public static Result<VersionInfo> Get(bool allowDirtyRepo = false)
+    public static Result<VersionInfo> Get(bool allowDirtyRepo = false, bool useEnvVars = false)
     {
         var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
         if (string.IsNullOrEmpty(gitDirectory))
@@ -124,7 +125,7 @@ public class VersionInfo
 
         try
         {
-            return Result.Ok(new VersionInfo(versionFileFoundResult.Data, allowDirtyRepo));
+            return Result.Ok(new VersionInfo(versionFileFoundResult.Data, allowDirtyRepo, useEnvVars));
         }
         catch (Exception e)
         {
