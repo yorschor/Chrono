@@ -61,7 +61,7 @@ default:
 IMPORTANT: The tag statements are evaluated only if the git repo is in a detached head state.
 
 
-Using a combination of both branch and tag matching is possible if needed. Beware that once matched a branch config doesn't differentiates if it's a branch or a tag. So in order to only match a tag you need to use the "**\tag::**" prefix without a normal branch match.
+Using a combination of both branch and tag matching is possible if needed. Beware that once matched a branch config doesn't differentiate if it's a branch or a tag. So in order to only match a tag you need to use the "**\tag::**" prefix without a normal branch match.
 
 .Example:
 

@@ -1,5 +1,6 @@
 ﻿using Chrono.Core;
 using Microsoft.Build.Framework;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Chrono.DotnetTasks;
 

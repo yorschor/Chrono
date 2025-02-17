@@ -7,7 +7,13 @@
             GenerateNuspec;
             _GenerateRestoreProjectSpec;
             _GetOutputItemsFromPack;
-            EnsureWixToolsetInstalled
+            EnsureWixToolsetInstalled;
+            Restore;
+            _GenerateRestoreGraph;
+            CollectPackageReferences;
+            _PackAsBuildAfterTarget;
+            Pack;
+            GenerateNuspec
         </ChronoTargetsBefore>
         <MarkupCompilePass1DependsOn>$(MarkupCompilePass1DependsOn);StampVersions</MarkupCompilePass1DependsOn>
         <GetPackageVersionDependsOn>$(GetPackageVersionDependsOn);StampVersions</GetPackageVersionDependsOn>

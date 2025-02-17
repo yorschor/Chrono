@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using Chrono.Core.GitInfo;
 using Huxy;
 
 namespace Chrono.Core.Test
@@ -40,12 +40,25 @@ namespace Chrono.Core.Test
 
                                                   """;
 
+        internal class MockGitInfoProvider : IGitInfoProvider
+        {
+            public string BranchName { get; set; } = "trunk";
+
+            public string TagName => "";
+            public string CommitShortHash => "0000000";
+
+            public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
+        }
+
         private static VersionInfo CreateVersionInfoInstance(string yamlContent, bool allowDirtyRepo = true)
         {
             var tempFilePath = Path.GetTempFileName();
             File.WriteAllText(tempFilePath, yamlContent);
 
-            return new VersionInfo(tempFilePath, allowDirtyRepo);
+            return new VersionInfo(tempFilePath, allowDirtyRepo)
+            {
+                GitInfoProvider = new MockGitInfoProvider()
+            };
         }
 
         [Fact]
@@ -144,9 +157,9 @@ namespace Chrono.Core.Test
         public void GetNewBranchName_ValidBranch_ReturnsNewBranchName()
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
-            versionInfo.GitInfo.BranchName = "aBranchWithAName";
-            var result = versionInfo.ResolveSchema (versionInfo.CurrentBranchConfig.NewBranchSchema);
-            
+            ((MockGitInfoProvider)versionInfo.GitInfoProvider).BranchName = "aBranchWithAName";
+            var result = versionInfo.ResolveSchema(versionInfo.CurrentBranchConfig.NewBranchSchema);
+
             Assert.True(result);
             Assert.False(string.IsNullOrEmpty(result.Data));
             Assert.Equal("aBranchWithANameschema", result.Data);
@@ -157,7 +170,7 @@ namespace Chrono.Core.Test
         {
             var versionInfo = CreateVersionInfoInstance(TestYamlContent);
             // Set to some branch
-            versionInfo.GitInfo.BranchName = "relaese/Test";
+            ((MockGitInfoProvider)versionInfo.GitInfoProvider).BranchName = "relaese/Test";
             var result = versionInfo.GetNewBranchNameFromKey("main");
 
             Assert.True(result.Success);
@@ -176,7 +189,7 @@ namespace Chrono.Core.Test
             Assert.True(result);
             Assert.False(string.IsNullOrEmpty(result.Data));
 
-            Assert.Equal($"specificTagSchema-{versionInfo.GitInfo.BranchName}", result.Data);
+            Assert.Equal($"specificTagSchema-{versionInfo.GitInfoProvider.BranchName}", result.Data);
         }
 
         [Theory]

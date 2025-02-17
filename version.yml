@@ -9,7 +9,7 @@ default:
             - tag::^v.*
         versionSchema: '{major}.{minor}.{patch}'
         newBranchSchema: release/v{major}.{minor}
-branches:      
+branches:
     branchRelease:
         match:
             - ^release/.*
