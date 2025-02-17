@@ -68,12 +68,12 @@ NOTE: The build component is only available if the version.yml file contains a b
 
 == The "Tag" command
 
-The tag command creates a new tag in the git repo according to *current* branch config present. 
+The tag command creates a new tag in the git repo according to the *_current_* branch config present. 
 
 == The "Branch" command
 
-The branch command creates a new branch in the git repo according to *current* branch config present. 
+The branch command creates a new branch in the git repo according to *_current_* branch config present. 
 
 == The "Release" command
 
-The release command creates a new branch in the git repo according to *target* branch config specified.
+The release command creates a new branch in the git repo according to *_target_* branch config specified.

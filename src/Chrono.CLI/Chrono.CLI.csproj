@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackAsTool>true</PackAsTool>
@@ -14,7 +14,7 @@
         <Authors>Ekkehard C. Damisch</Authors>
         <Copyright>Ekkehard C. Damisch</Copyright>
         <PackageProjectUrl>https://github.com/yorschor/Chrono</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/yorschor/Chrono?tab=MIT-1-ov-file</PackageLicenseUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>git version dotnet msbuild</PackageTags>
         <RootNamespace>Chrono</RootNamespace>
         <PackageIcon>icon.png</PackageIcon>

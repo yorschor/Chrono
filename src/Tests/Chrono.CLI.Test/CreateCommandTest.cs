@@ -47,7 +47,7 @@ namespace Chrono.CLI.Test
             var initialHash = repo.Head.Tip.Sha;
 
             // Run the command
-            _app.RunAndAssert(["branch", "release"], "Creating new branch release/v1.0.0");
+            _app.RunAndAssert(["branch"], "Creating new branch release/v1.0.0");
 
             // Check branch creation
             var newBranch = repo.Branches["release/v1.0.0"];

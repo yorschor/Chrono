@@ -8,7 +8,6 @@ using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Utilities.Collections;
 using Serilog;
 
 [GitHubActions(
@@ -20,6 +19,7 @@ using Serilog;
     "tagPush",
     GitHubActionsImage.UbuntuLatest,
     OnPushTags = ["v*"],
+    FetchDepth = 0,
     ImportSecrets = [nameof(NuGetApiKey)],
     InvokedTargets = [nameof(PushNugetPackage)])]
 class Build : NukeBuild

@@ -17,7 +17,7 @@ public class CliTestHelper : CoreTestHelper
         _fixture = new CommandAppTester();
         _fixture.Configure(Chrono.GetAppConfigurator());
     }
-    
+
     #endregion
 
     public void RunAndAssert(string[] command, string expectedOutput)
@@ -34,11 +34,11 @@ public class CliTestHelper : CoreTestHelper
         Debug.WriteLine($"Match: {string.Join(" ", command)} -> <{expectedOutput}>");
     }
 
-    public void CommitVersion(Repository repo, string message ="")
+    public void CommitVersion(Repository repo, string message = "")
     {
         repo.Index.Add("version.yml");
         repo.Index.Write();
-        repo.Commit(string.IsNullOrEmpty(message) ? "Set version to 5.6.4" : message, new Signature("Test User", "test@example.com", DateTimeOffset.Now), new Signature("Test User", "test@example.com", DateTimeOffset.Now));
-
+        repo.Commit(string.IsNullOrEmpty(message) ? "Set version to 5.6.4" : message,
+            new Signature("Test User", "test@example.com", DateTimeOffset.Now), new Signature("Test User", "test@example.com", DateTimeOffset.Now));
     }
 }

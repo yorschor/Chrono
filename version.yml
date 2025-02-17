@@ -9,8 +9,8 @@ default:
             - tag::^v.*
         versionSchema: '{major}.{minor}.{patch}'
         newBranchSchema: release/v{major}.{minor}
-branches:      
-    release:
+branches:
+    branchRelease:
         match:
             - ^release/.*
         versionSchema: '{major}.{minor}.{patch}-{prereleaseTag}[.]{build}'

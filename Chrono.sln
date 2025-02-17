@@ -1,38 +1,39 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.CLI", "src\Chrono.CLI\Chrono.CLI.csproj", "{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.CLI", "src\Chrono.CLI\Chrono.CLI.csproj", "{2C9230C9-633F-8490-06C1-FD0D23F7C4B8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{CDAA9ADB-B99C-4867-B58A-BA684B2BF535}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core", "src\Chrono.Core\Chrono.Core.csproj", "{E2667C08-97EC-1655-3CA3-67DC80752E94}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.DotnetTasks", "src\Chrono.DotnetTasks\Chrono.DotnetTasks.csproj", "{91C7D062-26EF-F1AB-4B3B-10540490A437}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{089100B1-113F-4E66-888A-E83F3999EAFD}"
 	ProjectSection(SolutionItems) = preProject
 		README.adoc = README.adoc
 		src\Directory.Packages.props = src\Directory.Packages.props
 		version.yml = version.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core", "src\Chrono.Core\Chrono.Core.csproj", "{7FA73852-E229-44E2-87F4-F4668E33BB14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "build\_build.csproj", "{4056BD12-5FA8-4D2E-274A-7E85E858A5FC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docu", "Docu", "{16D3B882-21CD-41B1-8705-1519152B7A62}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docu", "Docu", "{758911F2-27F5-C282-7164-147C44362DBD}"
 	ProjectSection(SolutionItems) = preProject
 		doc\Version.adoc = doc\Version.adoc
 		doc\DotnetVersioning.adoc = doc\DotnetVersioning.adoc
+		doc\dsyitf.adoc = doc\dsyitf.adoc
+		doc\CLI.adoc = doc\CLI.adoc
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{6734EC58-E93A-4DBB-892D-B52BA5FA30D8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.DotnetTasks", "src\Chrono.DotnetTasks\Chrono.DotnetTasks.csproj", "{E1E372B7-BCBF-456C-AA45-ED8EED75A960}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{37F6F95A-3DE3-4128-9286-4D0C822518AD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core.Test", "src\Tests\Chrono.Core.Test\Chrono.Core.Test.csproj", "{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.CLI.Test", "src\Tests\Chrono.CLI.Test\Chrono.CLI.Test.csproj", "{938B82BE-83FB-4354-B984-4B83633DFB6C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReferenceConfigs", "ReferenceConfigs", "{1D73FC45-5798-49AF-9B9F-3D9F06B4F126}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReferenceConfigs", "ReferenceConfigs", "{E210DC3F-B725-9B67-E951-3E81E2B7F700}"
 	ProjectSection(SolutionItems) = preProject
-		doc\examples\v1.yml = doc\examples\v1.yml
 		doc\examples\minimal.yml = doc\examples\minimal.yml
 		doc\examples\sensibleDefault.yml = doc\examples\sensibleDefault.yml
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.CLI.Test", "src\Tests\Chrono.CLI.Test\Chrono.CLI.Test.csproj", "{68F69DCD-59CB-8AA4-0860-46AAC3F44C64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrono.Core.Test", "src\Tests\Chrono.Core.Test\Chrono.Core.Test.csproj", "{D02FF7A1-7DCB-32C1-5AAB-5DFF1E0C9F1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,34 +41,33 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6734EC58-E93A-4DBB-892D-B52BA5FA30D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6734EC58-E93A-4DBB-892D-B52BA5FA30D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E3B7CBF-C02A-42EB-8440-3522A64A6E03}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7FA73852-E229-44E2-87F4-F4668E33BB14}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E1E372B7-BCBF-456C-AA45-ED8EED75A960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E1E372B7-BCBF-456C-AA45-ED8EED75A960}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E1E372B7-BCBF-456C-AA45-ED8EED75A960}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E1E372B7-BCBF-456C-AA45-ED8EED75A960}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{938B82BE-83FB-4354-B984-4B83633DFB6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{938B82BE-83FB-4354-B984-4B83633DFB6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{938B82BE-83FB-4354-B984-4B83633DFB6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{938B82BE-83FB-4354-B984-4B83633DFB6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C9230C9-633F-8490-06C1-FD0D23F7C4B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C9230C9-633F-8490-06C1-FD0D23F7C4B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C9230C9-633F-8490-06C1-FD0D23F7C4B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C9230C9-633F-8490-06C1-FD0D23F7C4B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2667C08-97EC-1655-3CA3-67DC80752E94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2667C08-97EC-1655-3CA3-67DC80752E94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2667C08-97EC-1655-3CA3-67DC80752E94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2667C08-97EC-1655-3CA3-67DC80752E94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91C7D062-26EF-F1AB-4B3B-10540490A437}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91C7D062-26EF-F1AB-4B3B-10540490A437}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91C7D062-26EF-F1AB-4B3B-10540490A437}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91C7D062-26EF-F1AB-4B3B-10540490A437}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4056BD12-5FA8-4D2E-274A-7E85E858A5FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4056BD12-5FA8-4D2E-274A-7E85E858A5FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68F69DCD-59CB-8AA4-0860-46AAC3F44C64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68F69DCD-59CB-8AA4-0860-46AAC3F44C64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68F69DCD-59CB-8AA4-0860-46AAC3F44C64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68F69DCD-59CB-8AA4-0860-46AAC3F44C64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D02FF7A1-7DCB-32C1-5AAB-5DFF1E0C9F1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D02FF7A1-7DCB-32C1-5AAB-5DFF1E0C9F1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D02FF7A1-7DCB-32C1-5AAB-5DFF1E0C9F1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D02FF7A1-7DCB-32C1-5AAB-5DFF1E0C9F1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{16D3B882-21CD-41B1-8705-1519152B7A62} = {CDAA9ADB-B99C-4867-B58A-BA684B2BF535}
-		{6734EC58-E93A-4DBB-892D-B52BA5FA30D8} = {CDAA9ADB-B99C-4867-B58A-BA684B2BF535}
-		{F2AB89B5-C6A3-4C0C-9C8B-3CE4DF0D84B0} = {37F6F95A-3DE3-4128-9286-4D0C822518AD}
-		{938B82BE-83FB-4354-B984-4B83633DFB6C} = {37F6F95A-3DE3-4128-9286-4D0C822518AD}
-		{1D73FC45-5798-49AF-9B9F-3D9F06B4F126} = {16D3B882-21CD-41B1-8705-1519152B7A62}
+		{4056BD12-5FA8-4D2E-274A-7E85E858A5FC} = {089100B1-113F-4E66-888A-E83F3999EAFD}
+		{E210DC3F-B725-9B67-E951-3E81E2B7F700} = {758911F2-27F5-C282-7164-147C44362DBD}
+		{68F69DCD-59CB-8AA4-0860-46AAC3F44C64} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{D02FF7A1-7DCB-32C1-5AAB-5DFF1E0C9F1A} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

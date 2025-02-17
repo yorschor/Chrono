@@ -1,4 +1,6 @@
 using System.Text.RegularExpressions;
+using Chrono.Core.GitInfo;
+using Chrono.Core.Helpers;
 using Huxy;
 using LibGit2Sharp;
 using NLog;
@@ -33,7 +35,7 @@ public class VersionInfo
 
     public VersionFile File { get; }
 
-    public GitInfo GitInfo { get; private set; } = new();
+    public IGitInfoProvider GitInfoProvider { get; internal set; }
     public BranchConfigWithFallback CurrentBranchConfig { get; private set; }
 
     #endregion
@@ -46,7 +48,8 @@ public class VersionInfo
     private string _parsedVersion = "";
 
     #endregion
-    internal VersionInfo(string path, bool allowDirtyRepo = false)
+
+    internal VersionInfo(string path, bool allowDirtyRepo = false, bool useEnvVars = false)
     {
         _versionPath = path;
 
@@ -57,6 +60,7 @@ public class VersionInfo
             {
                 throw fileResult.Exception;
             }
+
             throw new Exception(fileResult.Message);
         }
 
@@ -69,17 +73,19 @@ public class VersionInfo
             Build = version.Revision;
         }
 
-
-        var gitRes = GitInfo.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
+        GitInfoProvider = useEnvVars ? GitInfo.GitInfo.Get() : new GitRepoProvider();
+        
+        var gitRes = GitInfoProvider.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
         if (!gitRes)
         {
             if (gitRes.Exception is not null)
             {
                 throw gitRes.Exception;
             }
+
             throw new Exception(gitRes.Message);
         }
-        
+
         SearchBranches = new Dictionary<string, BranchConfig>(File.Branches);
         SearchBranches.Add("Default_Release_Config", File.Default.Release);
 
@@ -90,8 +96,10 @@ public class VersionInfo
             {
                 throw currentBranchResult.Exception;
             }
+
             throw new Exception(currentBranchResult.Message);
         }
+
         CurrentBranchConfig = new BranchConfigWithFallback(File.Default, currentBranchResult.Data);
     }
 
@@ -99,7 +107,7 @@ public class VersionInfo
     /// A catch-all method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
     /// </summary>
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
-    public static Result<VersionInfo> Get(bool allowDirtyRepo = false)
+    public static Result<VersionInfo> Get(bool allowDirtyRepo = false, bool useEnvVars = false)
     {
         var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
         if (string.IsNullOrEmpty(gitDirectory))
@@ -107,7 +115,7 @@ public class VersionInfo
             return Result.Fail<VersionInfo>("Chrono GitVersioning: No git directory found!");
         }
 
-        var versionFileFoundResult = VersionFile.Find(Directory.GetCurrentDirectory(),
+        var versionFileFoundResult = DirectoryHelper.Find(Directory.GetCurrentDirectory(),
             gitDirectory.Substring(0, gitDirectory.Length - 4));
 
         if (!versionFileFoundResult)
@@ -117,7 +125,7 @@ public class VersionInfo
 
         try
         {
-            return Result.Ok(new VersionInfo(versionFileFoundResult.Data, allowDirtyRepo));
+            return Result.Ok(new VersionInfo(versionFileFoundResult.Data, allowDirtyRepo, useEnvVars));
         }
         catch (Exception e)
         {
@@ -297,6 +305,7 @@ public class VersionInfo
             return Result.Fail<string>($"Failed to resolve schema: {e.Message}", e);
         }
     }
+
     public Result<string> GetNewBranchNameFromKey(string key)
     {
         if (SearchBranches.TryGetValue(key, out var branchConfig))
@@ -328,6 +337,7 @@ public class VersionInfo
 
         return Result.Fail<string>($"No config for branch {key} found");
     }
+
     #endregion
 
     #region Internal
@@ -342,16 +352,17 @@ public class VersionInfo
                 return Result.Ok(branch.Value);
             }
         }
-    
+
         if (File.Default != null)
         {
             _logger.Trace("No branch could be matched. Using default configuration!");
             return Result.Ok<BranchConfig>(File.Default);
         }
-    
-        return Result.Fail<BranchConfig>("Something went wrong while trying to get current branch config. (No branch matches | No valid default config found)");
+
+        return Result.Fail<BranchConfig>(
+            "Something went wrong while trying to get current branch config. (No branch matches | No valid default config found)");
     }
-    
+
     #region ParsingMethods
 
     private string ParseSchema(string schema)
@@ -361,9 +372,9 @@ public class VersionInfo
             .Replace("{minor}", Minor.ToString())
             .Replace("{patch}", Patch.ToString())
             .Replace("{build}", Build.ToString())
-            .Replace("{branch}", GitInfo.BranchName)
+            .Replace("{branch}", GitInfoProvider.BranchName)
             .Replace("{prereleaseTag}", CurrentBranchConfig.PrereleaseTag)
-            .Replace("{commitShortHash}", GitInfo.CommitShortHash);
+            .Replace("{commitShortHash}", GitInfoProvider.CommitShortHash);
         schemaWithValues = ResolveEnvironmentVariables(schemaWithValues);
         return ResolveDelimiterBlock(schemaWithValues);
     }
@@ -401,9 +412,9 @@ public class VersionInfo
 
     private bool MatchRefsToConfig(BranchConfig config)
     {
-        var gitRef = !string.IsNullOrEmpty(GitInfo.TagName)
-            ? GitInfo.TagName
-            : GitInfo.BranchName;
+        var gitRef = !string.IsNullOrEmpty(GitInfoProvider.TagName)
+            ? GitInfoProvider.TagName
+            : GitInfoProvider.BranchName;
 
         if (config is null || !config.Match.Any()) return false;
         foreach (var matchSchema in config.Match)

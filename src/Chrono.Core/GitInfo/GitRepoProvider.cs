@@ -2,15 +2,15 @@ using Huxy;
 using LibGit2Sharp;
 using NLog;
 
-namespace Chrono.Core;
+namespace Chrono.Core.GitInfo;
 
-public class GitInfo
+public class GitRepoProvider : IGitInfoProvider
 {
     public Repository Repo { get; private set; }
-    public string BranchName { get; internal set; }
-    public string[] TagNames { get; internal set; }
-    public string TagName { get; internal set; }
-    public string CommitShortHash { get; private set; }
+    public string[] TagNames { get;  set; }
+    public string BranchName { get;  set; }
+    public string TagName { get;  set; }
+    public string CommitShortHash { get; set; }
 
     private bool _isInDetachedHead;
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
