@@ -45,6 +45,8 @@ namespace Chrono.Core.Test
             public string BranchName { get; set; } = "trunk";
 
             public string TagName => "";
+            
+            public string CommitHash => "000000000000000";
             public string CommitShortHash => "0000000";
 
             public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();

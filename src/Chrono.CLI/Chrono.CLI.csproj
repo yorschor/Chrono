@@ -2,14 +2,14 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackAsTool>true</PackAsTool>
+        <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
         <ToolCommandName>chrono</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-        
+
         <PackageId>Chrono.CLI</PackageId>
         <Authors>Ekkehard C. Damisch</Authors>
         <Copyright>Ekkehard C. Damisch</Copyright>
@@ -21,21 +21,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="LibGit2Sharp" />
-      <PackageReference Include="Spectre.Console" />
-      <PackageReference Include="Spectre.Console.Cli" />
+        <PackageReference Include="LibGit2Sharp"/>
+        <PackageReference Include="Spectre.Console"/>
+        <PackageReference Include="Spectre.Console.Cli"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Chrono.Core\Chrono.Core.csproj" />
+        <ProjectReference Include="..\Chrono.Core\Chrono.Core.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="..\..\icon.png">
-        <Pack>True</Pack>
-        <PackagePath></PackagePath>
-        <Link>icon.png</Link>
-      </None>
+        <None Include="..\..\icon.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+            <Link>icon.png</Link>
+        </None>
+        <None Include="README.md">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
     </ItemGroup>
 
 </Project>

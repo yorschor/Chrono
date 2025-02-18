@@ -10,6 +10,8 @@ public class GitRepoProvider : IGitInfoProvider
     public string[] TagNames { get;  set; }
     public string BranchName { get;  set; }
     public string TagName { get;  set; }
+    
+    public string CommitHash { get; set; }
     public string CommitShortHash { get; set; }
 
     private bool _isInDetachedHead;
@@ -33,10 +35,13 @@ public class GitRepoProvider : IGitInfoProvider
 
         var branchName = Repo.Head.FriendlyName;
         // Get the short commit hash (7 characters)
-        var shortCommitHash = Repo.Head.Tip.Sha.Substring(0, 7);
+        var commitHash = Repo.Head.Tip.Sha;
+        var shortCommitHash = commitHash.Substring(0, 7);
 
         BranchName = branchName;
-        // CommitShortHash = shortCommitHash;
+        CommitHash = Repo.RetrieveStatus(new StatusOptions()).IsDirty && !allowDirtyRepo
+            ? dirtyRepoPlaceholder
+            : commitHash;
         CommitShortHash = Repo.RetrieveStatus(new StatusOptions()).IsDirty && !allowDirtyRepo
             ? dirtyRepoPlaceholder
             : shortCommitHash;
