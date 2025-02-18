@@ -17,6 +17,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>git version dotnet msbuild</PackageTags>
         <RootNamespace>Chrono</RootNamespace>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
@@ -31,15 +32,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\icon.png">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-            <Link>icon.png</Link>
-        </None>
-        <None Include="README.md">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
+        <None Include="..\..\icon.png" Pack="true" PackagePath="\"/>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
 </Project>
