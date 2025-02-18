@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using Chrono.Core;
-using Huxy;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.IO;
@@ -10,18 +9,13 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
 using Serilog;
 
+namespace _build;
+
 [GitHubActions(
     "continuous",
     GitHubActionsImage.UbuntuLatest,
     On = [GitHubActionsTrigger.Push],
     InvokedTargets = [nameof(Compile)])]
-[GitHubActions(
-    "tagPush",
-    GitHubActionsImage.UbuntuLatest,
-    OnPushTags = ["v*"],
-    FetchDepth = 0,
-    ImportSecrets = [nameof(NuGetApiKey)],
-    InvokedTargets = [nameof(PushNugetPackage)])]
 class Build : NukeBuild
 {
     public static int Main() => Execute<Build>(x => x.Compile);
@@ -137,13 +131,13 @@ class Build : NukeBuild
         if (File.Exists(configFilePath))
         {
             var content = File.ReadAllText(configFilePath);
-                const string pattern = @"runtimes/(?<platform>[^/]+)/native/(?<filename>[^""]+)";
-                const string replacement = @"../MSBuildFull/lib/${platform}/${filename}";
-                content = Regex.Replace(content, pattern, replacement);
+            const string pattern = @"runtimes/(?<platform>[^/]+)/native/(?<filename>[^""]+)";
+            const string replacement = @"../MSBuildFull/lib/${platform}/${filename}";
+            content = Regex.Replace(content, pattern, replacement);
 
-                content = content.Replace("../MSBuildFull/lib/win-arm64/", "../MSBuildFull/lib/win32/arm64/");
-                content = content.Replace("../MSBuildFull/lib/win-x64/", "../MSBuildFull/lib/win32/x64/");
-                content = content.Replace("../MSBuildFull/lib/win-x86/", "../MSBuildFull/lib/win32/x86/");
+            content = content.Replace("../MSBuildFull/lib/win-arm64/", "../MSBuildFull/lib/win32/arm64/");
+            content = content.Replace("../MSBuildFull/lib/win-x64/", "../MSBuildFull/lib/win32/x64/");
+            content = content.Replace("../MSBuildFull/lib/win-x86/", "../MSBuildFull/lib/win32/x86/");
             
             File.WriteAllText(configFilePath, content);
         }
