@@ -95,6 +95,7 @@ class Build : NukeBuild
                 .SetProject(Solution.GetProject(ProjectName))
                 .SetConfiguration(Configuration)
                 .SetSelfContained(true)
+                .SetFramework("net8.0")
             );
 
             DotNetTasks.DotNetPublish(s => s
