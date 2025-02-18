@@ -7,6 +7,7 @@ namespace Chrono.Core.GitInfo
     {
         public string BranchName { get; }
         public string TagName { get; }
+        public string CommitHash { get; }
         public string CommitShortHash { get; }
 
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "");
@@ -15,14 +16,12 @@ namespace Chrono.Core.GitInfo
     {
         public static IGitInfoProvider Get()
         {
-            if (CheckEnv("GITHUB_ACTIONS")) return new GitHubProvider();
+            if (CheckEnv("GITHUB_REPOSITORY")) return new GitHubProvider();
             if (CheckEnv("GITLAB_CI")) return new GitLabProvider();
             if (CheckEnv("CIRCLECI")) return new CircleCiProvider();
             if (CheckEnv("TRAVIS")) return new TravisCiProvider();
-            if (CheckEnv("JENKINS_URL")) return new JenkinsProvider();
             if (CheckEnv("TF_BUILD")) return new AzureDevOpsProvider();
             if (CheckEnv("BITBUCKET_BUILD_NUMBER")) return new BitbucketProvider();
-            if (CheckEnv("TEAMCITY_VERSION")) return new TeamCityProvider();
             if (CheckEnv("APPVEYOR")) return new AppVeyorProvider();
             if (CheckEnv("DRONE")) return new DroneCiProvider();
             if (CheckEnv("BUILDKITE")) return new BuildkiteProvider();
@@ -35,9 +34,10 @@ namespace Chrono.Core.GitInfo
     
     public class GitHubProvider : IGitInfoProvider
     {
-        public string BranchName => Environment.GetEnvironmentVariable("GITHUB_REF_NAME");
-        public string TagName => Environment.GetEnvironmentVariable("GITHUB_REF_NAME"); // Check if it's a tag
-        public string CommitShortHash => Environment.GetEnvironmentVariable("GITHUB_SHA");
+        public string BranchName => Environment.GetEnvironmentVariable("GITHUB_REF");
+        public string TagName => Environment.GetEnvironmentVariable("GITHUB_REF");
+        public string CommitHash => Environment.GetEnvironmentVariable("GITHUB_SHA");
+        public string CommitShortHash => CommitHash.Substring(0, 7);
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
     }
 
@@ -45,7 +45,8 @@ namespace Chrono.Core.GitInfo
     {
         public string BranchName => Environment.GetEnvironmentVariable("CI_COMMIT_REF_NAME");
         public string TagName => Environment.GetEnvironmentVariable("CI_COMMIT_TAG");
-        public string CommitShortHash => Environment.GetEnvironmentVariable("CI_COMMIT_SHA");
+        public string CommitHash => Environment.GetEnvironmentVariable("CI_COMMIT_SHA");
+        public string CommitShortHash => Environment.GetEnvironmentVariable("CI_COMMIT_SHORT_SHA")?.Substring(0,7);
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
     }
 
@@ -53,7 +54,8 @@ namespace Chrono.Core.GitInfo
     {
         public string BranchName => Environment.GetEnvironmentVariable("CIRCLE_BRANCH");
         public string TagName => Environment.GetEnvironmentVariable("CIRCLE_TAG");
-        public string CommitShortHash => Environment.GetEnvironmentVariable("CIRCLE_SHA1");
+        public string CommitHash => Environment.GetEnvironmentVariable("CIRCLE_SHA1");
+        public string CommitShortHash => CommitHash.Substring(0, 7);
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
     }
 
@@ -61,23 +63,17 @@ namespace Chrono.Core.GitInfo
     {
         public string BranchName => Environment.GetEnvironmentVariable("TRAVIS_BRANCH");
         public string TagName => Environment.GetEnvironmentVariable("TRAVIS_TAG");
-        public string CommitShortHash => Environment.GetEnvironmentVariable("TRAVIS_COMMIT");
-        public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
-    }
-
-    public class JenkinsProvider : IGitInfoProvider
-    {
-        public string BranchName => Environment.GetEnvironmentVariable("BRANCH_NAME");
-        public string TagName => Environment.GetEnvironmentVariable("GIT_TAG");
-        public string CommitShortHash => Environment.GetEnvironmentVariable("GIT_COMMIT");
+        public string CommitHash => Environment.GetEnvironmentVariable("TRAVIS_COMMIT");
+        public string CommitShortHash => CommitHash.Substring(0, 7);
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
     }
 
     public class AzureDevOpsProvider : IGitInfoProvider
     {
         public string BranchName => Environment.GetEnvironmentVariable("BUILD_SOURCEBRANCHNAME");
-        public string TagName => null; // Parse from BUILD_SOURCEBRANCH if needed
-        public string CommitShortHash => Environment.GetEnvironmentVariable("BUILD_SOURCEVERSION");
+        public string TagName => Environment.GetEnvironmentVariable("BUILD_SOURCEBRANCHNAME");
+        public string CommitHash => Environment.GetEnvironmentVariable("BUILD_SOURCEVERSION");
+        public string CommitShortHash => CommitHash.Substring(0, 7);
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
     }
 
@@ -85,15 +81,8 @@ namespace Chrono.Core.GitInfo
     {
         public string BranchName => Environment.GetEnvironmentVariable("BITBUCKET_BRANCH");
         public string TagName => Environment.GetEnvironmentVariable("BITBUCKET_TAG");
-        public string CommitShortHash => Environment.GetEnvironmentVariable("BITBUCKET_COMMIT");
-        public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
-    }
-
-    public class TeamCityProvider : IGitInfoProvider
-    {
-        public string BranchName => Environment.GetEnvironmentVariable("TEAMCITY_BRANCH");
-        public string TagName => null; // Not directly available
-        public string CommitShortHash => Environment.GetEnvironmentVariable("BUILD_VCS_NUMBER");
+        public string CommitHash => Environment.GetEnvironmentVariable("BITBUCKET_COMMIT");
+        public string CommitShortHash => CommitHash.Substring(0, 7);
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
     }
 
@@ -101,7 +90,8 @@ namespace Chrono.Core.GitInfo
     {
         public string BranchName => Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
         public string TagName => Environment.GetEnvironmentVariable("APPVEYOR_REPO_TAG_NAME");
-        public string CommitShortHash => Environment.GetEnvironmentVariable("APPVEYOR_REPO_COMMIT");
+        public string CommitHash => Environment.GetEnvironmentVariable("APPVEYOR_REPO_COMMIT");
+        public string CommitShortHash => CommitHash.Substring(0, 7);
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
     }
 
@@ -109,7 +99,8 @@ namespace Chrono.Core.GitInfo
     {
         public string BranchName => Environment.GetEnvironmentVariable("DRONE_BRANCH");
         public string TagName => Environment.GetEnvironmentVariable("DRONE_TAG");
-        public string CommitShortHash => Environment.GetEnvironmentVariable("DRONE_COMMIT_SHA");
+        public string CommitHash => Environment.GetEnvironmentVariable("DRONE_COMMIT_SHA");
+        public string CommitShortHash => CommitHash.Substring(0, 7);
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
     }
 
@@ -117,7 +108,8 @@ namespace Chrono.Core.GitInfo
     {
         public string BranchName => Environment.GetEnvironmentVariable("BUILDKITE_BRANCH");
         public string TagName => Environment.GetEnvironmentVariable("BUILDKITE_TAG");
-        public string CommitShortHash => Environment.GetEnvironmentVariable("BUILDKITE_COMMIT");
+        public string CommitHash => Environment.GetEnvironmentVariable("BUILDKITE_COMMIT");
+        public string CommitShortHash => CommitHash.Substring(0, 7);
         public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
     }
     

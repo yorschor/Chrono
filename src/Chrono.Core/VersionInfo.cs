@@ -374,6 +374,7 @@ public class VersionInfo
             .Replace("{build}", Build.ToString())
             .Replace("{branch}", GitInfoProvider.BranchName)
             .Replace("{prereleaseTag}", CurrentBranchConfig.PrereleaseTag)
+            .Replace("{commitHash}", GitInfoProvider.CommitHash)
             .Replace("{commitShortHash}", GitInfoProvider.CommitShortHash);
         schemaWithValues = ResolveEnvironmentVariables(schemaWithValues);
         return ResolveDelimiterBlock(schemaWithValues);

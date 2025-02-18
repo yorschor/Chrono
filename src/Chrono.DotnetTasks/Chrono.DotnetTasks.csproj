@@ -34,6 +34,10 @@
           <PackagePath/>
           <Link>icon.png</Link>
         </None>
+        <None Include="README.md">
+            <Pack>True</Pack>
+            <PackagePath/>
+        </None>
         <None Include="Chrono.DotnetTasks.props" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="Chrono.DotnetTasks.targets" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="bin\$(Configuration)\net472\publish\**\*.*" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>
