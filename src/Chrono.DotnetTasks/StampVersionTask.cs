@@ -30,6 +30,7 @@ public class StampVersionTask : Microsoft.Build.Utilities.Task
             if (parseFullVersionResult)
             {
                 InformationalVersion = parseFullVersionResult.Data;
+                PackageVersion = parseFullVersionResult.Data;
             }
 
             Log.LogMessage("Chrono -> Resolving full version to " + parseFullVersionResult.Data);
@@ -38,7 +39,6 @@ public class StampVersionTask : Microsoft.Build.Utilities.Task
             {
                 AssemblyVersion = parseNumericVersionResult.Data;
                 FileVersion = parseNumericVersionResult.Data;
-                PackageVersion = parseNumericVersionResult.Data;
             }
 
             Log.LogMessage("Chrono -> Resolving numeric version to " + parseNumericVersionResult.Data);
