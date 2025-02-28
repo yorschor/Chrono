@@ -20,9 +20,6 @@ class Build : NukeBuild
 {
     public static int Main() => Execute<Build>(x => x.Compile);
 
-    [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
-    readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
-
     [Parameter("The version to use for the build")] string Version = "0.42.0";
     [Parameter("The numeric version excluding e.g. prerelease branch tags")] string NumericVersion = "0.42.0";
 
@@ -87,27 +84,27 @@ class Build : NukeBuild
         {
             DotNetTasks.DotNetPublish(s => s
                 .SetProject(Solution.GetProject(ProjectName))
-                .SetConfiguration(Configuration)
+                .SetConfiguration(Configuration.Release)
                 .SetSelfContained(true)
                 .SetFramework("net8.0")
             );
 
             DotNetTasks.DotNetPublish(s => s
                 .SetProject(Solution.GetProject(TargetProjectName))
-                .SetConfiguration(Configuration)
+                .SetConfiguration(Configuration.Release)
                 .SetVersion(Version)
                 .SetAssemblyVersion(NumericVersion)
                 .SetFileVersion(NumericVersion)
-                .SetSelfContained(true)
+                // .SetSelfContained(true)
                 .SetFramework("net6.0")
             );
 
             DotNetTasks.DotNetPublish(s => s
                 .SetProject(Solution.GetProject(TargetProjectName))
-                .SetConfiguration(Configuration)
+                .SetConfiguration(Configuration.Release)
                 .SetVersion(Version)
                 .SetAssemblyVersion(NumericVersion)
-                .SetFileVersion(NumericVersion)
+                // .SetFileVersion(NumericVersion)
                 .SetSelfContained(true)
                 .SetFramework("net472")
             );
@@ -117,10 +114,9 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
-            // TODO CHrono.DotnetTasks expects the depencies in a publish folder. that doesnt exist in a debug build though. Should fix this eventually 
             var p = Solution.GetProject(TargetProjectName)?.Directory;
-            var net472 = p / "bin" / Configuration / "net472" / "publish" / "LibGit2Sharp.dll.config";
-            var net6 = p / "bin" / Configuration / "net6.0" / "publish" / "Chrono.DotnetTasks.deps.json";
+            var net472 = p / "bin" / Configuration.Release / "net472" / "publish" / "LibGit2Sharp.dll.config";
+            var net6 = p / "bin" / Configuration.Release / "net6.0" / "publish" / "Chrono.DotnetTasks.deps.json";
             
             AdjustDllConfigPaths(net472);
             AdjustDllConfigPaths(net6);
