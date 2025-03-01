@@ -7,6 +7,8 @@ namespace Chrono.DotnetTasks;
 public class StampVersionTask : Microsoft.Build.Utilities.Task
 {
     public bool IgnoreDirtyRepo { get; set; }
+    
+    public bool UseEnvVars { get; set; }
     [Output] public string AssemblyVersion { get; private set; }
 
     [Output] public string FileVersion { get; private set; }
@@ -19,7 +21,7 @@ public class StampVersionTask : Microsoft.Build.Utilities.Task
     {
         try
         {
-            var infoGetResult = VersionInfo.Get(IgnoreDirtyRepo);
+            var infoGetResult = VersionInfo.Get(IgnoreDirtyRepo, UseEnvVars);
             if (!infoGetResult)
             {
                 Log.LogError(infoGetResult.Message);
