@@ -81,6 +81,19 @@ public class VersionFileTests
         Assert.True(result.Success);
         Assert.Equal(response, result.Data);
     }
+    
+    [Fact]
+    public async Task FetchYamlFromUriAsync_ValidFileUri_ReturnsContent()
+    {
+        // Arrange
+        var uri = $"file://{_sampleYamlPath}";
+        
+        // Act
+        var result = await VersionFile.FetchYamlFromUriAsync(uri);
+
+        // Assert
+        Assert.True(result.Success);
+    }
 
     [Fact]
     public void AccessFallbackBranchProperty_MixedValues_ReturnsCorrectValues()
