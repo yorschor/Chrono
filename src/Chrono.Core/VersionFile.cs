@@ -93,6 +93,24 @@ public class VersionFile
             return Result.Fail<string>("URI is not set.");
         }
 
+        if (uri.StartsWith("file://"))
+        {
+            try
+            {
+                var filePath = uri.Substring(7);
+                filePath = Path.GetFullPath(filePath);
+                if (!File.Exists(filePath))
+                {
+                    return Result.Fail<string>($"File not found at {filePath}");
+                }
+                var fileContent = File.ReadAllText(filePath);
+                return Result.Ok(fileContent);
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail<string>($"Failed to read file from {uri}: {ex.Message}");
+            }
+        }
         try
         {
             using var httpClient = new HttpClient();
@@ -137,7 +155,7 @@ public class VersionFile
     
     #region Helpers
 
-    private static Result<VersionFile> TryParseYaml(string yamlContent, string fileName = "local version file")
+    private static Result<VersionFile>TryParseYaml(string yamlContent, string fileName = "local version file")
     {
         var deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
