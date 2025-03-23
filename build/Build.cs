@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Chrono.Core;
 using Nuke.Common;
@@ -11,11 +12,6 @@ using Serilog;
 
 namespace _build;
 
-[GitHubActions(
-    "continuous",
-    GitHubActionsImage.UbuntuLatest,
-    On = [GitHubActionsTrigger.Push],
-    InvokedTargets = [nameof(Compile)])]
 class Build : NukeBuild
 {
     public static int Main() => Execute<Build>(x => x.Compile);
@@ -31,7 +27,7 @@ class Build : NukeBuild
 
     const string ProjectName = "Chrono.CLI";
     const string TargetProjectName = "Chrono.DotnetTasks";
-    const string TestLibs = "Chrono.TestLib.*";
+    const string TestLibs = "Chrono.*.Test";
     readonly AbsolutePath PackagesDirectory = RootDirectory / "out";
     readonly AbsolutePath SourceDirectory = RootDirectory / "src";
 
@@ -68,6 +64,7 @@ class Build : NukeBuild
             {
                 Log.Error(res.Exception.ToString());
             }
+
             Log.Information("Chrono -> Bumped build version " + versionInfo.GetNumericVersion().Data);
             return true;
         }
@@ -117,7 +114,7 @@ class Build : NukeBuild
             var p = Solution.GetProject(TargetProjectName)?.Directory;
             var net472 = p / "bin" / Configuration.Release / "net472" / "publish" / "LibGit2Sharp.dll.config";
             var net6 = p / "bin" / Configuration.Release / "net6.0" / "publish" / "Chrono.DotnetTasks.deps.json";
-            
+
             AdjustDllConfigPaths(net472);
             AdjustDllConfigPaths(net6);
         });
@@ -134,7 +131,7 @@ class Build : NukeBuild
             content = content.Replace("../MSBuildFull/lib/win-arm64/", "../MSBuildFull/lib/win32/arm64/");
             content = content.Replace("../MSBuildFull/lib/win-x64/", "../MSBuildFull/lib/win32/x64/");
             content = content.Replace("../MSBuildFull/lib/win-x86/", "../MSBuildFull/lib/win32/x86/");
-            
+
             File.WriteAllText(configFilePath, content);
         }
         else
@@ -186,5 +183,12 @@ class Build : NukeBuild
                 .SetSource(localNugetStoreName));
             DotNetTasks.DotNet(
                 $"tool update -g {ProjectName} --add-source {localNugetStoreName} --no-cache --ignore-failed-sources --version {Version}");
+        });
+
+    Target RunUnitTests => t => t
+        .Executes(() =>
+        {
+            DotNetTasks.DotNetBuild(s => s.SetProjectFile(Solution));
+            DotNetTasks.DotNetTest(s => s.SetProjectFile(Solution));
         });
 }
