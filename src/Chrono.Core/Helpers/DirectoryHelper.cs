@@ -21,7 +21,7 @@ public static class DirectoryHelper
         {
             return Result.Fail<string>("Directory paths and file name cannot be null or empty!");
         }
-
+        startDirectory = Path.GetFullPath(startDirectory);
         var files = Directory.EnumerateFiles(stopDirectory, targetFileName, SearchOption.AllDirectories);
         var enumerable = files as string[] ?? files.ToArray();
 
