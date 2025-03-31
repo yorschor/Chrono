@@ -107,15 +107,17 @@ public class VersionInfo
     /// A catch-all method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
     /// </summary>
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
-    public static Result<VersionInfo> Get(bool allowDirtyRepo = false, bool useEnvVars = false)
+    public static Result<VersionInfo> Get(bool allowDirtyRepo = false, bool useEnvVars = false, string rootPath = "", string targetVersionFile = "")
     {
-        var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
+        var gitSearchDirectory = string.IsNullOrEmpty(rootPath) ? Environment.CurrentDirectory : rootPath;
+        var targetVersionFileSearchPath = string.IsNullOrEmpty(targetVersionFile) ? gitSearchDirectory : targetVersionFile;
+        var gitDirectory = Repository.Discover(gitSearchDirectory);
         if (string.IsNullOrEmpty(gitDirectory))
         {
-            return Result.Fail<VersionInfo>("Chrono GitVersioning: No git directory found!");
+            return Result.Fail<VersionInfo>($"Chrono GitVersioning: No git directory found at {gitSearchDirectory}");
         }
 
-        var versionFileFoundResult = DirectoryHelper.Find(Directory.GetCurrentDirectory(),
+        var versionFileFoundResult = DirectoryHelper.Find(targetVersionFileSearchPath,
             gitDirectory.Substring(0, gitDirectory.Length - 4));
 
         if (!versionFileFoundResult)
