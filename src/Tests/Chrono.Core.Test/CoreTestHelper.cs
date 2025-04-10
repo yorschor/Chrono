@@ -30,6 +30,7 @@ public class CoreTestHelper : IDisposable
     public void Dispose()
     {
         DeleteTempDirectory(TempDirectory);
+        GC.SuppressFinalize(this);
     }
 
     #endregion
