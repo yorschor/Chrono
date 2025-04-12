@@ -102,7 +102,7 @@ public class InitCommand : Command<InitCommand.Settings>
 
             var filesToWrite = AnsiConsole.Prompt(fileWritePrompt);
 
-            if (filesToWrite.Contains("Directory.Build.props")) File.WriteAllText(directoryBuildPropsPath, InitTemplates.GetBuildProps());
+            if (filesToWrite.Contains("Directory.Build.props")) File.WriteAllText(directoryBuildPropsPath, InitTemplates.GetBuildProps(settings.AppVersion));
             if (filesToWrite.Contains("version.yml")) File.WriteAllText(versionFilePath, InitTemplates.GetVersionFile(variant, initialVersion));
         }
         AnsiConsole.MarkupLine("Done!");
