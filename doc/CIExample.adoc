@@ -1,0 +1,30 @@
+== CI Example
+
+=== Gitlab
+Create a .gitlab-ci.yml file in the root of your repository with the following content:
+
+[source,yaml]
+----
+spec: 
+  inputs: 
+    name: 'get:Version'
+    description:
+  stage:
+    default: 'prepare'
+  path:
+    default: '.'
+
+---
+
+$[[ inputs.name ]]: 
+  stage: $[[ inputs.stage ]]
+  image: docker.io/yorschor/chrono:1.0.0
+  script: 
+    - chrono get -ie 
+    - echo "PROJECT_VERSION=$(chrono get -nie)" >> build.env
+    - echo "PROJECT_FULL_VERSION=$(chrono get -ie)" >> build.env
+
+  artifacts:
+    reports:
+      dotenv: build.env
+----
