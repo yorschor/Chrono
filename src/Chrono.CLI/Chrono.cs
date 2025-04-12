@@ -109,7 +109,7 @@ public class BaseCommandSettings : CommandSettings
         return ContinueIfDirty() ? versionInfo : null;
     }
 
-    public string AppVersion => Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version";
+    public string AppVersion => Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown Version";
     
     public void MarkupAndTrace(string message)
     {
