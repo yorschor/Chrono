@@ -2,22 +2,17 @@
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-
+#pragma warning disable CS8618
 // ReSharper disable ClassNeverInstantiated.Global
 
-namespace Chrono.Commands;
-
-#region BaseSettings
-
-public class InitSettings : BaseCommandSettings;
-
-#endregion
+namespace Chrono.Commands.Miscellaneous;
 
 #region Commands
 
 public class InitCommand : Command<InitCommand.Settings>
 {
+    public sealed class Settings : BaseCommandSettings;
+
     public override int Execute(CommandContext context, Settings settings)
     {
         var mode = AnsiConsole.Prompt(new SelectionPrompt<string>()
@@ -102,14 +97,14 @@ public class InitCommand : Command<InitCommand.Settings>
 
             var filesToWrite = AnsiConsole.Prompt(fileWritePrompt);
 
-            if (filesToWrite.Contains("Directory.Build.props")) File.WriteAllText(directoryBuildPropsPath, InitTemplates.GetBuildProps(settings.AppVersion));
+            if (filesToWrite.Contains("Directory.Build.props"))
+                File.WriteAllText(directoryBuildPropsPath, InitTemplates.GetBuildProps(settings.AppVersion));
             if (filesToWrite.Contains("version.yml")) File.WriteAllText(versionFilePath, InitTemplates.GetVersionFile(variant, initialVersion));
         }
+
         AnsiConsole.MarkupLine("Done!");
         return 0;
     }
-
-    public sealed class Settings : InitSettings;
 }
 
 #endregion

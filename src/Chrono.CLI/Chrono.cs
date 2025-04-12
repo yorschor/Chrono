@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
-using Chrono.Commands;
+using Chrono.Commands.Core;
+using Chrono.Commands.Git;
+using Chrono.Commands.Miscellaneous;
 using Chrono.Core;
 using Chrono.Core.Helpers;
 using Chrono.Helpers;
@@ -8,7 +10,6 @@ using LibGit2Sharp;
 using NLog;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using YamlDotNet.Core;
 
 namespace Chrono;
 
