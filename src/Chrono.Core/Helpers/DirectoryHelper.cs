@@ -106,4 +106,17 @@ public static class DirectoryHelper
         var relative = absolut.GetRelativePathTo(toPath);
         return relative.ToString().Split(Path.DirectorySeparatorChar).Length - 1;
     }
+
+    public static string AppendPathsWithPotentialFileName(string path1, string path2, string fileName)
+    {
+        if (path1.EndsWith(fileName))
+        {
+            path1 = path1.Substring(0, path1.Length - fileName.Length);
+        }
+        if (path2.EndsWith(fileName))
+        {
+            path2 = path2.Substring(0, path2.Length - fileName.Length);
+        }
+        return Path.Combine(path1, path2, fileName);
+    }
 }

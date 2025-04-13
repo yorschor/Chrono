@@ -54,7 +54,7 @@ public class VersionFile
 
         if (!string.IsNullOrEmpty(tempVersionFile.Default?.InheritFrom))
         {
-            var inheritedYamlContentResult = await FetchYamlFromUriAsync(tempVersionFile.Default?.InheritFrom);
+            var inheritedYamlContentResult = await FetchYamlFromUriAsync(tempVersionFile.Default?.InheritFrom, path);
             if (inheritedYamlContentResult.Success)
             {
                 var inheritedYamlContent = inheritedYamlContentResult.Data;
@@ -86,7 +86,13 @@ public class VersionFile
     }
 
 
-    public static async Task<Result<string>> FetchYamlFromUriAsync(string uri)
+    /// <summary>
+    /// Fetches the content of a yaml file from a URI.
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <param name="contextPath"></param>
+    /// <returns></returns>
+    public static async Task<Result<string>> FetchYamlFromUriAsync(string uri, string contextPath = "")
     {
         if (string.IsNullOrEmpty(uri))
         {
@@ -98,11 +104,17 @@ public class VersionFile
             try
             {
                 var filePath = uri.Substring(7);
+                if (!string.IsNullOrEmpty(contextPath))
+                {
+                    filePath = DirectoryHelper.AppendPathsWithPotentialFileName(contextPath, filePath, "version.yml");
+                }
+
                 filePath = Path.GetFullPath(filePath);
                 if (!File.Exists(filePath))
                 {
                     return Result.Fail<string>($"File not found at {filePath}");
                 }
+
                 var fileContent = File.ReadAllText(filePath);
                 return Result.Ok(fileContent);
             }
@@ -111,6 +123,7 @@ public class VersionFile
                 return Result.Fail<string>($"Failed to read file from {uri}: {ex.Message}");
             }
         }
+
         try
         {
             using var httpClient = new HttpClient();
@@ -152,10 +165,10 @@ public class VersionFile
             return Result.Fail(e);
         }
     }
-    
+
     #region Helpers
 
-    private static Result<VersionFile>TryParseYaml(string yamlContent, string fileName = "local version file")
+    private static Result<VersionFile> TryParseYaml(string yamlContent, string fileName = "local version file")
     {
         var deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
