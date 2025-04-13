@@ -95,6 +95,7 @@ Variables are handled as simple string replacements. If a variable not defined/s
 | {build}         | Build version number
 | {branch}    | Name of the branch -> NOTE: Might not be unique depending on your git and ci setup!
 | {prereleaseTag} | Pre-release tag (e.g., alpha, beta, local)
+| {commitHash} | Full hash of the commit
 | {commitShortHash} | Short hash of the commit
 |===
 
