@@ -26,10 +26,11 @@ a|image::icon.png[]
 
 * [x] Ensure config examples are up to date
 * [x] Extensive testing
+* [x] CI Example (gitlab?)
+* [ ] Full final manual test 
+* [x] ci test need to run green 
 * [-] Adjust documentation
-* [-] Enhance logging and error handling/reporting
-* [Won´t do] Debug builds for dotnet tasks should work
-* [ ] Create self-contained builds for various platforms
+* [x] Enhance logging and error handling/reporting
 
 === Commands
 
