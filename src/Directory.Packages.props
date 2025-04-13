@@ -5,7 +5,7 @@
     <NoWarn>NU1507</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Chrono.DotnetTasks" Version="1.0.0-rc.2" />
+    <PackageVersion Include="Chrono.DotnetTasks" Version="1.0.0-rc.7" />
     <PackageVersion Include="DotNetZip.NetStandard" Version="1.12.0" />
     <PackageVersion Include="Huxy" Version="2.0.0" />
     <PackageVersion Include="LibGit2Sharp" Version="0.30.0" />
