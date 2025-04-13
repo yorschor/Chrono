@@ -26,10 +26,11 @@ a|image::icon.png[]
 
 * [x] Ensure config examples are up to date
 * [x] Extensive testing
+* [x] CI Example (gitlab?)
+* [ ] Full final manual test 
+* [x] ci test need to run green 
 * [-] Adjust documentation
-* [-] Enhance logging and error handling/reporting
-* [Won´t do] Debug builds for dotnet tasks should work
-* [ ] Create self-contained builds for various platforms
+* [x] Enhance logging and error handling/reporting
 
 === Commands
 
@@ -63,9 +64,9 @@ dotnet tool update -g Chrono
 
 |===
 
-Next up create a version.yml (for now only a version.yml at the root of your git repo is supported)
+Next up either create a version.yml or use the convenience command ''chrono init''
 
-For the content of version.yml either checkout the minimal example below.
+For the content of version.yml either checkout the default example below
 
 [source,yml]
 ----
@@ -78,24 +79,12 @@ default:
       - "^release/.*"
     versionSchema: "{major}.{minor}.{patch}"
 ----
+choose one of the other example in ''/doc/examples''
 
-or read the full link:doc/Version.adoc[documentation].
+or read the full link:doc/Version.adoc[documentation]
 
 ==== 🕹️ ️Automatic Version stamping (dotnet) 
 
-If you want your dotnet projects to be automatically versioned first make sure your projects are using SDK style project files and don't have existing AssemblyVersion.cs files or the likes present.
+include::doc/DotnetVersioning.adoc[leveloffset=+1]
 
-Then call
 
-[source,shell]
-----
-chrono init
-----
-
-in your project root.
-
-This adds a Directory.Build.props file to the directory which takes care of including the DotnetTasks package into your projects.
-
-It also sets the two properties "IncludeSourceRevisionInInformationalVersion" to false and "GenerateAssemblyInfo" to true.
-
-In theory that's it :) 

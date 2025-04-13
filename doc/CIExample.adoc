@@ -1,0 +1,19 @@
+== CI Example
+
+=== Gitlab
+Example for Gitlab CI Component that writes both numeric and          full version to a .env file.
+
+[source,yaml]
+----
+get:version: 
+  stage: prepare
+  image: docker.io/yorschor/chrono:1.0.0
+  script: 
+    - chrono get -ie 
+    - echo "PROJECT_VERSION=$(chrono get -nie)" >> build.env
+    - echo "PROJECT_FULL_VERSION=$(chrono get -ie)" >> build.env
+
+  artifacts:
+    reports:
+      dotenv: build.env
+----

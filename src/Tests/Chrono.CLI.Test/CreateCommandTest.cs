@@ -13,10 +13,10 @@ namespace Chrono.CLI.Test
             var initialHash = repo.Head.Tip.Sha;
             
             // Run the command
-            _app.RunAndAssert(["release", "-c"], "");
+            _app.RunAndAssert(["release", "-ci"], "");
 
             // Check branch creation
-            var newBranch = repo.Branches["release/v1.0.0"];
+            var newBranch = repo.Branches["release/v1.0"];
             Assert.NotNull(newBranch);
             Assert.Equal(initialHash, newBranch.Tip.Sha);
 
@@ -32,10 +32,10 @@ namespace Chrono.CLI.Test
             var initialHash = repo.Head.Tip.Sha;
             
             // Run the command  
-            _app.RunAndAssert(["tag"], "Tag v1.0.0 created");
+            _app.RunAndAssert(["tag", "-i"], "Tag v1.0 created");
 
             // Check tag creation
-            var tag = repo.Tags["v1.0.0"];
+            var tag = repo.Tags["v1.0"];
             Assert.NotNull(tag);
             Assert.Equal(initialHash, ((Commit)tag.Target).Sha);
         }
@@ -47,10 +47,10 @@ namespace Chrono.CLI.Test
             var initialHash = repo.Head.Tip.Sha;
 
             // Run the command
-            _app.RunAndAssert(["branch"], "Creating new branch release/v1.0.0");
+            _app.RunAndAssert(["branch"], "Creating new branch abranch/v1.0");
 
             // Check branch creation
-            var newBranch = repo.Branches["release/v1.0.0"];
+            var newBranch = repo.Branches["abranch/v1.0"];
             Assert.NotNull(newBranch);
             Assert.Equal(initialHash, newBranch.Tip.Sha);
         }
