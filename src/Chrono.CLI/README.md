@@ -16,7 +16,7 @@ dotnet tool install -g Chrono
 
 Next up create a version.yml (for now only a version.yml at the root of your git repo is supported)
 
-For the content of version.yml either checkout the minimal example below.
+For the content of version.yml either checkout the default example below.
 
 ```yml
 version: 1.0.0

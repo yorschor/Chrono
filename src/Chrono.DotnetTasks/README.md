@@ -10,9 +10,8 @@ Chrono is inspired by the likes of [GitVersion](https://github.com/GitTools/GitV
 
 ### 🚀 Getting started 
 
-Create a version.yml (for now only a version.yml at the root of your git repo is supported)
-
-For the content of version.yml either checkout the minimal example below.
+Create a version.yml
+For the content of version.yml either checkout the default example below.
 
 ```yml
 version: 1.0.0
