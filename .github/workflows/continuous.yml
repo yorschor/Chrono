@@ -1,7 +1,11 @@
 name: continuous
  
 on: [push]
- 
+permissions: 
+  contents: read
+  actions: read
+  checks: write
+    
 jobs:
   compile:
     runs-on: ubuntu-latest
