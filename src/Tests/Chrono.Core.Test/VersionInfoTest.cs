@@ -52,15 +52,12 @@ namespace Chrono.Core.Test
             public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "") => Result.Ok();
         }
 
-        private static VersionInfo CreateVersionInfoInstance(string yamlContent, bool allowDirtyRepo = true)
+        private static VersionInfo CreateVersionInfoInstance(string yamlContent, bool allowDirtyRepo = true, string branchName = "trunk")
         {
             var tempFilePath = Path.GetTempFileName();
             File.WriteAllText(tempFilePath, yamlContent);
 
-            return new VersionInfo(tempFilePath, allowDirtyRepo)
-            {
-                GitInfoProvider = new MockGitInfoProvider()
-            };
+            return new VersionInfo(tempFilePath, new MockGitInfoProvider { BranchName = branchName }, allowDirtyRepo);
         }
 
         [Fact]
@@ -158,8 +155,7 @@ namespace Chrono.Core.Test
         [Fact]
         public void GetNewBranchName_ValidBranch_ReturnsNewBranchName()
         {
-            var versionInfo = CreateVersionInfoInstance(TestYamlContent);
-            ((MockGitInfoProvider)versionInfo.GitInfoProvider).BranchName = "aBranchWithAName";
+            var versionInfo = CreateVersionInfoInstance(TestYamlContent, true , "aBranchWithAName");
             var result = versionInfo.ResolveSchema(versionInfo.CurrentBranchConfig.NewBranchSchema);
 
             Assert.True(result);

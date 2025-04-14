@@ -49,10 +49,11 @@ public class VersionInfo
 
     #endregion
 
-    internal VersionInfo(string path, bool allowDirtyRepo = false, bool useEnvVars = false)
+    internal VersionInfo(string path, IGitInfoProvider gitInfoProvider, bool allowDirtyRepo = false, bool useEnvVars = false)
     {
         _versionPath = path;
-
+        GitInfoProvider = gitInfoProvider;
+        
         var fileResult = VersionFile.From(_versionPath);
         if (!fileResult.Success)
         {
@@ -72,8 +73,6 @@ public class VersionInfo
             Patch = version.Build;
             Build = version.Revision;
         }
-
-        GitInfoProvider = useEnvVars ? GitInfo.GitInfo.Get() : new GitRepoProvider();
         
         var gitRes = GitInfoProvider.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
         if (!gitRes)
@@ -127,7 +126,8 @@ public class VersionInfo
 
         try
         {
-            return Result.Ok(new VersionInfo(versionFileFoundResult.Data, allowDirtyRepo, useEnvVars));
+            var gitInfoProvider = useEnvVars ? GitInfo.GitInfo.Get() : new GitRepoProvider();
+            return Result.Ok(new VersionInfo(versionFileFoundResult.Data, gitInfoProvider, allowDirtyRepo, useEnvVars));
         }
         catch (Exception e)
         {
