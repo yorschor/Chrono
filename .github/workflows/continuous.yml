@@ -1,5 +1,5 @@
 name: continuous
- 
+
 on: [push]
 permissions: 
   contents: read
@@ -12,23 +12,17 @@ jobs:
     container:
       image: mcr.microsoft.com/dotnet/sdk:9.0
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Run compile build script
-        run: ./build.sh compile
+      - uses: actions/checkout@v4
+      - run: ./build.sh compile
         
   test:
       runs-on: ubuntu-latest
       container:
         image: mcr.microsoft.com/dotnet/sdk:9.0
       steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
-        - name: Run tests
-          run: dotnet test Chrono.slnx --logger trx --results-directory reports
-          
-        - name: Publish Test Results
-          uses: EnricoMi/publish-unit-test-result-action@v2
+        - uses: actions/checkout@v4
+        - run: dotnet test Chrono.slnx --logger trx --results-directory reports
+        - uses: EnricoMi/publish-unit-test-result-action@v2
           if: always()
           with:
             files: reports/**/*.trx
