@@ -25,11 +25,12 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@v4
         - name: Run tests
-          run: dotnet test Chrono.slnx --logger trx --results-directory ./reports
+          run: dotnet test Chrono.slnx --logger trx --results-directory reports
+          
         - name: Test Report
           uses: dorny/test-reporter@v2
           if: success() || failure()
           with:
             name: .NET Tests     
-            path: ./reports/*.trx
+            path: reports/*.trx
             reporter: dotnet-trx
