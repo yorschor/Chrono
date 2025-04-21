@@ -4,18 +4,20 @@
 
 [Chrono](https://github.com/yorschor/Chrono) is a git versioning tool with a focus on being customizable and easy to configure.
 
+Based on your configured templates it easily retrieves version information based on the current state or your repo.
+
+It provides a CLI and a NugetPackage for automatic version stamping.
+
 The DotnetTasks project contains a MSBuild task that hooks into the build process and automatically sets the version of your project according to the version.yml file.
 
-Chrono is inspired by the likes of [GitVersion](https://github.com/GitTools/GitVersion) and [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning).
 
 ### 🚀 Getting started 
 
-Create a version.yml (for now only a version.yml at the root of your git repo is supported)
-
-For the content of version.yml either checkout the minimal example below.
+Create a version.yml
+For the content of version.yml either checkout the default example below.
 
 ```yml
-version: 1.0.0
+version: 1.0.0.0
 default:
   versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
   precision: build

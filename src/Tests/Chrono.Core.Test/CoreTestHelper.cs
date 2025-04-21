@@ -30,6 +30,7 @@ public class CoreTestHelper : IDisposable
     public void Dispose()
     {
         DeleteTempDirectory(TempDirectory);
+        GC.SuppressFinalize(this);
     }
 
     #endregion
@@ -43,6 +44,8 @@ public class CoreTestHelper : IDisposable
                                                                 versionSchema: '{major}.{minor}.{patch}[-]{branch}[.]{commitShortHash}'
                                                                 prereleaseTag: local
                                                                 precision: Minor
+                                                                newTagSchema: v{major}.{minor}
+                                                                newBranchSchema: 'abranch/v{major}.{minor}'
                                                                 release:
                                                                     match:
                                                                         - tag::^v.*

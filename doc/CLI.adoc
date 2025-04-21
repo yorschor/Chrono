@@ -2,29 +2,50 @@
 
 == Introduction
 
-The Chrono CLI is a command line tool that provides a set of commands to interact with the version.yml file.
+The Chrono CLI is a command‑line tool for managing your project’s version information stored in a version.yml file, and for performing related Git operations (branching, tagging, releasing). It provides a set of commands to interact with the version.yml file and your project repository.
 
-It's main purpose is to provide a simple way to interact with the version.yml file and to make it easier to use Chrono in your projects.
+* Initialize a project for Chrono
+* Read and write version numbers
+* Bump specific version components
+* Create branches and tags based on your branch‑naming schema
+* Automate release workflows
 
+== Installation
+[cols="^.^1,^.^2"]
+|====
+| Package | Command
+| Chrono.CLI
+
+a|
+[source]
+dotnet tool install -g Chrono.CLI
+
+| Chrono.DotnetVersioning
+
+a|
+[source]
+dotnet add package Chrono.DotnetVersioning
+
+|====
 == Overview
 
 [source, text]
 ----
 └── Chrono/
-    ├── init
-    ├── help
-    ├── get [-n | numeric] [-f | nofail {true}]
-    ├── set <Version> [-c | commit]
-    ├── bump <Version component>
-    ├── tag
-    ├── release
-    └── branch
+    ├── init      Start init wizard for current directory 
+    ├── get       Reads and prints the current version.
+    ├── set       Sets the version to a specific value. 
+    ├── bump      Increments a version component (major, minor, patch, build).
+    ├── tag       Creates a git tag using the current branch’s tag pattern.
+    ├── release   Creates a release branch based on the target branch schema.
+    ├── branch    Creates a feature/hotfix branch based on the current branch schema.
+    └── info      Prints Chrono CLI version and credits.
 ----
 
 
 == Commands
 
-All commands except the "Init" command require a valid version.yml file to exist in the current of a parent directory as well as a initialized git repo be present.
+All commands except the "Init" and "Info" command require a valid version.yml file to exist in the current of a parent directory as well as a initialized git repo be present.
 
 == Common Options 
 
@@ -42,29 +63,35 @@ Enables trace logging. Also prints exceptions if any occur.
 
 Ignores dirty repositories. If a repository is dirty the short hash will be replaced by the dirty-repo placeholder.
 
-=== Get
+== Get
 
 Gets the current version of the project.
 
+* -n, --numeric -> 
+Print only the numeric portion (e.g. 1.2.3.4), omitting any prerelease tag.
+
+* -e, --useEnvVars -> 
+Fall back to VERSION_MAJOR, VERSION_MINOR, etc., if present in the environment. Should be used in most CI scenarios.
+
+* -p, --gitRoot <path> -> 
+Manually specify the Git repository root (defaults to discovering from CWD).
 
 == The Set command
 
 Sets the current version of the project. It does so by simply replacing the version key in the version.yml.yml file.
 
+* <Version> -> 
+A semantic version string to set the project to. eg. 1.2.3.4
+
+NOTE: The following commands include the option -c|--commit which will commit the changes to the version.yml file. Use with care :) 
+
 == the "Bump" command
 
-Bumps the version of the project.
+Increments one component of the version. Updates only the requested part and resets lower-order fields as per semantic‑versioning conventions.
 
-The version component can be one of the following:
-
-* major
-* minor
-* patch
-* build
-
-NOTE: The build component is only available if the version.yml file contains a build key.
-
-
+* <component> ->
+One of: major, minor, patch, or build.
+(Note: build only available if version.yml defines a build field.)
 
 == The "Tag" command
 

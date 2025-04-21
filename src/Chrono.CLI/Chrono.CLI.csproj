@@ -36,4 +36,10 @@
         <None Include="README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="..\..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
+    </ItemGroup>
+
 </Project>

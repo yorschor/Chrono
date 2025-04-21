@@ -4,13 +4,14 @@ public enum VersionFileVariants
 {
     LocalMinimal,
     LocalDefault,
-    InheritedMinimal,
+    LocalExpanded,
     InheritedDefault,
+    InheritedExpanded,
 }
 
 public static class InitTemplates
 {
-    public static string GetBuildProps(string version = "0.8.0")
+    public static string GetBuildProps(string version = "1.0.0")
     {
         return $"""
                 <?xml version="1.0" encoding="utf-8"?>
@@ -32,8 +33,9 @@ public static class InitTemplates
       {
         VersionFileVariants.LocalMinimal => GetLocalMinimalVersionFile(version),
         VersionFileVariants.LocalDefault => GetLocalDefaultVersionFile(version),
-        VersionFileVariants.InheritedMinimal => GetInheritedMinimalVersionFile(version),
-        VersionFileVariants.InheritedDefault => GetInheritedDefaultVersionFile(version),
+        VersionFileVariants.LocalExpanded => GetLocalExpandedVersionFile(version),
+        VersionFileVariants.InheritedDefault => GetInheritedVersionFile(version, "sensibleDefault"),
+        VersionFileVariants.InheritedExpanded => GetInheritedVersionFile(version, "expanded"),
         _ => string.Empty
       };
     }
@@ -41,22 +43,28 @@ public static class InitTemplates
     private static string GetLocalMinimalVersionFile(string version)
     {
       return """
-               ---
                version: {{version}}
                default:
-                 versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
-                 precision: build
-                 prereleaseTag: dev
-                 release:
-                   match:
-                     - ^release/.*
-                   versionSchema: '{major}.{minor}.{patch}'
+                 versionSchema: '{major}.{minor}.{patch}
                """.Replace("{{version}}", version);
     }
     private static string GetLocalDefaultVersionFile(string version)
     {
       return """
-               ---
+             version: {{version}}
+             default:
+               versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
+               precision: build
+               prereleaseTag: dev
+               release:
+                 match:
+                   - ^release/.*
+                 versionSchema: '{major}.{minor}.{patch}'
+             """.Replace("{{version}}", version);
+    }
+    private static string GetLocalExpandedVersionFile(string version)
+    {
+      return """
                version: {{version}}
                default:
                  versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
@@ -81,22 +89,12 @@ public static class InitTemplates
                    prereleaseTag: dev
                """.Replace("{{version}}", version);
     }
-    private static string GetInheritedMinimalVersionFile(string version)
+    private static string GetInheritedVersionFile(string version, string variant)
     {
       return $"""
-              ---
               version: {version}
               default:
-                inheritFrom: https://github.com/yorschor/Chrono/blob/trunk/doc/examples/minimal.yml
-              """;
-    }
-    private static string GetInheritedDefaultVersionFile(string version)
-    {
-      return $"""
-              ---
-              version: {version}
-              default:
-                inheritFrom: https://github.com/yorschor/Chrono/blob/trunk/doc/examples/sensibleDefault.yml
+                inheritFrom: https://github.com/yorschor/Chrono/blob/trunk/doc/examples/{variant}.yml
               """;
     }
 }

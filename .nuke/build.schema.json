@@ -29,7 +29,8 @@
         "LocalDeploy",
         "Pack",
         "PrepareVersions",
-        "PushNugetPackage"
+        "PushNugetPackage",
+        "RunUnitTests"
       ]
     },
     "Verbosity": {

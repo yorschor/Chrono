@@ -3,7 +3,7 @@ using Chrono.Core.Test;
 using LibGit2Sharp;
 using Spectre.Console;
 using Spectre.Console.Testing;
-
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Chrono.CLI.Test;
 
 public class CliTestHelper : CoreTestHelper

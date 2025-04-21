@@ -2,24 +2,17 @@
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-
+#pragma warning disable CS8618
 // ReSharper disable ClassNeverInstantiated.Global
 
-namespace Chrono.Commands;
-
-#region BaseSettings
-
-public class InfoSettings : BaseCommandSettings
-{
-}
-
-#endregion
+namespace Chrono.Commands.Miscellaneous;
 
 #region Commands
 
 public class GetInfoCommand : Command<GetInfoCommand.Settings>
 {
+    public sealed class Settings : BaseCommandSettings;
+
     public override int Execute(CommandContext context, Settings settings)
     {
         var layout = new Layout("Root")
@@ -48,8 +41,6 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
         AnsiConsole.Write(rootPanel);
         return 0;
     }
-
-    public sealed class Settings : InfoSettings;
 }
 
 #endregion

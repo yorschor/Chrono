@@ -49,10 +49,11 @@ public class VersionInfo
 
     #endregion
 
-    internal VersionInfo(string path, bool allowDirtyRepo = false, bool useEnvVars = false)
+    internal VersionInfo(string path, IGitInfoProvider gitInfoProvider, bool allowDirtyRepo = false, bool useEnvVars = false)
     {
         _versionPath = path;
-
+        GitInfoProvider = gitInfoProvider;
+        
         var fileResult = VersionFile.From(_versionPath);
         if (!fileResult.Success)
         {
@@ -72,8 +73,6 @@ public class VersionInfo
             Patch = version.Build;
             Build = version.Revision;
         }
-
-        GitInfoProvider = useEnvVars ? GitInfo.GitInfo.Get() : new GitRepoProvider();
         
         var gitRes = GitInfoProvider.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
         if (!gitRes)
@@ -107,15 +106,17 @@ public class VersionInfo
     /// A catch-all method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
     /// </summary>
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
-    public static Result<VersionInfo> Get(bool allowDirtyRepo = false, bool useEnvVars = false)
+    public static Result<VersionInfo> Get(bool allowDirtyRepo = false, bool useEnvVars = false, string rootPath = "", string targetVersionFile = "")
     {
-        var gitDirectory = Repository.Discover(Environment.CurrentDirectory);
+        var gitSearchDirectory = string.IsNullOrEmpty(rootPath) ? Environment.CurrentDirectory : rootPath;
+        var targetVersionFileSearchPath = string.IsNullOrEmpty(targetVersionFile) ? gitSearchDirectory : targetVersionFile;
+        var gitDirectory = Repository.Discover(gitSearchDirectory);
         if (string.IsNullOrEmpty(gitDirectory))
         {
-            return Result.Fail<VersionInfo>("Chrono GitVersioning: No git directory found!");
+            return Result.Fail<VersionInfo>($"Chrono GitVersioning: No git directory found at {gitSearchDirectory}");
         }
 
-        var versionFileFoundResult = DirectoryHelper.Find(Directory.GetCurrentDirectory(),
+        var versionFileFoundResult = DirectoryHelper.Find(targetVersionFileSearchPath,
             gitDirectory.Substring(0, gitDirectory.Length - 4));
 
         if (!versionFileFoundResult)
@@ -125,7 +126,8 @@ public class VersionInfo
 
         try
         {
-            return Result.Ok(new VersionInfo(versionFileFoundResult.Data, allowDirtyRepo, useEnvVars));
+            var gitInfoProvider = useEnvVars ? GitInfo.GitInfo.Get() : new GitRepoProvider();
+            return Result.Ok(new VersionInfo(versionFileFoundResult.Data, gitInfoProvider, allowDirtyRepo, useEnvVars));
         }
         catch (Exception e)
         {

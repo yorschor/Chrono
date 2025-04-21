@@ -1,10 +1,4 @@
 ---
 version: 0.0.0
 default:
-  versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
-  precision: build
-  prereleaseTag: dev
-  release:
-    match:
-      - ^release/.*
-    versionSchema: '{major}.{minor}.{patch}'
+  versionSchema: '{major}.{minor}.{patch}'

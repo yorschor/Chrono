@@ -21,7 +21,7 @@ public static class DirectoryHelper
         {
             return Result.Fail<string>("Directory paths and file name cannot be null or empty!");
         }
-
+        startDirectory = Path.GetFullPath(startDirectory);
         var files = Directory.EnumerateFiles(stopDirectory, targetFileName, SearchOption.AllDirectories);
         var enumerable = files as string[] ?? files.ToArray();
 
@@ -105,5 +105,18 @@ public static class DirectoryHelper
         var absolut = AbsolutePath.Create(fromPath);
         var relative = absolut.GetRelativePathTo(toPath);
         return relative.ToString().Split(Path.DirectorySeparatorChar).Length - 1;
+    }
+
+    public static string AppendPathsWithPotentialFileName(string path1, string path2, string fileName)
+    {
+        if (path1.EndsWith(fileName))
+        {
+            path1 = path1.Substring(0, path1.Length - fileName.Length);
+        }
+        if (path2.EndsWith(fileName))
+        {
+            path2 = path2.Substring(0, path2.Length - fileName.Length);
+        }
+        return Path.Combine(path1, path2, fileName);
     }
 }

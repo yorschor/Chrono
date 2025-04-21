@@ -49,6 +49,26 @@ public class VersionCommandTest
         LibGit2Sharp.Commands.Checkout(repo, "v1.0.0");
         App.RunAndAssert(["get"], "1.0.0");
     }
+    
+    [Fact]
+    public void GetVersionInSubfolderTest()
+    {
+        Debug.WriteLine("GetVersionInSubfolderTest...");
+        using var repo = new Repository(App.TempDirectory);
+        repo.CreateBranch("release/v1.0.0");
+        LibGit2Sharp.Commands.Checkout(repo, "release/v1.0.0");
+        Directory.CreateDirectory(App.TempDirectory + "/subfolder");
+        File.Copy(App.TempDirectory + "/version.yml", App.TempDirectory + "/subfolder/version.yml");
+        App.RunAndAssert(["set", "5.6.4", "-i"], "");
+        LibGit2Sharp.Commands.Stage(repo, App.TempDirectory + "/version.yml");
+        LibGit2Sharp.Commands.Stage(repo, App.TempDirectory + "/subfolder/version.yml");
+        repo.Commit("Second commit", new Signature("Tester", "tester@example.com", DateTime.Now),
+            new Signature("Tester", "tester@example.com", DateTime.Now));
+        var hash = repo.Head.Tip.Sha;
+        App.RunAndAssert(["get"], "5.6.4-rc-" + hash[..7]);
+        App.RunAndAssert(["get", "subfolder"], "1.0.0-rc-" + hash[..7]);
+    }
+    
     [Fact]
     public void SetVersionCommandTest()
     {

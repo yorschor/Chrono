@@ -7,16 +7,19 @@
     <File Path="README.adoc" />
     <File Path="src\Directory.Packages.props" />
     <File Path="version.yml" />
+    <File Path=".github\workflows\continuous.yml" />
   </Folder>
   <Folder Name="/SolutionItems/Docu/">
     <File Path="doc\Version.adoc" />
     <File Path="doc\DotnetVersioning.adoc" />
     <File Path="doc\dsyitf.adoc" />
     <File Path="doc\CLI.adoc" />
+    <File Path="doc\CIExample.adoc" />
   </Folder>
   <Folder Name="/SolutionItems/Docu/ReferenceConfigs/">
     <File Path="doc\examples\minimal.yml" />
     <File Path="doc\examples\sensibleDefault.yml" />
+    <File Path="doc\examples\expanded.yml" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="src\Tests\Chrono.CLI.Test\Chrono.CLI.Test.csproj" Type="Classic C#" />
