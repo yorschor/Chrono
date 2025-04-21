@@ -2,89 +2,76 @@
 
 == 📚 About
 
-[cols="^3,^1",frame=none grid=cols]
+[cols="^3,^.^1",frame=none grid=cols]
 |===
 a|
-[cols=">1,<1,>4",frame=none,grid=none]
-!===
+image:https://img.shields.io/badge/c%23-%23239120.svg?&logo=csharp&logoColor=white[C#]
+image:https://img.shields.io/badge/.NET-5C2D91?&logo=.net&logoColor=white[.NET]
+image:https://img.shields.io/nuget/v/Chrono.Cli[NuGet Version]
 
-a! image::https://img.shields.io/badge/c%23-%23239120 .svg?&logo=csharp&logoColor=white[C#]
-a! image:https://img.shields.io/nuget/v/Chrono.Cli[NuGet Version]
-
-a! **Current Version:**
-include::version.yml[lines="2"]
-
-!===
 Chrono is a git versioning tool with a focus on being customizable and easy to configure.
 
-It is inspired by the likes of https://github.com/GitTools/GitVersion[GitVersion] and https://github.com/dotnet/Nerdbank.GitVersioning[Nerdbank.Gitversioning].
+Based on your configured templates it easily retrieves version information based on the current state or your repo.
+
+It provides a CLI and a NugetPackage for automatic version stamping. 
+
+Chrono is inspired by the likes of https://github.com/GitTools/GitVersion[GitVersion] and https://github.com/dotnet/Nerdbank.GitVersioning[Nerdbank.Gitversioning].
 
 a|image::icon.png[]
 |===
 
-=== Road to 1.0 
+== 🚀 Getting started
+In order to use Chrono you first need to have a version.yml file in the root of your project.
+Secondly you also either need to have the Chrono CLI installed or use the Chrono.DotnetVersioning package in your project.
 
-* [x] Ensure config examples are up to date
-* [x] Extensive testing
-* [x] CI Example (gitlab?)
-* [ ] Full final manual test 
-* [x] ci test need to run green 
-* [-] Adjust documentation
-* [x] Enhance logging and error handling/reporting
+The CLI provides a convenience command "_chrono init_" to create a version.yml and optionally a Directory.Build.props file for setting up initial versioning.
 
-=== Commands
 
-[source,text]
-----
-Chrono
-├── init
-├── info
-├── get
-├── set <Version> 
-└── bump <Version component> 
-----
+[cols="^.^1,^.^2"]
+|====
+| Package | Command 
+| Chrono.CLI 
 
-=== 🚀 Getting started 
+a| 
+[source]
+dotnet tool install -g Chrono.CLI
 
-Install/Update the dotnet tool using
-
-|===
-|Install|Update
+| Chrono.DotnetVersioning 
 
 a|
 [source]
-----
-dotnet tool install -g Chrono
-----
-a|
-[source]
-----
-dotnet tool update -g Chrono
-----
+dotnet add package Chrono.DotnetVersioning
 
-|===
+|====
 
-Next up either create a version.yml or use the convenience command ''chrono init''
+=== 📃 The version file
+For a detailed description please consider the link:doc/Version.adoc[documentation]
 
-For the content of version.yml either checkout the default example below
+Create a "version.yml" file in the root of your project.
+The simplest version file looks like this:
 
-[source,yml]
+[source,yaml]
 ----
 version: "1.0.0"
 default:
-  versionSchema: "{major}.{minor}.{patch}[-]{branch}[-]{commitShortHash}"
-  precision: "minor"  
-  release:
-    match:
-      - "^release/.*"
-    versionSchema: "{major}.{minor}.{patch}"
-----
-choose one of the other example in ''/doc/examples''
+  versionSchema: "{major}.{minor}.{patch}"
+---- 
 
-or read the full link:doc/Version.adoc[documentation]
+This will simply return the version "1.0.0" for every branch and tag.
 
-==== 🕹️ ️Automatic Version stamping (dotnet) 
+=== ⌨️ CLI
+For a detailed description please consider the link:doc/CLI.adoc[documentation]
 
-include::doc/DotnetVersioning.adoc[leveloffset=+1]
+The CLI consists of a few commands that can be split into two categories. 
+Version and Git commands.
+Version commands like _**get/set/bump**_ are used to retrieve, set or bump the version.
 
+Git commands like _**branch/release/tag**_ are used to create a new branch or tag based on the template provided in the version file.
 
+=== 📦 Dotnet Versioning
+For a detailed description please consider the link:doc/DotnetVersioning.adoc[documentation]
+
+The Dotnet Versioning package injects target into the msbuild process to call chrono and set variables in the current build process. 
+In order to do so your project must be written in link:https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview[sdk style] and have a version.yml present somewhere within your projects git repo and on the same level or above the project file.
+
+The target will run automatically then to version your project :)
