@@ -10,49 +10,50 @@ namespace Chrono.Commands.Core;
 // ReSharper disable ClassNeverInstantiated.Global
 public class GetVersionCommand : Command<GetVersionCommand.Settings>
 {
-    public sealed class Settings : BaseCommandSettings
-    {
-        [CommandOption("-n|--numeric")] public bool Numeric { get; init; } = false;
-        [CommandOption("-e|--useEnvVars")] public bool UseEnvVars { get; init; } = false;
+	public sealed class Settings : BaseCommandSettings
+	{
+		[CommandOption("-n|--numeric")] public bool Numeric { get; init; } = false;
+		[CommandOption("-e|--useEnvVars")] public bool UseEnvVars { get; init; } = false;
 
-        [CommandOption("-p|--gitRoot")] public string RootPath { get; set; } = "";
-        [CommandArgument(0, "[Target]")] public string TargetVersionFile { get; set; } = "";
-    }
+		[CommandOption("-p|--gitRoot")] public string RootPath { get; set; } = "";
+		[CommandArgument(0, "[Target]")] public string TargetVersionFile { get; set; } = "";
+	}
 
-    public override int Execute(CommandContext context, Settings settings)
-    {
-        NLogHelper.SetLogLevel(settings.Trace);
-        var versionInfoResult = VersionInfo.Get(settings.IgnoreDirty, settings.UseEnvVars, settings.RootPath, settings.TargetVersionFile);
-        if (!versionInfoResult)
-        {
-            versionInfoResult.PrintFailures();
-            return 1;
-        }
+	public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
+	{
+		NLogHelper.SetLogLevel(settings.Trace);
+		var versionInfoResult = VersionInfo.Get(settings.IgnoreDirty, settings.UseEnvVars, settings.RootPath,
+			settings.TargetVersionFile);
+		if (!versionInfoResult)
+		{
+			versionInfoResult.PrintFailures();
+			return 1;
+		}
 
-        var versionInfo = versionInfoResult.Data;
-        if (settings.Debug)
-        {
-            var tree = new Tree($"VersionInfo for [gray]{versionInfo}[/]");
-            tree.AddNode($"Major: {versionInfo.Major}");
-            tree.AddNode($"Minor: {versionInfo.Minor}");
-            tree.AddNode($"Patch: {versionInfo.Patch}");
-            tree.AddNode($"Build: {versionInfo.Build}");
-            tree.AddNode($"PrereleaseTag: {versionInfo.CurrentBranchConfig.PrereleaseTag}");
-            tree.AddNode($"CommitShortHash: {versionInfo.GitInfoProvider.CommitShortHash}");
-            tree.AddNode($"BranchName: {versionInfo.GitInfoProvider.BranchName}");
-            // tree.AddNode("Tags").AddNodes(versionInfo.GitInfoProvider.TagNames);
-            AnsiConsole.Write(tree);
-        }
+		var versionInfo = versionInfoResult.Data;
+		if (settings.Debug)
+		{
+			var tree = new Tree($"VersionInfo for [gray]{versionInfo}[/]");
+			tree.AddNode($"Major: {versionInfo.Major}");
+			tree.AddNode($"Minor: {versionInfo.Minor}");
+			tree.AddNode($"Patch: {versionInfo.Patch}");
+			tree.AddNode($"Build: {versionInfo.Build}");
+			tree.AddNode($"PrereleaseTag: {versionInfo.CurrentBranchConfig.PrereleaseTag}");
+			tree.AddNode($"CommitShortHash: {versionInfo.GitInfoProvider.CommitShortHash}");
+			tree.AddNode($"BranchName: {versionInfo.GitInfoProvider.BranchName}");
+			// tree.AddNode("Tags").AddNodes(versionInfo.GitInfoProvider.TagNames);
+			AnsiConsole.Write(tree);
+		}
 
-        var parseResult = settings.Numeric ? versionInfo.GetNumericVersion() : versionInfo.GetVersion();
-        if (!parseResult)
-        {
-            parseResult.PrintFailures();
-            return 1;
-        }
+		var parseResult = settings.Numeric ? versionInfo.GetNumericVersion() : versionInfo.GetVersion();
+		if (!parseResult)
+		{
+			parseResult.PrintFailures();
+			return 1;
+		}
 
-        AnsiConsole.Console.WriteLine(parseResult.Data);
-        NLogHelper.SetLogLevel(false);
-        return 0;
-    }
+		AnsiConsole.Console.WriteLine(parseResult.Data);
+		NLogHelper.SetLogLevel(false);
+		return 0;
+	}
 }
