@@ -13,7 +13,7 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
 {
     public sealed class Settings : BaseCommandSettings;
 
-    public override int Execute(CommandContext context, Settings settings)
+    public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var layout = new Layout("Root")
             .SplitRows(
@@ -41,6 +41,7 @@ public class GetInfoCommand : Command<GetInfoCommand.Settings>
         AnsiConsole.Write(rootPanel);
         return 0;
     }
+    
 }
 
 #endregion
