@@ -10,7 +10,7 @@ jobs:
   compile:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/dotnet/sdk:9.0
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     steps:
       - uses: actions/checkout@v4
       - run: ./build.sh compile
@@ -18,7 +18,7 @@ jobs:
   test:
       runs-on: ubuntu-latest
       container:
-        image: mcr.microsoft.com/dotnet/sdk:9.0
+        image: mcr.microsoft.com/dotnet/sdk:10.0
       steps:
         - uses: actions/checkout@v4
         - run: dotnet test Chrono.slnx --logger trx --results-directory reports
