@@ -47,4 +47,54 @@ public class DirectoryHelperTest
         // Assert
         Assert.Equal(1, distance);
     }
+
+    [Theory]
+    [InlineData("version.yml")]
+    [InlineData("version.yaml")]
+    [InlineData("VERSION.YML")]
+    [InlineData("Version.Yaml")]
+    public void Find_DefaultTargetFileName_MatchesYmlAndYamlCaseInsensitively(string actualFileName)
+    {
+        // Arrange
+        var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tempDirectory);
+        var expectedPath = Path.Combine(tempDirectory, actualFileName);
+        File.WriteAllText(expectedPath, "version: '1.0.0'");
+
+        try
+        {
+            // Act
+            var result = DirectoryHelper.Find(tempDirectory, tempDirectory);
+
+            // Assert
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(expectedPath, result.Data);
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, true);
+        }
+    }
+
+    [Fact]
+    public void Find_ExplicitTargetFileName_DoesNotAliasToOtherExtensions()
+    {
+        // Arrange
+        var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tempDirectory);
+        File.WriteAllText(Path.Combine(tempDirectory, "custom.yaml"), "version: '1.0.0'");
+
+        try
+        {
+            // Act
+            var result = DirectoryHelper.Find(tempDirectory, tempDirectory, "custom.yml");
+
+            // Assert
+            Assert.False(result.Success);
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, true);
+        }
+    }
 }
