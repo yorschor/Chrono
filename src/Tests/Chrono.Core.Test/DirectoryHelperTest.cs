@@ -8,16 +8,25 @@ public class DirectoryHelperTest
     public void Find_ValidDirectories_ReturnsFilePath()
     {
         // Arrange
-        var startDirectory = Directory.GetCurrentDirectory();
-        var stopDirectory = Directory.GetCurrentDirectory();
-        var targetFileName = "sample_version.yml";
+        var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tempDirectory);
+        const string targetFileName = "sample_version.yml";
+        var expectedPath = Path.Combine(tempDirectory, targetFileName);
+        File.WriteAllText(expectedPath, "version: '1.0.0'");
 
-        // Act
-        var result = DirectoryHelper.Find(startDirectory, stopDirectory, targetFileName);
+        try
+        {
+            // Act
+            var result = DirectoryHelper.Find(tempDirectory, tempDirectory, targetFileName);
 
-        // Assert
-        Assert.True(result.Success);
-        Assert.Equal(Path.Combine(Directory.GetCurrentDirectory(), targetFileName), result.Data);
+            // Assert
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(expectedPath, result.Data);
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, true);
+        }
     }
 
     [Fact]
