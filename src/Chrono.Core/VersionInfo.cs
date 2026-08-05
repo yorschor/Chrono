@@ -49,11 +49,12 @@ public class VersionInfo
 
     #endregion
 
-    internal VersionInfo(string path, IGitInfoProvider gitInfoProvider, bool allowDirtyRepo = false, bool useEnvVars = false)
+    internal VersionInfo(string path, IGitInfoProvider gitInfoProvider, bool allowDirtyRepo = false,
+        bool useEnvVars = false)
     {
         _versionPath = path;
         GitInfoProvider = gitInfoProvider;
-        
+
         var fileResult = VersionFile.From(_versionPath);
         if (!fileResult.Success)
         {
@@ -73,7 +74,7 @@ public class VersionInfo
             Patch = version.Build;
             Build = version.Revision;
         }
-        
+
         var gitRes = GitInfoProvider.LoadGitInfo(allowDirtyRepo, File.Default.DirtyRepo);
         if (!gitRes)
         {
@@ -106,18 +107,25 @@ public class VersionInfo
     /// A catch-all method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
     /// </summary>
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
-    public static Result<VersionInfo> Get(bool allowDirtyRepo = false, bool useEnvVars = false, string rootPath = "", string targetVersionFile = "")
+    public static Result<VersionInfo> Get(bool allowDirtyRepo = false, bool useEnvVars = false, string rootPath = "",
+        string targetVersionFile = "")
     {
         var gitSearchDirectory = string.IsNullOrEmpty(rootPath) ? Environment.CurrentDirectory : rootPath;
-        var targetVersionFileSearchPath = string.IsNullOrEmpty(targetVersionFile) ? gitSearchDirectory : targetVersionFile;
+        var targetVersionFileSearchPath =
+            string.IsNullOrEmpty(targetVersionFile) ? gitSearchDirectory : targetVersionFile;
         var gitDirectory = Repository.Discover(gitSearchDirectory);
         if (string.IsNullOrEmpty(gitDirectory))
         {
             return Result.Fail<VersionInfo>($"Chrono GitVersioning: No git directory found at {gitSearchDirectory}");
         }
 
-        var versionFileFoundResult = DirectoryHelper.Find(targetVersionFileSearchPath,
-            gitDirectory.Substring(0, gitDirectory.Length - 4));
+        var repoRootResult = ResolveRepoRoot(gitDirectory);
+        if (!repoRootResult)
+        {
+            return Result.Fail<VersionInfo>(repoRootResult);
+        }
+
+        var versionFileFoundResult = DirectoryHelper.Find(targetVersionFileSearchPath, repoRootResult.Data);
 
         if (!versionFileFoundResult)
         {
@@ -133,6 +141,34 @@ public class VersionInfo
         {
             return Result.Fail<VersionInfo>(e);
         }
+    }
+
+    /// <summary>
+    /// Resolves the working directory for a discovered git directory. For a normal repository this is
+    /// derived purely from the path string (the parent of ".git"), without opening a
+    /// <see cref="Repository"/> - this keeps the common case exempt from LibGit2Sharp's repository
+    /// ownership validation, which rejects opening a repository whose directory isn't owned by the
+    /// current user (relevant in some containerized CI setups).
+    /// Anything that doesn't have that shape - linked worktrees, submodules, unusually named bare repositories - falls back
+    /// to actually opening the repository, which is acceptable to resolve those correctly.
+    /// </summary>
+    private static Result<string> ResolveRepoRoot(string gitDirectory)
+    {
+        var trimmed = gitDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        if (trimmed.EndsWith(".git", StringComparison.OrdinalIgnoreCase))
+        {
+            return Result.Ok(Path.GetDirectoryName(trimmed));
+        }
+
+        using var repo = new Repository(gitDirectory);
+        var workingDirectory = repo.Info.WorkingDirectory;
+        if (string.IsNullOrEmpty(workingDirectory))
+        {
+            return Result.Fail<string>(
+                $"Chrono GitVersioning: '{gitDirectory}' has no working directory (bare repository?)");
+        }
+
+        return Result.Ok(workingDirectory);
     }
 
     #region VersionMethods

@@ -99,6 +99,10 @@ Variables are handled as simple string replacements. If a variable not defined/s
 | {commitShortHash} | Short hash of the commit
 |===
 
+TIP: If `{commitShortHash}` sits behind a `.` in your schema, prefix it with a letter (e.g.
+`g{commitShortHash}`) - a hash that happens to be all digits with a leading zero is invalid SemVer
+and NuGet will reject the whole version.
+
 .Environment variables
 Any environment variable can be used in the version schema.
 

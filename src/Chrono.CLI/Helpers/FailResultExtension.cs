@@ -2,7 +2,6 @@ using Chrono.Core;
 using Huxy;
 using NLog;
 using Spectre.Console;
-using YamlDotNet.Core;
 
 namespace Chrono.Helpers;
 
@@ -45,7 +44,7 @@ public static class ResultExtension
                 AnsiConsole.WriteLine("");
             }
 
-            AnsiConsole.MarkupLine($"[grey70]{e.Start.Line-1}[/] {e.SurroundingLines[0]}");
+            AnsiConsole.MarkupLine($"[grey70]{e.Start.Line - 1}[/] {e.SurroundingLines[0]}");
         }
 
         var errorLine = e.SurroundingLines[1];
@@ -58,8 +57,8 @@ public static class ResultExtension
 
         if (e.Start.Line + 1 <= e.FileLineLength)
         {
-            AnsiConsole.MarkupLine($"[grey70]{e.Start.Line+1}[/] {e.SurroundingLines[2]}");
-            
+            AnsiConsole.MarkupLine($"[grey70]{e.Start.Line + 1}[/] {e.SurroundingLines[2]}");
+
             if (e.Start.Column - 1 != e.FileLineLength)
             {
                 AnsiConsole.WriteLine("");

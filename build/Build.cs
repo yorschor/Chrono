@@ -93,7 +93,7 @@ class Build : NukeBuild
                 .SetAssemblyVersion(NumericVersion)
                 .SetFileVersion(NumericVersion)
                 // .SetSelfContained(true)
-                .SetFramework("net6.0")
+                .SetFramework("net8.0")
             );
 
             DotNetTasks.DotNetPublish(s => s
@@ -113,10 +113,10 @@ class Build : NukeBuild
         {
             var p = Solution.GetProject(TargetProjectName)?.Directory;
             var net472 = p / "bin" / Configuration.Release / "net472" / "publish" / "LibGit2Sharp.dll.config";
-            var net6 = p / "bin" / Configuration.Release / "net6.0" / "publish" / "Chrono.DotnetTasks.deps.json";
+            var net8 = p / "bin" / Configuration.Release / "net8.0" / "publish" / "Chrono.DotnetTasks.deps.json";
 
             AdjustDllConfigPaths(net472);
-            AdjustDllConfigPaths(net6);
+            AdjustDllConfigPaths(net8);
         });
 
     void AdjustDllConfigPaths(string configFilePath)

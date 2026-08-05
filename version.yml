@@ -1,7 +1,7 @@
 version: 1.2.0.0
 default:
     dirtyRepo: dirty-repo
-    versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
+    versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]g{commitShortHash}'
     prereleaseTag: local
     precision: Minor
     release:

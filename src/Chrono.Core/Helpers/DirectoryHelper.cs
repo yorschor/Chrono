@@ -7,9 +7,12 @@ namespace Chrono.Core.Helpers;
 public static class DirectoryHelper
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    
+
+    private static readonly string[] VersionFileExtensions = [".yml", ".yaml"];
+
     /// <summary>
-    /// Finds the specified target file within the directory hierarchy.
+    /// Finds the specified target file within the directory hierarchy. Matching is case-insensitive; if
+    /// <paramref name="targetFileName"/> is the default "version.yml", both ".yml" and ".yaml" are accepted.
     /// </summary>
     /// <param name="startDirectory">The starting directory for the search.</param>
     /// <param name="stopDirectory">The stopping directory for the search.</param>
@@ -22,12 +25,14 @@ public static class DirectoryHelper
             return Result.Fail<string>("Directory paths and file name cannot be null or empty!");
         }
         startDirectory = Path.GetFullPath(startDirectory);
-        var files = Directory.EnumerateFiles(stopDirectory, targetFileName, SearchOption.AllDirectories);
+        var candidateNames = GetCandidateFileNames(targetFileName);
+        var files = Directory.EnumerateFiles(stopDirectory, "*", SearchOption.AllDirectories)
+            .Where(f => candidateNames.Contains(Path.GetFileName(f), StringComparer.OrdinalIgnoreCase));
         var enumerable = files as string[] ?? files.ToArray();
 
         if (!enumerable.Any())
         {
-            return Result.Fail<string>("No version.yml present");
+            return Result.Fail<string>($"No {string.Join(" or ", candidateNames)} present");
         }
 
         Logger.Trace($"Found {enumerable.Length} version file(s)");
@@ -105,6 +110,17 @@ public static class DirectoryHelper
         var absolut = AbsolutePath.Create(fromPath);
         var relative = absolut.GetRelativePathTo(toPath);
         return relative.ToString().Split(Path.DirectorySeparatorChar).Length - 1;
+    }
+
+    private static string[] GetCandidateFileNames(string targetFileName)
+    {
+        if (!targetFileName.Equals("version.yml", StringComparison.OrdinalIgnoreCase))
+        {
+            return [targetFileName];
+        }
+
+        var baseName = Path.GetFileNameWithoutExtension(targetFileName);
+        return VersionFileExtensions.Select(ext => baseName + ext).ToArray();
     }
 
     public static string AppendPathsWithPotentialFileName(string path1, string path2, string fileName)

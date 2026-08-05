@@ -1,7 +1,7 @@
 ---
 version: 0.0.0.0
 default:
-  versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
+  versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]g{commitShortHash}'
   precision: minor
   prereleaseTag: local
   release:
