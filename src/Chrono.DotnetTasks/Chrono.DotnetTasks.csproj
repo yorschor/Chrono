@@ -6,7 +6,7 @@
         <DevelopmentDependency>true</DevelopmentDependency>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-        <TargetFrameworks>net6.0;net472</TargetFrameworks>
+        <TargetFrameworks>net8.0;net472</TargetFrameworks>
         <Title>Chrono.DotnetTasks</Title>
         <Authors>Ekkehard C. Damisch</Authors>
         <Copyright>Ekkehard C. Damisch</Copyright>
@@ -20,7 +20,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Build.Framework"/>
         <PackageReference Include="Microsoft.Build.Utilities.Core"/>
-        <PackageReference Include="System.Runtime.Loader" Condition="'$(TargetFramework)' == 'net6.0'"/>
+        <PackageReference Include="System.Runtime.Loader" Condition="'$(TargetFramework)' == 'net8.0'"/>
         <PackageReference Update="@(PackageReference)" PrivateAssets="All"/>
     </ItemGroup>
 
@@ -35,8 +35,8 @@
         <None Include="Chrono.DotnetTasks.props" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="Chrono.DotnetTasks.targets" CopyToOutputDirectory="Always" Pack="true" PackagePath="build"/>
         <None Include="bin\$(Configuration)\net472\publish\**\*.*" Pack="true" PackagePath="build\MSBuildFull\" Visible="false"/>
-        <None Include="bin\$(Configuration)\net6.0\publish\*.dll" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
-        <None Include="bin\$(Configuration)\net6.0\publish\Chrono.DotnetTasks.deps.json" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net8.0\publish\*.dll" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
+        <None Include="bin\$(Configuration)\net8.0\publish\Chrono.DotnetTasks.deps.json" Pack="true" PackagePath="build\MSBuildCore\" Visible="false"/>
     </ItemGroup>
 
 </Project>
