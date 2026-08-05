@@ -9,9 +9,9 @@
     <PackageVersion Include="DotNetZip.NetStandard" Version="1.12.0" />
     <PackageVersion Include="Huxy" Version="2.0.0" />
     <PackageVersion Include="LibGit2Sharp" Version="0.30.0" />
-    <PackageVersion Include="Microsoft.Build.Framework" Version="18.0.2" />
-    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
-    <PackageVersion Include="NLog" Version="6.0.7" />
+    <PackageVersion Include="Microsoft.Build.Framework" Version="18.8.2" />
+    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.8.2" />
+    <PackageVersion Include="NLog" Version="6.1.4" />
     <PackageVersion Include="Nuke.Common" Version="9.0.4" />
     <PackageVersion Include="Nuke.Utilities" Version="10.1.0" />
     <PackageVersion Include="Spectre.Console.Cli" Version="0.53.1" />
@@ -19,15 +19,15 @@
     <PackageVersion Include="System.Memory" Version="4.6.3" />
     <PackageVersion Include="System.Net.Http" Version="4.3.4" />
     <PackageVersion Include="xunit.assert" Version="2.5.3" />
-    <PackageVersion Include="YamlDotNet" Version="16.3.0" />
+    <PackageVersion Include="YamlDotNet" Version="18.1.0" />
     <PackageVersion Include="System.Runtime.Loader" Version="4.3.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
-    <PackageVersion Include="coverlet.collector" Version="6.0.4">
+    <PackageVersion Include="coverlet.collector" Version="10.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
