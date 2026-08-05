@@ -19,7 +19,7 @@ For the content of version.yml either checkout the default example below.
 ```yml
 version: 1.0.0.0
 default:
-  versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]{commitShortHash}'
+  versionSchema: '{major}.{minor}.{patch}.{build}[-]{branch}[.]g{commitShortHash}'
   precision: build
   prereleaseTag: dev
   release:
