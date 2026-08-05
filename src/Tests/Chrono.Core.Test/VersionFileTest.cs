@@ -1,8 +1,8 @@
 namespace Chrono.Core.Test;
 
-public class VersionFileTests
+public class VersionFileTests : IDisposable
 {
-    private readonly string _sampleYamlPath = "sample_version.yml";
+    private readonly string _sampleYamlPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
     private readonly string _sampleYamlContent = """
 
@@ -137,12 +137,13 @@ public class VersionFileTests
     }
 
 
-    ~VersionFileTests()
+    public void Dispose()
     {
-        // Cleanup sample YAML file
         if (File.Exists(_sampleYamlPath))
         {
             File.Delete(_sampleYamlPath);
         }
+
+        GC.SuppressFinalize(this);
     }
 }

@@ -8,16 +8,25 @@ public class DirectoryHelperTest
     public void Find_ValidDirectories_ReturnsFilePath()
     {
         // Arrange
-        var startDirectory = Directory.GetCurrentDirectory();
-        var stopDirectory = Directory.GetCurrentDirectory();
-        var targetFileName = "sample_version.yml";
+        var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tempDirectory);
+        const string targetFileName = "sample_version.yml";
+        var expectedPath = Path.Combine(tempDirectory, targetFileName);
+        File.WriteAllText(expectedPath, "version: '1.0.0'");
 
-        // Act
-        var result = DirectoryHelper.Find(startDirectory, stopDirectory, targetFileName);
+        try
+        {
+            // Act
+            var result = DirectoryHelper.Find(tempDirectory, tempDirectory, targetFileName);
 
-        // Assert
-        Assert.True(result.Success);
-        Assert.Equal(Path.Combine(Directory.GetCurrentDirectory(), targetFileName), result.Data);
+            // Assert
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(expectedPath, result.Data);
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, true);
+        }
     }
 
     [Fact]
@@ -46,5 +55,55 @@ public class DirectoryHelperTest
 
         // Assert
         Assert.Equal(1, distance);
+    }
+
+    [Theory]
+    [InlineData("version.yml")]
+    [InlineData("version.yaml")]
+    [InlineData("VERSION.YML")]
+    [InlineData("Version.Yaml")]
+    public void Find_DefaultTargetFileName_MatchesYmlAndYamlCaseInsensitively(string actualFileName)
+    {
+        // Arrange
+        var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tempDirectory);
+        var expectedPath = Path.Combine(tempDirectory, actualFileName);
+        File.WriteAllText(expectedPath, "version: '1.0.0'");
+
+        try
+        {
+            // Act
+            var result = DirectoryHelper.Find(tempDirectory, tempDirectory);
+
+            // Assert
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(expectedPath, result.Data);
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, true);
+        }
+    }
+
+    [Fact]
+    public void Find_ExplicitTargetFileName_DoesNotAliasToOtherExtensions()
+    {
+        // Arrange
+        var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        Directory.CreateDirectory(tempDirectory);
+        File.WriteAllText(Path.Combine(tempDirectory, "custom.yaml"), "version: '1.0.0'");
+
+        try
+        {
+            // Act
+            var result = DirectoryHelper.Find(tempDirectory, tempDirectory, "custom.yml");
+
+            // Assert
+            Assert.False(result.Success);
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, true);
+        }
     }
 }
