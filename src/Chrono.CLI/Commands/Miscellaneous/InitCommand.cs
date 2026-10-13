@@ -1,4 +1,5 @@
-﻿using Chrono.Helpers;
+﻿using Chrono.Core.Helpers;
+using Chrono.Helpers;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -16,6 +17,13 @@ public class InitCommand : Command<InitCommand.Settings>
 	public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
 	{
 		var projectDirectory = Directory.GetCurrentDirectory();
+		var versionFileName = DirectoryHelper.ParseFileNames(settings.VersionFileName).FirstOrDefault() ?? "";
+		var nameCheck = DirectoryHelper.ValidateFileNames([versionFileName]);
+		if (!nameCheck)
+		{
+			AnsiConsole.MarkupLineInterpolated($"[red]{nameCheck.Message}[/]");
+			return -1;
+		}
 
 		// === STEP 1. Preflight Check ===
 		// Check for presence of key files, printing statuses accordingly:
@@ -23,7 +31,7 @@ public class InitCommand : Command<InitCommand.Settings>
 		// - Directory.Build.props : if exists -> red; if not -> green.
 		// - packages.config : search recursively at least 3 directory layers deep;
 		//                    if exists -> warn (yellow).
-		var versionFileExists = File.Exists(Path.Combine(projectDirectory, "version.yml"));
+		var versionFileExists = File.Exists(Path.Combine(projectDirectory, versionFileName));
 		var buildPropsExists = File.Exists(Path.Combine(projectDirectory, "Directory.Build.props"));
 
 		// A helper method to search for packages.config files 3 levels deep at most.
@@ -35,9 +43,9 @@ public class InitCommand : Command<InitCommand.Settings>
 		AnsiConsole.Write(new Rule($"[bold]Chrono Init[/]"));
 
 		if (versionFileExists)
-			AnsiConsole.MarkupLine("version.yml - [red]exists[/]");
+			AnsiConsole.MarkupLineInterpolated($"{versionFileName} - [red]exists[/]");
 		else
-			AnsiConsole.MarkupLine("version.yml - [green]Not found[/]");
+			AnsiConsole.MarkupLineInterpolated($"{versionFileName} - [green]Not found[/]");
 
 		// Print status for Directory.Build.props
 		if (buildPropsExists)
@@ -105,12 +113,12 @@ public class InitCommand : Command<InitCommand.Settings>
 
 		var versionContent = InitTemplates.GetVersionFile(variant, initialVersion);
 
-		AnsiConsole.Write(new Rule($"[bold]version.yml[/]"));
+		AnsiConsole.Write(new Rule($"[bold]{Markup.Escape(versionFileName)}[/]"));
 		Console.WriteLine(versionContent);
 		AnsiConsole.WriteLine();
 		if (includeBuildProps)
 		{
-			var propsContent = InitTemplates.GetBuildProps(settings.AppVersion);
+			var propsContent = InitTemplates.GetBuildProps(settings.AppVersion, versionFileName);
 			AnsiConsole.Write(new Rule($"[bold]Directory.Build.props[/]"));
 			Console.WriteLine(propsContent);
 			AnsiConsole.WriteLine();
@@ -123,13 +131,13 @@ public class InitCommand : Command<InitCommand.Settings>
 				false);
 		if (writeFiles)
 		{
-			File.WriteAllText(Path.Combine(projectDirectory, "version.yml"),
+			File.WriteAllText(Path.Combine(projectDirectory, versionFileName),
 				InitTemplates.GetVersionFile(variant, initialVersion));
 
 			if (includeBuildProps)
 			{
 				File.WriteAllText(Path.Combine(projectDirectory, "Directory.Build.props"),
-					InitTemplates.GetBuildProps(settings.AppVersion));
+					InitTemplates.GetBuildProps(settings.AppVersion, versionFileName));
 			}
 
 			AnsiConsole.MarkupLine("[green]Files have been written successfully.[/]");

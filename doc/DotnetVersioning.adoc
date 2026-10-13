@@ -43,3 +43,17 @@ This file will contain the version information for your project.
 Please consider the link:Version.adoc[documentation] for more information.
 
 . Build your project and check the versions of your assemblies.
+
+== Using a different version file name
+
+By default the task looks for `version.yml` (also `version.yaml`, case-insensitive). To use another name set the `ChronoVersionFile` property, for example in `Directory.Build.props`:
+
+[source,xml]
+----
+<PropertyGroup>
+    <ChronoVersionFile>component.yml</ChronoVersionFile>
+</PropertyGroup>
+----
+
+Several names can be given, separated by `,` or `;`, in order of preference (`component.yml;version.yml`). Only plain file names are allowed, no paths.
+The file nearest to the project wins; if two files are equally near, the name listed first wins. A name ending in `.yml` or `.yaml` also matches the other extension, like `version.yml` matches `version.yaml`; if both exist in the same directory, the name as written wins.

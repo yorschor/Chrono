@@ -86,12 +86,13 @@ public class DirectoryHelperTest
     }
 
     [Fact]
-    public void Find_ExplicitTargetFileName_DoesNotAliasToOtherExtensions()
+    public void Find_ExplicitTargetFileName_AlsoMatchesTheOtherYamlExtension()
     {
         // Arrange
         var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         Directory.CreateDirectory(tempDirectory);
-        File.WriteAllText(Path.Combine(tempDirectory, "custom.yaml"), "version: '1.0.0'");
+        var expectedPath = Path.Combine(tempDirectory, "custom.yaml");
+        File.WriteAllText(expectedPath, "version: '1.0.0'");
 
         try
         {
@@ -99,7 +100,8 @@ public class DirectoryHelperTest
             var result = DirectoryHelper.Find(tempDirectory, tempDirectory, "custom.yml");
 
             // Assert
-            Assert.False(result.Success);
+            Assert.True(result.Success, result.Message);
+            Assert.Equal(expectedPath, result.Data);
         }
         finally
         {

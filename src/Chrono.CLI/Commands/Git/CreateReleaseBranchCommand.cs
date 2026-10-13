@@ -46,7 +46,7 @@ public class CreateReleaseBranchCommand : Command<CreateReleaseBranchCommand.Set
 		// 3 Commit changes of new version if -c | --commit is set
 		if (settings.Commit)
 		{
-			LibGit2Sharp.Commands.Stage(repo, "version.yml");
+			LibGit2Sharp.Commands.Stage(repo, versionInfo.VersionFilePath);
 
 			var signature = repo.Config.BuildSignature(DateTimeOffset.Now)
 			                ?? new Signature("Chrono CLI", "chrono@version.cli", DateTime.Now);

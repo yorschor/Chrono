@@ -23,7 +23,7 @@ public class GetVersionCommand : Command<GetVersionCommand.Settings>
 	{
 		NLogHelper.SetLogLevel(settings.Trace);
 		var versionInfoResult = VersionInfo.Get(settings.IgnoreDirty, settings.UseEnvVars, settings.RootPath,
-			settings.TargetVersionFile);
+			settings.TargetVersionFile, settings.VersionFileName);
 		if (!versionInfoResult)
 		{
 			versionInfoResult.PrintFailures();
