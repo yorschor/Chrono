@@ -71,7 +71,7 @@ Gets the current version of the project.
 Print only the numeric portion (e.g. 1.2.3.4), omitting any prerelease tag.
 
 * -e, --useEnvVars -> 
-Fall back to VERSION_MAJOR, VERSION_MINOR, etc., if present in the environment. Should be used in most CI scenarios.
+Read branch, tag and commit from the CI environment instead of the local git repo. Known CI systems are detected automatically; for any other CI set CHRONO_CI=true plus CHRONO_BRANCH and/or CHRONO_TAG and CHRONO_COMMIT_SHA (no git repository needed then, see CI Example). Should be used in most CI scenarios.
 
 * -p, --gitRoot <path> -> 
 Manually specify the Git repository root (defaults to discovering from CWD).
