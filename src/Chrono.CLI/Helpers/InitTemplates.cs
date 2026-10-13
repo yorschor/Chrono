@@ -11,9 +11,9 @@ public enum VersionFileVariants
 
 public static class InitTemplates
 {
-	public static string GetBuildProps(string version = "1.0.0")
+	public static string GetBuildProps(string version = "1.0.0", string versionFileName = "version.yml")
 	{
-		return $"""
+		var props = $"""
 		        <?xml version="1.0" encoding="utf-8"?>
 		        <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		          <ItemGroup>
@@ -25,6 +25,12 @@ public static class InitTemplates
 		          </PropertyGroup>
 		        </Project>
 		        """;
+
+		// Only a non-default version file name needs to be told to the MSBuild task.
+		return string.Equals(versionFileName, "version.yml", StringComparison.OrdinalIgnoreCase)
+			? props
+			: props.Replace("<GenerateAssemblyInfo>true</GenerateAssemblyInfo>",
+				$"<GenerateAssemblyInfo>true</GenerateAssemblyInfo>\n    <ChronoVersionFile>{versionFileName}</ChronoVersionFile>");
 	}
 
 	public static string GetVersionFile(VersionFileVariants variant, string version = "0.0.1.0")
