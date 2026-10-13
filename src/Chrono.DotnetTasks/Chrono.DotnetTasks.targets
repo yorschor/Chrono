@@ -16,7 +16,7 @@
 
     <Target Name="StampVersions" BeforeTargets="$(ChronoTargetsBefore)">
         <Message Text="StampVersions target is being executed using $(Chrono_PlatformSuffix)" Importance="high"/>
-        <StampVersionTask IgnoreDirtyRepo="$(IgnoreDirtyRepo)" UseEnvVars="$(UseEnvVars)">
+        <StampVersionTask IgnoreDirtyRepo="$(IgnoreDirtyRepo)" UseEnvVars="$(UseEnvVars)" VersionFileName="$(ChronoVersionFile)">
             <Output TaskParameter="AssemblyVersion" PropertyName="AssemblyVersion"/>
             <Output TaskParameter="FileVersion" PropertyName="FileVersion"/>
             <Output TaskParameter="InformationalVersion" PropertyName="InformationalVersion"/>

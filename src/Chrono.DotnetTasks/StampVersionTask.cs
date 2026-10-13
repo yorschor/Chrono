@@ -9,6 +9,13 @@ public class StampVersionTask : Microsoft.Build.Utilities.Task
     public bool IgnoreDirtyRepo { get; set; }
     
     public bool UseEnvVars { get; set; }
+
+    /// <summary>
+    /// Version file name, or several separated by ',' or ';' in order of preference. Empty means "version.yml".
+    /// Set with the ChronoVersionFile MSBuild property.
+    /// </summary>
+    public string VersionFileName { get; set; }
+
     [Output] public string AssemblyVersion { get; private set; }
 
     [Output] public string FileVersion { get; private set; }
@@ -21,7 +28,7 @@ public class StampVersionTask : Microsoft.Build.Utilities.Task
     {
         try
         {
-            var infoGetResult = VersionInfo.Get(IgnoreDirtyRepo, UseEnvVars);
+            var infoGetResult = VersionInfo.Get(IgnoreDirtyRepo, UseEnvVars, versionFileName: VersionFileName ?? "");
             if (!infoGetResult)
             {
                 Log.LogError(infoGetResult.Message);
