@@ -21,8 +21,8 @@ get:version:
 === Generic CI (OneDev and others)
 
 For CI systems without a built-in provider, opt in explicitly with `CHRONO_CI` and pass branch, tag and commit through the `CHRONO_*` variables.
-With `CHRONO_CI` set, `-e` needs no git repository; `version.yml` is searched from the current directory upwards
-(or pass the file path as `[Target]`). A leading `refs/heads/` or `refs/tags/` is stripped.
+With `CHRONO_CI` set, `-e` needs no git repository. Without one, `version.yml` is searched from the current directory upwards
+(or pass the file path as `[Target]`). Inside a git repository the usual repository search applies. A leading `refs/heads/` or `refs/tags/` is stripped.
 The other `CHRONO_*` variables are ignored unless `CHRONO_CI` is set. If `CHRONO_CI` is set but `CHRONO_COMMIT_SHA` or both
 `CHRONO_BRANCH` and `CHRONO_TAG` are missing, Chrono fails with an error naming the missing variable.
 

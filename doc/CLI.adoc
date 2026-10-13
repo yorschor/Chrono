@@ -74,6 +74,8 @@ A name ending in `.yml` or `.yaml` also matches the other extension, like `versi
 
 `set`, `bump` and `release` write to the file that was found.
 
+`init` creates a single file, so it uses only the first name if a list is given.
+
 == Get
 
 Gets the current version of the project.

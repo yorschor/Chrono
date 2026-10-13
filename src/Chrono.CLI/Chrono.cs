@@ -67,7 +67,7 @@ public class BaseCommandSettings : CommandSettings
     [CommandOption("-i|--ignore-dirty")] public bool IgnoreDirty { get; init; } = false;
 
     [CommandOption("-f|--file")]
-    [Description("Name of the version file, or several separated by ',' in order of preference (default: version.yml)")]
+    [Description("Name of the version file, or several separated by ',' or ';' in order of preference (default: version.yml)")]
     public string VersionFileName { get; init; } = "";
 
     public Result<Repository> GetRepo(string startDir = "")
