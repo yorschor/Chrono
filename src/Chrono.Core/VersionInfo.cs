@@ -35,6 +35,11 @@ public class VersionInfo
 
     public VersionFile File { get; }
 
+    /// <summary>
+    /// Full path of the version file this instance was loaded from (and that set and bump write to).
+    /// </summary>
+    public string VersionFilePath => _versionPath;
+
     public IGitInfoProvider GitInfoProvider { get; internal set; }
     public BranchConfigWithFallback CurrentBranchConfig { get; private set; }
 
@@ -106,10 +111,23 @@ public class VersionInfo
     /// <summary>
     /// A catch-all method that attempts to resolve and parse a <see cref="VersionInfo"/> based on the defaults.
     /// </summary>
+    /// <param name="versionFileName">
+    /// Name of the version file to look for, or several names separated by ',' or ';' in order of preference
+    /// (for example "component.yml,version.yml"). Plain file names only. Empty means the default "version.yml",
+    /// which also accepts "version.yaml". Names are matched case-insensitively, and a name ending in .yml or .yaml
+    /// also matches the other extension.
+    /// </param>
     /// <returns>A result containing the <see cref="VersionInfo"/>.</returns>
     public static Result<VersionInfo> Get(bool allowDirtyRepo = false, bool useEnvVars = false, string rootPath = "",
-        string targetVersionFile = "")
+        string targetVersionFile = "", string versionFileName = "")
     {
+        var versionFileNames = DirectoryHelper.ParseFileNames(versionFileName);
+        var fileNameCheck = DirectoryHelper.ValidateFileNames(versionFileNames);
+        if (!fileNameCheck)
+        {
+            return Result.Fail<VersionInfo>($"Chrono GitVersioning: {fileNameCheck.Message}");
+        }
+
         var gitSearchDirectory = string.IsNullOrEmpty(rootPath) ? Environment.CurrentDirectory : rootPath;
         var targetVersionFileSearchPath =
             string.IsNullOrEmpty(targetVersionFile) ? gitSearchDirectory : targetVersionFile;
@@ -128,7 +146,7 @@ public class VersionInfo
 
             versionFileFoundResult = System.IO.File.Exists(targetVersionFileSearchPath)
                 ? Result.Ok(Path.GetFullPath(targetVersionFileSearchPath))
-                : DirectoryHelper.FindUpwards(targetVersionFileSearchPath);
+                : DirectoryHelper.FindUpwards(targetVersionFileSearchPath, versionFileNames);
         }
         else
         {
@@ -138,7 +156,7 @@ public class VersionInfo
                 return Result.Fail<VersionInfo>(repoRootResult);
             }
 
-            versionFileFoundResult = DirectoryHelper.Find(targetVersionFileSearchPath, repoRootResult.Data);
+            versionFileFoundResult = DirectoryHelper.Find(targetVersionFileSearchPath, repoRootResult.Data, versionFileNames);
         }
 
         if (!versionFileFoundResult)
