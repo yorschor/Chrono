@@ -151,11 +151,12 @@ public class VersionFile
                 return Result.Fail(
                     "Version key not found in YAML file. If you see this... Something major broke. Please file a new issue at github.com/yorschor/chrono");
 
+            // Only the first (top-level) version value is replaced; everything else in the file stays untouched.
             var newText = RegexPatterns.VersionYamlTagRegex.Replace(text, m =>
             {
-                var quote = m.Groups[1].Value;
-                return $"version: {quote}{Version}{quote}";
-            });
+                var quote = m.Groups[2].Value;
+                return $"{m.Groups[1].Value}{quote}{Version}{quote}";
+            }, 1);
 
             File.WriteAllText(path, newText);
             return Result.Ok();
