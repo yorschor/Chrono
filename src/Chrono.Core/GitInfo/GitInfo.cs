@@ -16,6 +16,8 @@ namespace Chrono.Core.GitInfo
     {
         public static IGitInfoProvider Get()
         {
+            // Explicit, CI-agnostic opt-in. Wins over auto-detected providers.
+            if (CheckEnv(GenericEnvProvider.CiVar)) return new GenericEnvProvider();
             if (CheckEnv("GITHUB_REPOSITORY")) return new GitHubProvider();
             if (CheckEnv("GITLAB_CI")) return new GitLabProvider();
             if (CheckEnv("CIRCLECI")) return new CircleCiProvider();
@@ -32,6 +34,53 @@ namespace Chrono.Core.GitInfo
         }
     }
     
+    /// <summary>
+    /// CI-agnostic provider, enabled explicitly by setting CHRONO_CI to any non-empty value. Branch, tag and commit
+    /// come from CHRONO_BRANCH, CHRONO_TAG and CHRONO_COMMIT_SHA. Use it for CI systems without a dedicated
+    /// provider (for example OneDev: map @branch@, @tag@ and @commit_hash@ to these variables).
+    /// CHRONO_COMMIT_SHA and at least one of CHRONO_BRANCH or CHRONO_TAG are required; otherwise loading fails.
+    /// A leading "refs/heads/" or "refs/tags/" is stripped from branch and tag.
+    /// </summary>
+    public class GenericEnvProvider : IGitInfoProvider
+    {
+        public const string CiVar = "CHRONO_CI";
+        public const string BranchVar = "CHRONO_BRANCH";
+        public const string TagVar = "CHRONO_TAG";
+        public const string CommitShaVar = "CHRONO_COMMIT_SHA";
+
+        public string BranchName => StripRef(Read(BranchVar));
+        public string TagName => StripRef(Read(TagVar));
+        public string CommitHash => Read(CommitShaVar);
+        public string CommitShortHash => CommitHash.Length > 7 ? CommitHash.Substring(0, 7) : CommitHash;
+
+        public Result LoadGitInfo(bool allowDirtyRepo, string dirtyRepoPlaceholder = "")
+        {
+            if (string.IsNullOrEmpty(CommitHash))
+            {
+                return Result.Fail($"{CiVar} is set but {CommitShaVar} is empty or missing.");
+            }
+
+            if (string.IsNullOrEmpty(BranchName) && string.IsNullOrEmpty(TagName))
+            {
+                return Result.Fail($"{CiVar} is set but neither {BranchVar} nor {TagVar} is set.");
+            }
+
+            return Result.Ok();
+        }
+
+        private static string Read(string name) => Environment.GetEnvironmentVariable(name) ?? string.Empty;
+
+        private static string StripRef(string value)
+        {
+            foreach (var prefix in new[] { "refs/heads/", "refs/tags/" })
+            {
+                if (value.StartsWith(prefix, StringComparison.Ordinal)) return value.Substring(prefix.Length);
+            }
+
+            return value;
+        }
+    }
+
     public class GitHubProvider : IGitInfoProvider
     {
         public string BranchName => Environment.GetEnvironmentVariable("GITHUB_REF");

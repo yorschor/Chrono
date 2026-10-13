@@ -113,19 +113,33 @@ public class VersionInfo
         var gitSearchDirectory = string.IsNullOrEmpty(rootPath) ? Environment.CurrentDirectory : rootPath;
         var targetVersionFileSearchPath =
             string.IsNullOrEmpty(targetVersionFile) ? gitSearchDirectory : targetVersionFile;
+
+        // With -e the provider is chosen from the environment. A GenericEnvProvider needs no git repository.
+        var gitInfoProvider = useEnvVars ? GitInfo.GitInfo.Get() : new GitRepoProvider();
         var gitDirectory = Repository.Discover(gitSearchDirectory);
+
+        Result<string> versionFileFoundResult;
         if (string.IsNullOrEmpty(gitDirectory))
         {
-            return Result.Fail<VersionInfo>($"Chrono GitVersioning: No git directory found at {gitSearchDirectory}");
-        }
+            if (gitInfoProvider is not GenericEnvProvider)
+            {
+                return Result.Fail<VersionInfo>($"Chrono GitVersioning: No git directory found at {gitSearchDirectory}");
+            }
 
-        var repoRootResult = ResolveRepoRoot(gitDirectory);
-        if (!repoRootResult)
+            versionFileFoundResult = System.IO.File.Exists(targetVersionFileSearchPath)
+                ? Result.Ok(Path.GetFullPath(targetVersionFileSearchPath))
+                : DirectoryHelper.FindUpwards(targetVersionFileSearchPath);
+        }
+        else
         {
-            return Result.Fail<VersionInfo>(repoRootResult);
-        }
+            var repoRootResult = ResolveRepoRoot(gitDirectory);
+            if (!repoRootResult)
+            {
+                return Result.Fail<VersionInfo>(repoRootResult);
+            }
 
-        var versionFileFoundResult = DirectoryHelper.Find(targetVersionFileSearchPath, repoRootResult.Data);
+            versionFileFoundResult = DirectoryHelper.Find(targetVersionFileSearchPath, repoRootResult.Data);
+        }
 
         if (!versionFileFoundResult)
         {
@@ -134,7 +148,6 @@ public class VersionInfo
 
         try
         {
-            var gitInfoProvider = useEnvVars ? GitInfo.GitInfo.Get() : new GitRepoProvider();
             return Result.Ok(new VersionInfo(versionFileFoundResult.Data, gitInfoProvider, allowDirtyRepo, useEnvVars));
         }
         catch (Exception e)
