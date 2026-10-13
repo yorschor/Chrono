@@ -110,6 +110,11 @@ IMPORTANT: Environment that don't exist will be replaced with an empty string!
 
 So use with care! Environments differ between machines and can be modified by the user. If your goal is to have consistent versions across machines it's encouraged to not use them.
 
+TIP: Chrono has no built-in CI build number. To put one in the version (e.g. `1.2.0-ci.42`), map the number your CI provides to any
+environment variable and use it as a placeholder: `versionSchema: '{major}.{minor}.{patch}-ci.{CI_BUILD}+{commitShortHash}'`.
+`{build}` is not the CI number, it is the fourth part of `version:` in the version file.
+Because a missing variable becomes an empty string (`1.2.0-ci.+abc1234`, invalid SemVer), check in your CI job that the resulting version is not empty at that position.
+
 == Delimiter Blocks
 
 When you expect that a variable might be empty, you can use a delimiter block to prevent the version from becoming malformed. Delimiter blocks are defined by the **[Delimiter]** syntax.

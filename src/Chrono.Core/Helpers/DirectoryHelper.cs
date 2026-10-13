@@ -76,6 +76,28 @@ public static class DirectoryHelper
 
 
     /// <summary>
+    /// Finds the version file by walking from <paramref name="startDirectory"/> up to the filesystem root.
+    /// Used when no git repository is available. Same file name matching as <see cref="Find"/>.
+    /// </summary>
+    public static Result<string> FindUpwards(string startDirectory, string targetFileName = "version.yml")
+    {
+        if (string.IsNullOrWhiteSpace(startDirectory) || string.IsNullOrWhiteSpace(targetFileName))
+        {
+            return Result.Fail<string>("Directory path and file name cannot be null or empty!");
+        }
+
+        var candidateNames = GetCandidateFileNames(targetFileName);
+        for (var dir = new DirectoryInfo(Path.GetFullPath(startDirectory)); dir != null; dir = dir.Parent)
+        {
+            var match = dir.EnumerateFiles()
+                .FirstOrDefault(f => candidateNames.Contains(f.Name, StringComparer.OrdinalIgnoreCase));
+            if (match != null) return Result.Ok(match.FullName);
+        }
+
+        return Result.Fail<string>($"No {string.Join(" or ", candidateNames)} present in or above {startDirectory}");
+    }
+
+    /// <summary>
     /// Determines if a directory is a subdirectory of another directory.
     /// </summary>
     /// <param name="baseDir">The base directory.</param>
