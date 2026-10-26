@@ -97,6 +97,30 @@ public class VersionFileNameTest : IDisposable
         Assert.Equal(version, result.Data.VersionFilePath);
     }
 
+    [Fact]
+    public void Get_NonexistentRootPath_FailsWithClearMessage()
+    {
+        Write("version.yml", "7.7.7");
+        var missing = Path.Combine(_dir, "no", "such", "dir");
+
+        var result = VersionInfo.Get(useEnvVars: true, rootPath: missing);
+
+        Assert.False(result.Success);
+        Assert.Contains($"path '{missing}' does not exist", result.Message);
+    }
+
+    [Fact]
+    public void Get_NonexistentTarget_FailsInsteadOfFallingBackToTheNearestParent()
+    {
+        Write("version.yml", "7.7.7");
+        var missing = Path.Combine(_dir, "sub", "missing.yml");
+
+        var result = VersionInfo.Get(useEnvVars: true, rootPath: _dir, targetVersionFile: missing);
+
+        Assert.False(result.Success);
+        Assert.Contains("does not exist", result.Message);
+    }
+
     [Theory]
     [InlineData("sub/component.yml")]
     [InlineData("..\\component.yml")]

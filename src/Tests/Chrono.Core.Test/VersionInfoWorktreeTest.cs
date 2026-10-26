@@ -79,6 +79,17 @@ public class VersionInfoWorktreeTest : IDisposable
         Assert.Equal("1.2.3", result.Data.File.Version);
     }
 
+    [Fact]
+    public void Get_NonexistentTargetInsideRepo_Fails()
+    {
+        var missing = Path.Combine(_mainRepoDirectory, "does", "not", "exist.yml");
+
+        var result = VersionInfo.Get(rootPath: _mainRepoDirectory, targetVersionFile: missing);
+
+        Assert.False(result.Success);
+        Assert.Contains("does not exist", result.Message);
+    }
+
     private static void DeleteDirectory(string directory)
     {
         if (!Directory.Exists(directory))
