@@ -56,4 +56,5 @@ By default the task looks for `version.yml` (also `version.yaml`, case-insensiti
 ----
 
 Several names can be given, separated by `,` or `;`, in order of preference (`component.yml;version.yml`). Only plain file names are allowed, no paths.
-The file nearest to the project wins; if two files are equally near, the name listed first wins. A name ending in `.yml` or `.yaml` also matches the other extension, like `version.yml` matches `version.yaml`; if both exist in the same directory, the name as written wins.
+The file is looked up in the project directory and then in its parent directories, up to the repository root; files in sibling or sub directories are never used.
+The nearest directory wins; if one directory holds several of the listed names, the name listed first wins. A name ending in `.yml` or `.yaml` also matches the other extension, like `version.yml` matches `version.yaml`; if both exist in the same directory, the name as written wins.

@@ -31,8 +31,9 @@ public static class DirectoryHelper
     /// <summary>
     /// Finds a version file whose name is one of <paramref name="targetFileNames"/> (matched case-insensitively)
     /// within the directory hierarchy. Each name is handled like in <see cref="Find(string,string,string)"/>.
-    /// The file nearest to <paramref name="startDirectory"/> wins. If two candidates are equally near, the one whose
-    /// name comes first in the list wins.
+    /// Only <paramref name="startDirectory"/> and its parent directories up to <paramref name="stopDirectory"/> are
+    /// searched; files in sibling or sub directories are ignored. The nearest directory wins. If two candidates are
+    /// in the same directory, the one whose name comes first in the list wins.
     /// </summary>
     /// <param name="startDirectory">The starting directory for the search.</param>
     /// <param name="stopDirectory">The stopping directory for the search.</param>
@@ -45,61 +46,50 @@ public static class DirectoryHelper
         {
             return Result.Fail<string>("Directory paths and file name cannot be null or empty!");
         }
-        startDirectory = Path.GetFullPath(startDirectory);
         var candidateNames = ExpandCandidateFileNames(targetFileNames);
-        var files = Directory.EnumerateFiles(stopDirectory, "*", SearchOption.AllDirectories)
-            .Where(f => candidateNames.Contains(Path.GetFileName(f), StringComparer.OrdinalIgnoreCase));
-        var enumerable = files as string[] ?? files.ToArray();
-
-        if (!enumerable.Any())
+        var start = Path.GetFullPath(startDirectory);
+        if (File.Exists(start))
         {
-            return Result.Fail<string>($"No {string.Join(" or ", candidateNames)} present");
+            start = Path.GetDirectoryName(start);
         }
 
-        Logger.Trace($"Found {enumerable.Length} version file(s)");
-        for (var i = 0; i < enumerable.Length; i++)
+        var stop = TrimDirectory(Path.GetFullPath(stopDirectory));
+        var comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        var trimmedStart = TrimDirectory(start);
+        if (!trimmedStart.Equals(stop, comparison) && !trimmedStart.StartsWith(stop + Path.DirectorySeparatorChar, comparison))
         {
-            Logger.Trace($" \u2514 {i + 1} : {enumerable[i]}");
+            return Result.Fail<string>($"{start} is not inside {stop}");
         }
 
-        if (enumerable.Length == 1)
+        // Only the start directory and its parents up to the stop directory can provide the version file.
+        // A file in a sibling or sub directory belongs to another component and must never win.
+        for (var dir = new DirectoryInfo(start); dir != null; dir = dir.Parent)
         {
-            if (!IsSubdirectory(startDirectory, Path.GetDirectoryName(enumerable[0])))
+            if (dir.Exists)
             {
-                return Result.Ok(enumerable[0]);
+                var match = FirstMatchIn(dir, candidateNames);
+                if (match != null)
+                {
+                    Logger.Trace($"Found version file {match.FullName}");
+                    return Result.Ok(match.FullName);
+                }
             }
 
-            return Result.Fail<string>("The file is in a subdirectory of the start directory.");
+            if (TrimDirectory(dir.FullName).Equals(stop, comparison)) break;
         }
 
-
-        string nearestFile = null;
-        var minDistance = int.MaxValue;
-        var minNameIndex = int.MaxValue;
-
-        foreach (var file in enumerable)
-        {
-            if (IsSubdirectory(startDirectory, Path.GetDirectoryName(file)))
-            {
-                continue;
-            }
-
-            var distance = GetPathDistance(startDirectory, file);
-            Logger.Trace(distance);
-            if (distance < 0) continue;
-
-            // Equally near files: the name that comes first in the list wins.
-            var nameIndex = IndexOfName(candidateNames, Path.GetFileName(file));
-            if (distance > minDistance || (distance == minDistance && nameIndex >= minNameIndex)) continue;
-            minDistance = distance;
-            minNameIndex = nameIndex;
-            nearestFile = file;
-        }
-
-        return nearestFile != null
-            ? Result.Ok(nearestFile)
-            : Result.Fail<string>($"Something went wrong while searching for {string.Join(" or ", candidateNames)}");
+        return Result.Fail<string>($"No {string.Join(" or ", candidateNames)} present in or above {start}");
     }
+
+    private static string TrimDirectory(string path) =>
+        path.Length > 1 ? path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) : path;
+
+    // In one directory the name that comes first in the list wins.
+    private static FileInfo FirstMatchIn(DirectoryInfo dir, string[] candidateNames) =>
+        dir.EnumerateFiles()
+            .Where(f => IndexOfName(candidateNames, f.Name) != int.MaxValue)
+            .OrderBy(f => IndexOfName(candidateNames, f.Name))
+            .FirstOrDefault();
 
     /// <summary>
     /// Splits a user supplied list of version file names (separated by ',' or ';') into single names.
@@ -182,10 +172,7 @@ public static class DirectoryHelper
         var candidateNames = ExpandCandidateFileNames(targetFileNames);
         for (var dir = new DirectoryInfo(Path.GetFullPath(startDirectory)); dir != null; dir = dir.Parent)
         {
-            var match = dir.EnumerateFiles()
-                .Where(f => IndexOfName(candidateNames, f.Name) != int.MaxValue)
-                .OrderBy(f => IndexOfName(candidateNames, f.Name))
-                .FirstOrDefault();
+            var match = FirstMatchIn(dir, candidateNames);
             if (match != null) return Result.Ok(match.FullName);
         }
 

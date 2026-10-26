@@ -68,7 +68,8 @@ Ignores dirty repositories. If a repository is dirty the short hash will be repl
 Name of the version file to use instead of `version.yml`, for example `component.yml`. Several names can be given, separated by `,` or `;`, in order of preference:
 `--file component.yml,version.yml`. Only plain file names are allowed, no paths. Names are matched case-insensitively.
 
-The file nearest to the current directory wins. If two files are equally near, the name listed first wins. A list therefore lets a component
+The version file is looked up in the current directory and then in its parent directories, up to the repository root. Files in sibling or sub directories are never used.
+The nearest directory wins. If one directory holds several of the listed names, the name listed first wins. A list therefore lets a component
 file take precedence while a `version.yml` further up serves as fallback. Without this option the default `version.yml` (also `version.yaml`) is used.
 A name ending in `.yml` or `.yaml` also matches the other extension, like `version.yml` matches `version.yaml`. If both exist in the same directory, the name as written wins.
 
