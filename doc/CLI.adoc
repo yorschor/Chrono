@@ -88,7 +88,10 @@ Print only the numeric portion (e.g. 1.2.3.4), omitting any prerelease tag.
 Read branch, tag and commit from the CI environment instead of the local git repo. Known CI systems are detected automatically; for any other CI set CHRONO_CI=true plus CHRONO_BRANCH and/or CHRONO_TAG and CHRONO_COMMIT_SHA (no git repository needed then, see CI Example). Should be used in most CI scenarios.
 
 * -p, --gitRoot <path> -> 
-Manually specify the Git repository root (defaults to discovering from CWD).
+Manually specify the Git repository root (defaults to discovering from CWD). The path must exist, otherwise the command fails.
+
+* [Target] ->
+Optional path to a directory or version file to start the version file lookup from (defaults to the current directory). The path must exist, otherwise the command fails.
 
 == The Set command
 

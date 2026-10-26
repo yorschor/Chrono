@@ -128,6 +128,16 @@ public class VersionInfo
             return Result.Fail<VersionInfo>($"Chrono GitVersioning: {fileNameCheck.Message}");
         }
 
+        // A path that was passed explicitly must exist, a typo must not silently stamp a version from somewhere else.
+        foreach (var explicitPath in new[] { rootPath, targetVersionFile })
+        {
+            if (!string.IsNullOrEmpty(explicitPath) && !Directory.Exists(explicitPath) &&
+                !System.IO.File.Exists(explicitPath))
+            {
+                return Result.Fail<VersionInfo>($"Chrono GitVersioning: path '{explicitPath}' does not exist");
+            }
+        }
+
         var gitSearchDirectory = string.IsNullOrEmpty(rootPath) ? Environment.CurrentDirectory : rootPath;
         var targetVersionFileSearchPath =
             string.IsNullOrEmpty(targetVersionFile) ? gitSearchDirectory : targetVersionFile;
