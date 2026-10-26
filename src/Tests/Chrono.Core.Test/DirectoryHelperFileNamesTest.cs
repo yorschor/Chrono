@@ -127,6 +127,72 @@ public class DirectoryHelperFileNamesTest : IDisposable
     }
 
     [Fact]
+    public void Find_SiblingComponentFileNeverWins_ParentFallbackIsUsed()
+    {
+        var version = Touch("version.yml");
+        Touch("services", "compA", "component.yml");
+        var start = Path.Combine(_root, "services", "compB");
+        Directory.CreateDirectory(start);
+
+        // The list order would prefer component.yml, but compA is a sibling of compB, not a parent.
+        var result = DirectoryHelper.Find(start, _root, ["component.yml", "version.yml"]);
+
+        Assert.True(result.Success, result.Message);
+        Assert.Equal(version, result.Data);
+    }
+
+    [Fact]
+    public void Find_OnlySiblingHasAFile_Fails()
+    {
+        Touch("services", "compA", "version.yml");
+        var start = Path.Combine(_root, "services", "compB");
+        Directory.CreateDirectory(start);
+
+        Assert.False(DirectoryHelper.Find(start, _root, ["version.yml"]).Success);
+    }
+
+    [Fact]
+    public void Find_FileBelowTheStartDirectory_IsIgnored()
+    {
+        Touch("services", "compA", "version.yml");
+        var start = Path.Combine(_root, "services");
+
+        Assert.False(DirectoryHelper.Find(start, _root, ["version.yml"]).Success);
+    }
+
+    [Fact]
+    public void Find_StartIsAFilePath_SearchesFromItsDirectory()
+    {
+        var version = Touch("version.yml");
+        var component = Touch("svc", "component.yml");
+
+        Assert.Equal(component, DirectoryHelper.Find(component, _root, ["component.yml", "version.yml"]).Data);
+        Assert.Equal(version, DirectoryHelper.Find(component, _root, ["version.yml"]).Data);
+    }
+
+    [Fact]
+    public void Find_StartDoesNotExist_UsesTheNearestExistingParent()
+    {
+        var version = Touch("version.yml");
+        var start = Path.Combine(_root, "not", "there");
+
+        Assert.Equal(version, DirectoryHelper.Find(start, _root, ["version.yml"]).Data);
+    }
+
+    [Fact]
+    public void Find_StartOutsideStop_FailsInsteadOfEscapingTheRoot()
+    {
+        Touch("version.yml");
+        var stop = Path.Combine(_root, "repo");
+        Directory.CreateDirectory(stop);
+
+        var result = DirectoryHelper.Find(_root, stop, ["version.yml"]);
+
+        Assert.False(result.Success);
+        Assert.Contains("is not inside", result.Message);
+    }
+
+    [Fact]
     public void Find_NothingFound_MessageNamesTheRequestedFiles()
     {
         var result = DirectoryHelper.Find(_root, _root, ["component.yml", "other.yml"]);

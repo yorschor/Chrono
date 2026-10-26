@@ -22,14 +22,14 @@ get:version:
 
 For CI systems without a built-in provider, opt in explicitly with `CHRONO_CI` and pass branch, tag and commit through the `CHRONO_*` variables.
 With `CHRONO_CI` set, `-e` needs no git repository. Without one, `version.yml` is searched from the current directory upwards
-(or pass the file path as `[Target]`). Inside a git repository the usual repository search applies. A leading `refs/heads/` or `refs/tags/` is stripped.
+(or pass the file path as `[Target]`). Inside a git repository the version file is looked up in the current directory and its parents up to the repository root. A leading `refs/heads/` or `refs/tags/` is stripped.
 The other `CHRONO_*` variables are ignored unless `CHRONO_CI` is set. If `CHRONO_CI` is set but `CHRONO_COMMIT_SHA` or both
 `CHRONO_BRANCH` and `CHRONO_TAG` are missing, Chrono fails with an error naming the missing variable.
 
 [%autowidth,frame=none,options="header"]
 |===
 | Variable | Meaning
-| CHRONO_CI | Any non-empty value, e.g. `true`. Switches Chrono to the generic provider
+| CHRONO_CI | Any non-empty value, e.g. `true`, switches Chrono to the generic provider. Only presence counts: the value is not interpreted, so `false` or `0` enable it as well. Unset the variable or leave it empty to switch it off
 | CHRONO_BRANCH | Branch name (required unless `CHRONO_TAG` is set)
 | CHRONO_TAG | Tag name (leave empty for branch builds)
 | CHRONO_COMMIT_SHA | Full commit hash (required)
